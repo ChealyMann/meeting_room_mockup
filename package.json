@@ -1,0 +1,19 @@
+{
+  "name": "skills",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "typeui": "node ./node_modules/typeui.sh/dist/cli.js",
+    "typeui:list": "node ./node_modules/typeui.sh/dist/cli.js list -f skill -p antigravity",
+    "typeui:pull": "node ./node_modules/typeui.sh/dist/cli.js pull",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "typeui.sh": "^0.7.1"
+  }
+}

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>National Bank of Cambodia - Meeting Room Booking</title>
+  <link rel="icon" href="assets/nbc-logo.png" type="image/x-icon">
+  
+  <!-- Google Fonts: Poppins (Cafe Style), Kantumruy Pro (Khmer), JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            coffee: {
+              50: '#FDFCFA',
+              100: '#F9F7F5',
+              200: '#E9E3DD',
+              300: '#D8CFC7',
+              400: '#A8988B',
+              500: '#7D6857',
+              600: '#5D4432',
+              700: '#483425',
+              800: '#3E2B1E',
+              900: '#2A1C13'
+            },
+            brand: {
+              50: '#FEF2F2',
+              100: '#FEE2E2',
+              600: '#DC2626',
+              700: '#B91C1C',
+              800: '#991B1B',
+              900: '#7F1D1D',
+              950: '#450A0A'
+            },
+            gold: {
+              300: '#FDE047',
+              400: '#FACC15',
+              500: '#EAB308',
+              600: '#D97706',
+              700: '#B45309'
+            },
+            sidebar: {
+              DEFAULT: '#260707',
+              surface: '#2A0808',
+              hover: '#380B0B',
+              active: '#4F0E0E',
+              border: '#3D0C0C',
+              edge: '#450A0A'
+            },
+            nbcbg: '#F9F7F5',
+            nbccard: '#FFFFFF',
+            nbcstroke: '#E9E3DD'
+          },
+          fontFamily: {
+            sans: ['Poppins', 'Kantumruy Pro', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            heading: ['Poppins', 'Kantumruy Pro', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+            khmer: ['Kantumruy Pro', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Iconify SVG Framework (Stroke-only Lucide icons) -->
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+  
+  <!-- FullCalendar v6 (Pre-built schedule & timeline engine) -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+  <!-- Flowbite JS (Free Tailwind UI Component Library for Offcanvas Drawers & Modals) -->
+  <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+
+  <!-- Vue.js v3 (Reactive UI Engine & TransitionGroup) -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.38/dist/vue.global.prod.js"></script>
+
+  <!-- Anime.js v3.2.2 (Ultra-smooth 60fps micro-animations & layout transitions) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+
+  <!-- Custom Styles and Animations -->
+  <link rel="stylesheet" href="css/styles.css?v=47" />
+  <link rel="stylesheet" href="css/animations.css?v=18" />
+</head>
+<body class="bg-[#F9F7F5] text-[#3E2B1E] min-h-screen flex antialiased selection:bg-[#991B1B] selection:text-white">
+
+  <!-- Mobile Sidebar Backdrop Overlay -->
+  <div id="sidebar-backdrop"></div>
+
+  <!-- Sidebar Layout Mount -->
+  <aside id="app-sidebar" tabindex="-1" aria-labelledby="drawer-sidebar-label"></aside>
+
+  <!-- Main Content Area -->
+  <div id="app-content-wrapper" class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#F9F7F5]">
+    <!-- Topbar Layout Mount -->
+    <header id="app-topbar"></header>
+
+    <!-- Main View Mount Container -->
+    <main id="app-main" class="flex-1 p-3.5 sm:p-5 lg:p-6 xl:px-8 max-w-[1600px] w-full mx-auto space-y-5">
+      <!-- Active view partial renders dynamically here -->
+    </main>
+  </div>
+
+
+  <!-- Modals Layout Mount -->
+  <div id="app-modals"></div>
+
+  <!-- Toast Notifications Removed -->
+
+  <!-- Core Data & Store -->
+  <script src="js/data.js?v=20"></script>
+  <script src="js/store.js?v=21"></script>
+
+  <!-- Layout Partials -->
+  <script src="js/layouts/sidebar.js?v=32"></script>
+  <script src="js/layouts/topbar.js?v=30"></script>
+
+  <script src="js/layouts/toast.js?v=17"></script>
+  <script src="js/layouts/modals.js?v=18"></script>
+
+  <!-- View Partials: Booker -->
+  <script src="js/views/booker/catalog.view.js?v=42"></script>
+  <script src="js/views/booker/other-private.view.js?v=18"></script>
+  <script src="js/views/booker/booking-form.view.js?v=26"></script>
+  <script src="js/views/booker/my-bookings.view.js?v=18"></script>
+  <script src="js/views/booker/booking-details.view.js?v=18"></script>
+  <script src="js/views/booker/receipt.view.js?v=18"></script>
+  <script src="js/views/booker/room-details.view.js?v=24"></script>
+
+  <!-- View Partials: Approver -->
+  <script src="js/views/approver/pitika-queue.view.js?v=18"></script>
+  <script src="js/views/approver/pitika-review.view.js?v=18"></script>
+  <script src="js/views/approver/owner-queue.view.js?v=25"></script>
+  <script src="js/views/approver/owner-review.view.js?v=18"></script>
+
+  <!-- View Partials: IT -->
+  <script src="js/views/it/it-queue.view.js?v=18"></script>
+  <script src="js/views/it/it-assign.view.js?v=18"></script>
+
+  <!-- View Partials: Admin --> 
+  <script src="js/views/admin/create-room.view.js?v=18"></script>
+
+  <!-- App Orchestrator & Router -->
+  <script src="js/app.js?v=31"></script>
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBC Executive Meeting Room Directory | TypeUI Cafe Redesign</title>
+  <meta name="description" content="National Bank of Cambodia Meeting Room Booking catalog built with the TypeUI Cafe Design System, Poppins typography, and NBC Crimson sidebar." />
+  <link rel="stylesheet" href="rooms.css" />
+  <!-- Iconify SVG Framework (Stroke-only Lucide icons) -->
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+</head>
+<body>
+
+  <div class="portal-shell">
+
+    <!-- Mobile Backdrop for Sidebar Drawer -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
+
+    <!-- Impeccable Executive Navigation Sidebar -->
+    <aside class="portal-sidebar" id="portalSidebar" aria-label="Executive Portal Navigation">
+      <div class="sidebar-top">
+        <div class="sidebar-brand">
+          <div class="nbc-logo-badge" aria-hidden="true">NBC</div>
+          <div class="sidebar-brand-text">
+            <h2 class="sidebar-portal-title">NBC Executive</h2>
+            <span class="sidebar-portal-subtitle">Facilities &amp; Assets</span>
+          </div>
+        </div>
+        <div class="sidebar-top-actions">
+          <!-- Desktop Collapse Button (mirrors original) -->
+          <button type="button" class="sidebar-collapse-btn" id="btnCollapseSidebar" aria-label="Collapse Sidebar" title="Collapse sidebar">
+            <span class="iconify" data-icon="lucide:panel-left-close" data-stroke-width="2"></span>
+          </button>
+          <!-- Mobile Close Button (mirrors original) -->
+          <button type="button" class="sidebar-close-btn" id="btnCloseSidebar" aria-label="Close Navigation Menu" title="Close menu">
+            <span class="iconify" data-icon="lucide:x" data-stroke-width="2"></span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav-scroll" aria-label="Sidebar Sections">
+        
+        <!-- Section 1: Main Directory -->
+        <div class="sidebar-nav-group">
+          <div class="sidebar-group-title">Facilities Directory</div>
+          <ul class="sidebar-menu-list">
+            <li>
+              <button type="button" class="sidebar-menu-item active" data-category-jump="all" aria-current="page">
+                <span class="iconify" data-icon="lucide:layout-grid" data-stroke-width="2"></span>
+                <span class="menu-label">All Suites &amp; Rooms</span>
+                <span class="menu-badge">10</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="sidebar-menu-item" data-category-jump="private">
+                <span class="iconify" data-icon="lucide:shield-check" data-stroke-width="2"></span>
+                <span class="menu-label">Executive Boardrooms</span>
+                <span class="menu-badge" style="background: var(--color-purple-subtle); color: var(--color-purple); border-color: var(--color-purple-border);">4 VIP</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="sidebar-menu-item" data-category-jump="large">
+                <span class="iconify" data-icon="lucide:users" data-stroke-width="2"></span>
+                <span class="menu-label">Auditoriums &amp; Halls</span>
+                <span class="menu-badge">20+ Seats</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="sidebar-menu-item" data-category-jump="available">
+                <span class="iconify" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
+                <span class="menu-label">Available Now</span>
+                <span class="menu-badge" style="background: var(--color-success-subtle); color: var(--color-success); border-color: var(--color-success-border);">9 Ready</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Section 2: Building Campuses -->
+        <div class="sidebar-nav-group">
+          <div class="sidebar-group-title">Central Bank Campuses</div>
+          <ul class="sidebar-menu-list">
+            <li>
+              <button type="button" class="sidebar-menu-item" data-building-jump="hq">
+                <span class="iconify" data-icon="lucide:landmark" data-stroke-width="2"></span>
+                <span class="menu-label">Wat Phnom HQ</span>
+                <span class="menu-badge">3 Suites</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="sidebar-menu-item" data-building-jump="it">
+                <span class="iconify" data-icon="lucide:cpu" data-stroke-width="2"></span>
+                <span class="menu-label">IT Innovation Center</span>
+                <span class="menu-badge">3 Suites</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="sidebar-menu-item" data-building-jump="pp">
+                <span class="iconify" data-icon="lucide:building-2" data-stroke-width="2"></span>
+                <span class="menu-label">PP Branch &amp; CBS</span>
+                <span class="menu-badge">2 Suites</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="sidebar-menu-item" data-building-jump="provinces">
+                <span class="iconify" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+                <span class="menu-label">Provincial Branches</span>
+                <span class="menu-badge">2 Suites</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Section 3: Operations & External Systems -->
+        <div class="sidebar-nav-group">
+          <div class="sidebar-group-title">Operations &amp; Systems</div>
+          <ul class="sidebar-menu-list">
+            <li>
+              <a href="index.html" class="sidebar-menu-item">
+                <span class="iconify" data-icon="lucide:activity" data-stroke-width="2"></span>
+                <span class="menu-label">NBC Live Booking App</span>
+                <span class="iconify" data-icon="lucide:arrow-up-right" data-stroke-width="2" style="font-size: 13px; color: var(--text-tertiary); margin-left: auto;"></span>
+              </a>
+            </li>
+            <li>
+              <a href="telemetry.html" class="sidebar-menu-item">
+                <span class="iconify" data-icon="lucide:gauge" data-stroke-width="2"></span>
+                <span class="menu-label">Cloud Telemetry Console</span>
+                <span class="menu-badge" style="background: var(--color-success-subtle); color: var(--color-success); border-color: var(--color-success-border);">Online</span>
+              </a>
+            </li>
+            <li>
+              <button type="button" class="sidebar-menu-item" id="sidebarSecurityBtn">
+                <span class="iconify" data-icon="lucide:key" data-stroke-width="2"></span>
+                <span class="menu-label">Security Clearance</span>
+                <span class="menu-badge">Tier 1 VIP</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Impeccable Utilization Widget -->
+        <div class="sidebar-editorial-widget">
+          <div class="widget-pill-header">
+            <span class="widget-accent-dot"></span>
+            <span>REAL-TIME READINESS</span>
+          </div>
+          <div class="widget-stat-number">9 / 10</div>
+          <div class="widget-stat-desc">Suites operational for immediate VIP &amp; executive reservation.</div>
+          <div class="widget-status-bar">
+            <div class="widget-bar-fill" style="width: 90%;"></div>
+          </div>
+        </div>
+
+      </nav>
+
+      <!-- Sidebar Operator Profile Footer -->
+      <footer class="sidebar-user-footer">
+        <div class="sidebar-user-card">
+          <div class="user-avatar-wrap">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Operator Avatar" class="user-avatar-img" />
+            <span class="user-status-dot"></span>
+          </div>
+          <div class="user-details">
+            <span class="user-name">Central Admin</span>
+            <span class="user-role">Facilities Ops</span>
+          </div>
+          <button type="button" class="user-settings-btn" title="Facilities Settings" aria-label="Facilities Settings">
+            <span class="iconify" data-icon="lucide:sliders-horizontal" data-stroke-width="2"></span>
+          </button>
+        </div>
+      </footer>
+    </aside>
+
+    <!-- Main Content Workspace Area -->
+    <div class="portal-main-column">
+
+      <div class="rooms-app-container">
+
+        <!-- Top Navigation Header -->
+        <header class="rooms-header" role="banner">
+          <div class="header-brand-group">
+            <!-- Desktop Sidebar Toggle (mirrors original) -->
+            <button type="button" class="btn-sidebar-toggle desktop-toggle" id="btnToggleSidebarDesktop" aria-label="Toggle Sidebar" title="Toggle sidebar">
+              <span class="iconify" data-icon="lucide:panel-left" data-stroke-width="2"></span>
+            </button>
+            <!-- Mobile Sidebar Toggle (mirrors original) -->
+            <button type="button" class="btn-sidebar-toggle mobile-toggle" id="btnToggleSidebarMobile" aria-label="Open Navigation Menu" title="Open navigation">
+              <span class="iconify" data-icon="lucide:menu" data-stroke-width="2"></span>
+            </button>
+            <div class="brand-info">
+              <h1 class="brand-name">National Bank of Cambodia</h1>
+              <nav class="brand-breadcrumbs" aria-label="Breadcrumbs">
+                <span>Executive Portal</span>
+                <span>/</span>
+                <span>Facilities &amp; Assets</span>
+                <span>/</span>
+                <span style="color: var(--text-primary);">Meeting Room Directory</span>
+              </nav>
+            </div>
+          </div>
+
+          <div class="header-controls">
+            <!-- Switch between App views -->
+            <div class="nav-tab-group" role="navigation" aria-label="Application View">
+              <a href="rooms.html" class="nav-tab-item active" aria-current="page">
+                <span class="iconify" data-icon="lucide:building-2" data-stroke-width="2"></span>
+                <span>Meeting Rooms</span>
+              </a>
+              <a href="index.html" class="nav-tab-item">
+                <span class="iconify" data-icon="lucide:activity" data-stroke-width="2"></span>
+                <span>Live Schedule</span>
+              </a>
+            </div>
+          </div>
+        </header>
+
+    <!-- Overview Stats Bento Strip -->
+    <section class="overview-bento" aria-label="Room Directory Key Metrics">
+      
+      <article class="metric-bento-card primary">
+        <div class="metric-label-row">
+          <span>Total Facilities</span>
+          <span class="iconify" data-icon="lucide:landmark" data-stroke-width="2"></span>
+        </div>
+        <div class="metric-main-value" id="kpi-total-rooms">10 Suites</div>
+        <div class="metric-subtext">Across 4 central banking zones</div>
+      </article>
+
+      <article class="metric-bento-card success">
+        <div class="metric-label-row">
+          <span>Available Now</span>
+          <span class="iconify" data-icon="lucide:circle" data-stroke-width="2" style="font-size: 10px; color: var(--color-success);"></span>
+        </div>
+        <div class="metric-main-value" id="kpi-available-rooms">9 Ready</div>
+        <div class="metric-subtext">Immediate booking enabled</div>
+      </article>
+
+      <article class="metric-bento-card purple">
+        <div class="metric-label-row">
+          <span>Executive Boardrooms</span>
+          <span class="iconify" data-icon="lucide:shield-check" data-stroke-width="2"></span>
+        </div>
+        <div class="metric-main-value" id="kpi-executive-rooms">4 Private</div>
+        <div class="metric-subtext">Biometric &amp; VIP security clearance</div>
+      </article>
+
+      <article class="metric-bento-card info">
+        <div class="metric-label-row">
+          <span>Total Seating Capacity</span>
+          <span class="iconify" data-icon="lucide:users" data-stroke-width="2"></span>
+        </div>
+        <div class="metric-main-value" id="kpi-capacity-rooms">204 Seats</div>
+        <div class="metric-subtext">From 6-person focus to 60-seat hall</div>
+      </article>
+
+    </section>
+
+    <!-- Sticky Frosted Search & Filter Bar -->
+    <nav class="filter-bar-sticky" aria-label="Room Search and Filters">
+      
+      <!-- Top Row: Global Search Input & Clear Button -->
+      <div class="filter-row-top">
+        <div class="search-field-container">
+          <span class="iconify search-field-icon" data-icon="lucide:search" data-stroke-width="2" aria-hidden="true"></span>
+          <input
+            type="text"
+            id="roomSearchInput"
+            class="search-field-input"
+            placeholder="Search rooms by name, floor, amenities, or department (Ctrl+K or /)..."
+            aria-label="Search rooms"
+          />
+          <button type="button" id="btnClearSearch" class="btn-clear-search" title="Clear Search" aria-label="Clear Search"><span class="iconify" data-icon="lucide:x" data-stroke-width="2"></span></button>
+          <span class="search-shortcut-badge">Ctrl+K</span>
+        </div>
+
+        <!-- Location Filter Segment Buttons -->
+        <div class="location-pills-track" id="locationPillsTrack" role="tablist" aria-label="Filter by Building Location">
+          <!-- Populated dynamically via rooms.js -->
+        </div>
+      </div>
+
+      <!-- Bottom Row: Quick Status Toggles & View Density Switch -->
+      <div class="filter-row-bottom">
+        <div class="tag-toggles-group" role="group" aria-label="Filter Toggles">
+          <button type="button" class="tag-toggle-btn" id="filterAvailableBtn" data-status="available">
+            <span class="iconify" data-icon="lucide:circle" data-stroke-width="2" style="font-size: 10px; color: var(--color-success);"></span>
+            <span>Available Now</span>
+          </button>
+          <button type="button" class="tag-toggle-btn" id="filterSharedBtn" data-status="shared">
+            <span class="iconify" data-icon="lucide:globe" data-stroke-width="2"></span>
+            <span>Shared Public</span>
+          </button>
+          <button type="button" class="tag-toggle-btn" id="filterExecutiveBtn" data-status="private">
+            <span class="iconify" data-icon="lucide:lock" data-stroke-width="2"></span>
+            <span>Executive Private</span>
+          </button>
+          <button type="button" class="tag-toggle-btn" id="filterLargeCapBtn" data-status="large">
+            <span class="iconify" data-icon="lucide:users" data-stroke-width="2"></span>
+            <span>Large (20+ Seats)</span>
+          </button>
+          <button type="button" class="tag-toggle-btn" id="btnResetFilters" style="display: none; border-color: var(--color-danger); color: var(--color-danger);">
+            <span class="iconify" data-icon="lucide:rotate-ccw" data-stroke-width="2"></span>
+            <span>Reset All</span>
+          </button>
+        </div>
+
+        <!-- Density Layout Switch -->
+        <div class="view-layout-toggle" role="group" aria-label="View Layout">
+          <button type="button" class="layout-btn active" id="btnLayoutGrid" title="Bento Card Grid" aria-label="Grid View"><span class="iconify" data-icon="lucide:layout-grid" data-stroke-width="2"></span></button>
+          <button type="button" class="layout-btn" id="btnLayoutList" title="Compact List" aria-label="List View"><span class="iconify" data-icon="lucide:list" data-stroke-width="2"></span></button>
+        </div>
+      </div>
+
+    </nav>
+
+    <!-- Main Room Catalog Content (Grouped by NBC Hierarchy) -->
+    <main class="rooms-catalog-content" id="roomsCatalogContent" aria-live="polite">
+      <!-- Populated dynamically by rooms.js -->
+    </main>
+
+    <!-- Slide-over Room Quick View & Reservation Drawer -->
+    <div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true"></div>
+
+    <aside class="slideover-drawer" id="roomDrawer" role="dialog" aria-modal="true" aria-labelledby="drawerRoomTitle" aria-hidden="true">
+      <header class="drawer-header">
+        <div>
+          <div id="drawerRoomCategory" style="font-size: 11px; font-family: var(--font-mono); color: var(--color-primary); text-transform: uppercase; font-weight: 600; margin-bottom: 2px;">
+            Executive Suite
+          </div>
+          <h2 class="card-room-title" id="drawerRoomTitle" style="font-size: 1.35rem;">Mekong River</h2>
+          <div id="drawerRoomFloor" style="font-size: 12px; color: var(--text-tertiary); font-family: var(--font-mono); margin-top: 2px;">
+            Level 18 - Executive Suite
+          </div>
+        </div>
+        <button type="button" class="drawer-close-btn" id="btnCloseDrawer" aria-label="Close Room Drawer"><span class="iconify" data-icon="lucide:x" data-stroke-width="2"></span></button>
+      </header>
+
+      <div class="drawer-body">
+        
+        <!-- Gallery Preview -->
+        <div class="drawer-gallery-main">
+          <img id="drawerMainImg" src="" alt="Room Full Preview" />
+        </div>
+        <div class="drawer-gallery-thumbs" id="drawerThumbsContainer">
+          <!-- Thumbnails injected dynamically -->
+        </div>
+
+        <!-- Room Metadata Grid -->
+        <div class="specs-capsule-strip" style="background: var(--surface-panel);">
+          <div class="spec-capsule-item">
+            <span class="spec-val" id="drawerCapacity">28 Seats</span>
+            <span class="spec-lbl">Capacity</span>
+          </div>
+          <div class="spec-capsule-item">
+            <span class="spec-val" id="drawerSize">95 m²</span>
+            <span class="spec-lbl">Area Size</span>
+          </div>
+          <div class="spec-capsule-item">
+            <span class="spec-val" id="drawerStatusBadge">Available</span>
+            <span class="spec-lbl">Current State</span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <h3 style="font-size: var(--text-sm); font-weight: 600; color: var(--text-primary);">Room Overview</h3>
+          <p id="drawerDescriptionEn" style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.6;"></p>
+          <p id="drawerDescriptionKh" style="font-size: var(--text-xs); color: var(--text-tertiary); font-style: italic; line-height: 1.6;"></p>
+        </div>
+
+        <!-- Technical Amenities Checklist -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <h3 style="font-size: var(--text-sm); font-weight: 600; color: var(--text-primary);">Installed Technical Amenities</h3>
+          <div class="amenities-tags-grid" id="drawerAmenitiesList">
+            <!-- Amenities chips injected dynamically -->
+          </div>
+        </div>
+
+        <!-- Room Coordinator Profile -->
+        <div id="drawerCoordinatorCard" style="background: var(--surface-base); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; display: flex; align-items: center; gap: 12px;">
+          <img id="drawerCoordAvatar" src="" alt="Coordinator Avatar" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-subtle);" />
+          <div style="display: flex; flex-direction: column;">
+            <span id="drawerCoordName" style="font-size: var(--text-sm); font-weight: 600; color: var(--text-primary);">Coordinator Name</span>
+            <span id="drawerCoordTitle" style="font-size: 11px; color: var(--text-tertiary);">Executive Board Secretary</span>
+            <span id="drawerCoordPhone" style="font-size: 11px; font-family: var(--font-mono); color: var(--color-primary);">Ext. 8801</span>
+          </div>
+        </div>
+
+        <!-- Interactive Reservation Time Slot Simulation -->
+        <div class="booking-slots-section">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <h3 style="font-size: var(--text-sm); font-weight: 600; color: var(--text-primary);">Select Today's Reservation Slot</h3>
+            <span style="font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono);">Instant Hold</span>
+          </div>
+          <div class="slots-grid" id="drawerSlotsGrid">
+            <button type="button" class="slot-btn" data-slot="08:30 AM - 10:00 AM">08:30 - 10:00 AM</button>
+            <button type="button" class="slot-btn booked" disabled>10:00 - 11:30 AM (Reserved)</button>
+            <button type="button" class="slot-btn selected" data-slot="01:30 PM - 03:00 PM">01:30 - 03:00 PM</button>
+            <button type="button" class="slot-btn" data-slot="03:00 PM - 04:30 PM">03:00 - 04:30 PM</button>
+            <button type="button" class="slot-btn" data-slot="04:30 PM - 06:00 PM">04:30 - 06:00 PM</button>
+            <button type="button" class="slot-btn" data-slot="Full Day Session">Full Day VIP</button>
+          </div>
+        </div>
+
+      </div>
+
+      <footer class="drawer-footer">
+        <button type="button" class="btn-inspect" id="btnCancelDrawer" style="flex: 1;">Dismiss</button>
+        <button type="button" class="btn-reserve" id="btnConfirmReservation" style="flex: 2;">
+          <span>Confirm Reservation Slot</span>
+          <span class="iconify" data-icon="lucide:arrow-right" data-stroke-width="2"></span>
+        </button>
+      </footer>
+    </aside>
+
+    <!-- Toast Notification Overlay -->
+    <div class="toast-notice" id="toastNotice" role="status" aria-live="polite">
+      <span class="iconify" data-icon="lucide:check" data-stroke-width="2" style="color: var(--color-success); font-size: 1.1rem;"></span>
+      <span id="toastMessage">Reservation confirmed successfully.</span>
+    </div>
+    <!-- End rooms-app-container -->
+
+  </div>
+  <!-- End portal-main-column -->
+
+</div>
+<!-- End portal-shell -->
+
+  <!-- Data & Application Scripts (Standard scripts compatible with file:/// local double-click and HTTP) -->
+  <script src="rooms-data.js"></script>
+  <script src="rooms.js"></script>
+</body>
+</html>
