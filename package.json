@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "python -m http.server 3000",
+    "dev": "python -m http.server 3000",
     "typeui": "node ./node_modules/typeui.sh/dist/cli.js",
     "typeui:list": "node ./node_modules/typeui.sh/dist/cli.js list -f skill -p antigravity",
     "typeui:pull": "node ./node_modules/typeui.sh/dist/cli.js pull",

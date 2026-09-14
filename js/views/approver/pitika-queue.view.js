@@ -10,109 +10,160 @@ class PitikaQueueView {
     this.approverExpandedRows = new Set();
     this.approverDateFilter = '';
     this.approverRoomTypeFilter = 'all';
+    this.approverDeptFilter = 'all';
     this.approverSearchTerm = '';
     this.approverCurrentPage = 0;
-    this.approverPageSize = 10;
-    this.template = `<!-- Queue Header with View Switcher -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-[#E9E3DD]">
-          <div>
-            <h2 class="font-heading font-bold text-lg text-stone-900 leading-tight">Review Requests</h2>
-            <p class="text-xs text-stone-500 mt-0.5">Review and approve meeting room requests.</p>
-          </div>
+    this.approverTablePageSize = 6;
+    this.approverCardsPageSize = 4;
+    this.approverPageSize = 6;
+    this.template = `<style>
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+      </style>
+      <!-- Executive Queue Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b border-[#E9E3DD]">
+        <div>
+          <h2 class="font-heading font-bold text-xl text-stone-900 leading-tight">Manager Review Requests</h2>
+        </div>
 
-          <!-- View Mode Switcher (Table vs Cards) -->
-          <div class="flex items-center space-x-2 shrink-0">
-            <span class="text-xs text-stone-500 font-medium hidden sm:inline">View:</span>
-            <div class="inline-flex p-1 bg-stone-100 rounded-lg border border-[#E9E3DD]">
-              <button id="approver-view-table-btn" onclick="app.setApproverViewMode('table')" aria-label="Switch to table view" class="px-3 py-1 rounded-md text-xs font-bold transition flex items-center space-x-1.5 bg-white text-stone-900 shadow-2xs">
-                <span class="iconify text-xs text-red-800" data-icon="lucide:table"></span>
-                <span>Table</span>
-              </button>
-              <button id="approver-view-cards-btn" onclick="app.setApproverViewMode('cards')" aria-label="Switch to card view" class="px-3 py-1 rounded-md text-xs font-medium text-stone-500 hover:text-stone-800 transition flex items-center space-x-1.5">
-                <span class="iconify text-xs text-stone-500" data-icon="lucide:layout-grid"></span>
-                <span>Cards</span>
-              </button>
+        <!-- View Mode Switcher -->
+        <div class="flex items-center space-x-1 shrink-0 bg-stone-100 p-0.5 rounded-lg border border-[#E9E3DD]">
+          <button id="approver-view-table-btn" onclick="app.setApproverViewMode('table')" aria-label="Switch to table view" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 flex items-center space-x-1.5 bg-[#991B1B] text-white shadow-2xs cursor-pointer">
+            <span class="iconify text-xs text-white" data-icon="lucide:table" data-stroke-width="2"></span>
+            <span>Table</span>
+          </button>
+          <button id="approver-view-cards-btn" onclick="app.setApproverViewMode('cards')" aria-label="Switch to card view" class="px-3 py-1.5 rounded-md text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-200/50 transition-all duration-150 flex items-center space-x-1.5 cursor-pointer">
+            <span class="iconify text-xs text-stone-500" data-icon="lucide:layout-grid" data-stroke-width="2"></span>
+            <span>Cards</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Executive KPI Overview Strip (Interactive Filter Shortcuts) -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pb-3 border-b border-[#E9E3DD]">
+        <!-- Metric 1: Pending Review -->
+        <div onclick="app.filterApproverRequests('pending')" title="Filter by Pending Review" class="bg-white px-4 py-3.5 rounded-xl border border-[#E9E3DD] hover:border-amber-400 hover:shadow-xs transition flex items-center space-x-3.5 shadow-2xs cursor-pointer select-none">
+          <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-lg text-amber-600" data-icon="lucide:clock" data-stroke-width="2"></span>
+          </div>
+          <div class="min-w-0">
+            <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-1">Action Required</span>
+            <div class="flex items-baseline space-x-1.5">
+              <span id="approver-kpi-pending" class="text-xl sm:text-2xl font-bold font-mono text-stone-900 leading-none">0</span>
+              <span class="text-xs text-stone-500">Pending</span>
             </div>
           </div>
         </div>
 
-        <!-- Daily Productivity Filter Bar -->
-        <div class="space-y-3 bg-white p-3.5 rounded-xl border border-[#E9E3DD] shadow-2xs">
-          
-          <!-- Row 1: Status Tabs -->
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 pb-2.5 border-b border-stone-200/80">
-            <div class="segmented-control w-full sm:w-auto">
-              <div class="segmented-scroll-track">
-                <button id="approver-filter-all" onclick="app.filterApproverRequests('all')" class="segmented-btn active">
-                  <span>All Status</span>
-                  <span id="approver-count-all" class="segmented-badge">3</span>
-                </button>
-                <button id="approver-filter-pending" onclick="app.filterApproverRequests('pending')" class="segmented-btn">
-                  <span>Waiting</span>
-                  <span id="approver-count-pending" class="segmented-badge">1</span>
-                </button>
-                <button id="approver-filter-approved" onclick="app.filterApproverRequests('approved')" class="segmented-btn">
-                  <span>Approved</span>
-                  <span id="approver-count-approved" class="segmented-badge">1</span>
-                </button>
-                <button id="approver-filter-rejected" onclick="app.filterApproverRequests('rejected')" class="segmented-btn">
-                  <span>Rejected</span>
-                  <span id="approver-count-rejected" class="segmented-badge">1</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Total Results Count -->
-            <div id="approver-results-summary" class="text-[11px] text-stone-500 font-medium">
-              Showing <strong id="approver-filtered-count" class="text-stone-800">3</strong> requests
+        <!-- Metric 2: Today's Requests -->
+        <div onclick="app.setApproverQuickDate('today')" title="Filter to Today's Requests" class="bg-white px-4 py-3.5 rounded-xl border border-[#E9E3DD] hover:border-sky-400 hover:shadow-xs transition flex items-center space-x-3.5 shadow-2xs cursor-pointer select-none">
+          <div class="w-11 h-11 rounded-xl bg-sky-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-lg text-sky-600" data-icon="lucide:calendar" data-stroke-width="2"></span>
+          </div>
+          <div class="min-w-0">
+            <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-1">Today's Requests</span>
+            <div class="flex items-baseline space-x-1.5">
+              <span id="approver-kpi-today" class="text-xl sm:text-2xl font-bold font-mono text-stone-900 leading-none">0</span>
+              <span class="text-xs text-stone-500">Scheduled</span>
             </div>
           </div>
-
-          <!-- Row 2: Search, Date Time Filter, Room Type Filter, Reset Button -->
-          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
-            <!-- Search Bar (Span 5) -->
-            <div class="sm:col-span-5 relative">
-              <span class="iconify absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm" data-icon="lucide:search"></span>
-              <input type="text" id="approver-search-input" oninput="app.handleApproverFilterChange()" placeholder="Search requester, room, ID, or title..." class="bank-input pl-9 pr-7 py-2 text-xs w-full bg-stone-50/50 focus:bg-white transition" />
-              <button id="approver-search-clear" onclick="app.clearApproverSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600">
-                <span class="iconify text-xs" data-icon="lucide:x"></span>
-              </button>
-            </div>
-
-            <!-- Date Filter (Span 3) -->
-            <div class="sm:col-span-3 relative">
-              <span class="iconify absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm pointer-events-none" data-icon="lucide:calendar"></span>
-              <input type="date" id="approver-date-filter" oninput="app.handleApproverFilterChange()" onchange="app.handleApproverFilterChange()" aria-label="Filter by date" title="Select date to filter requests" class="bank-input pl-9 pr-8 py-2 text-xs w-full bg-stone-50/50 focus:bg-white transition cursor-pointer font-medium" />
-              <button id="approver-date-clear" onclick="app.clearApproverDateFilter()" title="Clear date filter" class="hidden absolute right-8 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 p-0.5 transition cursor-pointer">
-                <span class="iconify text-xs" data-icon="lucide:x"></span>
-              </button>
-            </div>
-
-            <!-- Room Type Filter (Span 3) -->
-            <div class="sm:col-span-3 relative">
-              <span class="iconify absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm pointer-events-none" data-icon="lucide:building-2"></span>
-              <select id="approver-room-type-filter" onchange="app.handleApproverFilterChange()" aria-label="Filter by room type" class="bank-input pl-9 pr-7 py-2 text-xs w-full bg-stone-50/50 focus:bg-white transition cursor-pointer">
-                <option value="all">All Room Types</option>
-                <option value="public">Public Rooms</option>
-                <option value="private">Private Rooms</option>
-              </select>
-            </div>
-
-            <!-- Reset Button (Span 1) -->
-            <div class="sm:col-span-1 flex justify-end">
-              <button id="approver-reset-btn" onclick="app.resetApproverFilters()" title="Reset all filters" class="w-full min-h-[38px] px-2.5 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold flex items-center justify-center space-x-1 transition border border-stone-200 shadow-2xs">
-                <span class="iconify text-xs" data-icon="lucide:rotate-ccw"></span>
-                <span class="sm:hidden text-xs">Reset</span>
-              </button>
-            </div>
-          </div>
-
         </div>
 
-        <!-- Requests Content (Table or Cards rendered dynamically) -->
-        <div id="view-approver-requests-list" class="space-y-3.5">
-          <!-- Populated dynamically by app.renderApproverRequests() -->
-        </div>`;
+        <!-- Metric 3: Approved -->
+        <div onclick="app.filterApproverRequests('approved')" title="Filter by Approved" class="bg-white px-4 py-3.5 rounded-xl border border-[#E9E3DD] hover:border-emerald-400 hover:shadow-xs transition flex items-center space-x-3.5 shadow-2xs cursor-pointer select-none">
+          <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-lg text-emerald-600" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
+          </div>
+          <div class="min-w-0">
+            <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-1">Approved</span>
+            <div class="flex items-baseline space-x-1.5">
+              <span id="approver-kpi-approved" class="text-xl sm:text-2xl font-bold font-mono text-stone-900 leading-none">0</span>
+              <span class="text-xs text-stone-500">This week</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric 4: All Rooms In Facility -->
+        <div onclick="app.resetApproverFilters()" title="Reset all filters" class="bg-white px-4 py-3.5 rounded-xl border border-[#E9E3DD] hover:border-[#991B1B] hover:shadow-xs transition flex items-center space-x-3.5 shadow-2xs cursor-pointer select-none">
+          <div class="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-lg text-[#991B1B]" data-icon="lucide:door-closed" data-stroke-width="2"></span>
+          </div>
+          <div class="min-w-0">
+            <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-1">Total Rooms</span>
+            <div class="flex items-baseline space-x-1.5">
+              <span id="approver-kpi-rooms" class="text-xl sm:text-2xl font-bold font-mono text-stone-900 leading-none">8</span>
+              <span class="text-xs text-stone-500">In Facility</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Productivity Filter Bar (Organized 12-Column Responsive Grid) -->
+      <div class="grid grid-cols-2 sm:grid-cols-6 lg:grid-cols-12 gap-2.5 w-full items-center">
+        <!-- Search (Col span 3) -->
+        <div class="col-span-2 sm:col-span-6 lg:col-span-3 relative w-full">
+          <span class="iconify absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 text-xs pointer-events-none" data-icon="lucide:search" data-stroke-width="2"></span>
+          <input type="text" id="approver-search-input" oninput="app.handleApproverFilterChange()" placeholder="Search by meeting ID, requester..." class="bank-input pl-8 pr-7 py-1.5 text-xs w-full bg-white transition border border-[#E9E3DD] rounded-lg shadow-2xs focus:border-[#991B1B]" />
+          <button id="approver-search-clear" onclick="app.clearApproverSearch()" title="Clear search" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-[#991B1B] p-0.5 rounded transition cursor-pointer">
+            <span class="iconify text-xs" data-icon="lucide:x" data-stroke-width="2"></span>
+          </button>
+        </div>
+
+        <!-- Room Type Filter (Col span 2) -->
+        <div class="col-span-1 sm:col-span-2 lg:col-span-2 relative w-full">
+          <span class="iconify absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 text-xs pointer-events-none" data-icon="lucide:building-2" data-stroke-width="2"></span>
+          <select id="approver-room-type-filter" onchange="app.handleApproverFilterChange()" aria-label="Filter by room type" class="bank-input pl-8 pr-6 py-1.5 text-xs w-full bg-white transition cursor-pointer border border-[#E9E3DD] rounded-lg shadow-2xs">
+            <option value="all">All Room Types</option>
+            <option value="public">Public Rooms</option>
+            <option value="private">Private Rooms</option>
+          </select>
+        </div>
+
+        <!-- Department Filter (Col span 2) -->
+        <div class="col-span-1 sm:col-span-2 lg:col-span-2 relative w-full">
+          <span class="iconify absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 text-xs pointer-events-none" data-icon="lucide:users" data-stroke-width="2"></span>
+          <select id="approver-dept-filter" onchange="app.handleApproverFilterChange()" aria-label="Filter by department" class="bank-input pl-8 pr-6 py-1.5 text-xs w-full bg-white transition cursor-pointer border border-[#E9E3DD] rounded-lg shadow-2xs">
+            <option value="all">All Departments</option>
+            <option value="Board & Executive Office">Board & Executive Office</option>
+            <option value="General Secretariat">General Secretariat</option>
+            <option value="Policy & Cooperation">Policy & Cooperation</option>
+            <option value="Banking Operations">Banking Operations</option>
+            <option value="Information Technology">Information Technology</option>
+            <option value="Banking Supervision">Banking Supervision</option>
+            <option value="Internal Audit">Internal Audit</option>
+          </select>
+        </div>
+
+        <!-- Date Filter (Col span 2) -->
+        <div class="col-span-1 sm:col-span-2 lg:col-span-2 relative w-full">
+          <span class="iconify absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 text-xs pointer-events-none" data-icon="lucide:calendar" data-stroke-width="2"></span>
+          <input type="date" id="approver-date-filter" oninput="app.handleApproverFilterChange()" onchange="app.handleApproverFilterChange()" class="bank-input pl-8 pr-3 py-1.5 text-xs w-full bg-white transition cursor-pointer font-medium border border-[#E9E3DD] rounded-lg shadow-2xs text-stone-700" />
+        </div>
+
+        <!-- Status Filter (Col span 2) -->
+        <div class="col-span-1 sm:col-span-2 lg:col-span-2 relative w-full">
+          <span class="iconify absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 text-xs pointer-events-none" data-icon="lucide:filter" data-stroke-width="2"></span>
+          <select id="approver-status-filter" onchange="app.handleApproverFilterChange()" aria-label="Filter by status" class="bank-input pl-8 pr-6 py-1.5 text-xs w-full bg-white transition cursor-pointer border border-[#E9E3DD] rounded-lg shadow-2xs">
+            <option value="all">All Status</option>
+            <option value="pending">Waiting Review</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+
+        <!-- Reset Button (Col span 1) -->
+        <div class="col-span-2 sm:col-span-2 lg:col-span-1 w-full">
+          <button id="approver-reset-btn" onclick="app.resetApproverFilters()" title="Reset all filters" class="w-full bg-stone-100 hover:bg-stone-200 text-stone-700 h-[31px] px-2 rounded-lg text-xs font-semibold flex items-center justify-center space-x-1 transition-all cursor-pointer border border-[#E9E3DD] shadow-2xs">
+            <span class="iconify text-xs" data-icon="lucide:rotate-ccw" data-stroke-width="2"></span>
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Requests Content (Table or Cards rendered dynamically) -->
+      <div id="view-approver-requests-list" class="flex flex-col flex-1 min-h-0 mt-2.5">
+        <!-- Populated dynamically by app.renderApproverRequests() -->
+      </div>`;
   }
 
   showToast(title, message, type = 'info') {
@@ -132,7 +183,7 @@ class PitikaQueueView {
   render(container) {
     if (!container) return;
     container.innerHTML = `
-      <div id="view-pitika-queue-content" class="w-full space-y-4">
+      <div id="view-pitika-queue-content" class="w-full h-[calc(100dvh-104px)] flex flex-col space-y-2.5 min-h-0">
         ${this.template}
       </div>
     `;
@@ -140,35 +191,51 @@ class PitikaQueueView {
   }
 
   init() {
+    this._bindAppHandlers();
+
     const searchInput = document.getElementById('approver-search-input');
     const clearBtn = document.getElementById('approver-search-clear');
     if (searchInput && this.approverSearchTerm) {
       searchInput.value = this.approverSearchTerm;
       if (clearBtn) clearBtn.classList.remove('hidden');
     }
+
     const dateInput = document.getElementById('approver-date-filter');
-    const dateClearBtn = document.getElementById('approver-date-clear');
-    if (dateInput) {
-      // Default to today if no filter is set
-      if (!this.approverDateFilter) {
-        const now = new Date();
-        const y = now.getFullYear();
-        const m = String(now.getMonth() + 1).padStart(2, '0');
-        const d = String(now.getDate()).padStart(2, '0');
-        dateInput.value = `${y}-${m}-${d}`;
-        this.approverDateFilter = dateInput.value;
-        if (dateClearBtn) dateClearBtn.classList.remove('hidden');
-      } else {
-        dateInput.value = this.approverDateFilter;
-        if (dateClearBtn) dateClearBtn.classList.toggle('hidden', !this.approverDateFilter);
-      }
+    if (dateInput && this.approverDateFilter) {
+      dateInput.value = this.approverDateFilter;
     }
+
     const typeSelect = document.getElementById('approver-room-type-filter');
     if (typeSelect && this.approverRoomTypeFilter) {
       typeSelect.value = this.approverRoomTypeFilter;
     }
+
+    const deptSelect = document.getElementById('approver-dept-filter');
+    if (deptSelect && this.approverDeptFilter) {
+      deptSelect.value = this.approverDeptFilter;
+    }
+
+    const statusSelect = document.getElementById('approver-status-filter');
+    if (statusSelect && this.approverFilter) {
+      statusSelect.value = this.approverFilter;
+    }
+
+    this._updateViewModeButtons();
     this.approverCurrentPage = 0;
     this.renderApproverRequests();
+  }
+
+  _bindAppHandlers() {
+    if (!window.app) return;
+    window.app.setApproverViewMode = (mode) => this.setApproverViewMode(mode);
+    window.app.handleApproverFilterChange = () => this.handleApproverFilterChange();
+    window.app.clearApproverSearch = () => this.clearApproverSearch();
+    window.app.clearApproverDateFilter = () => this.clearApproverDateFilter();
+    window.app.setApproverQuickDate = (type) => this.setApproverQuickDate(type);
+    window.app.resetApproverFilters = () => this.resetApproverFilters();
+    window.app.filterApproverRequests = (status) => this.filterApproverRequests(status);
+    window.app.goToApproverPage = (page) => this.goToApproverPage(page);
+    window.app.toggleApproverRowExpand = (id) => this.toggleApproverRowExpand(id);
   }
 
   update() {
@@ -177,20 +244,29 @@ class PitikaQueueView {
 
   setApproverViewMode(mode) {
     this.approverViewMode = mode;
-    const tableBtn = document.getElementById('approver-view-table-btn');
-    const cardsBtn = document.getElementById('approver-view-cards-btn');
-    if (tableBtn && cardsBtn) {
-      if (mode === 'table') {
-        tableBtn.className = 'px-3 py-1 rounded-md text-xs font-bold transition flex items-center space-x-1.5 bg-white text-stone-900 shadow-2xs';
-        cardsBtn.className = 'px-3 py-1 rounded-md text-xs font-medium text-stone-500 hover:text-stone-800 transition flex items-center space-x-1.5';
-      } else {
-        cardsBtn.className = 'px-3 py-1 rounded-md text-xs font-bold transition flex items-center space-x-1.5 bg-white text-stone-900 shadow-2xs';
-        tableBtn.className = 'px-3 py-1 rounded-md text-xs font-medium text-stone-500 hover:text-stone-800 transition flex items-center space-x-1.5';
-      }
-    }
+    this.approverCurrentPage = 0;
+    this._updateViewModeButtons();
     this.renderApproverRequests();
   }
 
+  _updateViewModeButtons() {
+    const tableBtn = document.getElementById('approver-view-table-btn');
+    const cardsBtn = document.getElementById('approver-view-cards-btn');
+    if (tableBtn && cardsBtn) {
+      const isTable = this.approverViewMode === 'table';
+      tableBtn.className = isTable
+        ? 'px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 flex items-center space-x-1.5 bg-[#991B1B] text-white shadow-2xs cursor-pointer'
+        : 'px-3 py-1.5 rounded-md text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-200/50 transition-all duration-150 flex items-center space-x-1.5 cursor-pointer';
+      cardsBtn.className = !isTable
+        ? 'px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 flex items-center space-x-1.5 bg-[#991B1B] text-white shadow-2xs cursor-pointer'
+        : 'px-3 py-1.5 rounded-md text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-200/50 transition-all duration-150 flex items-center space-x-1.5 cursor-pointer';
+
+      const tIcon = tableBtn.querySelector('.iconify');
+      const cIcon = cardsBtn.querySelector('.iconify');
+      if (tIcon) tIcon.setAttribute('class', `iconify text-xs ${isTable ? 'text-white' : 'text-stone-500'}`);
+      if (cIcon) cIcon.setAttribute('class', `iconify text-xs ${!isTable ? 'text-white' : 'text-stone-500'}`);
+    }
+  }
 
   toggleApproverRowExpand(requestId) {
     if (this.approverExpandedRows.has(requestId)) {
@@ -201,28 +277,26 @@ class PitikaQueueView {
     this.renderApproverRequests();
   }
 
-
   handleApproverFilterChange() {
     const searchInput = document.getElementById('approver-search-input');
     const clearBtn = document.getElementById('approver-search-clear');
     const dateInput = document.getElementById('approver-date-filter');
-    const dateClearBtn = document.getElementById('approver-date-clear');
     const typeSelect = document.getElementById('approver-room-type-filter');
+    const deptSelect = document.getElementById('approver-dept-filter');
+    const statusSelect = document.getElementById('approver-status-filter');
 
     this.approverSearchTerm = (searchInput?.value || '').trim().toLowerCase();
     if (clearBtn) {
       clearBtn.classList.toggle('hidden', !this.approverSearchTerm);
     }
     this.approverDateFilter = dateInput?.value || '';
-    if (dateClearBtn) {
-      dateClearBtn.classList.toggle('hidden', !this.approverDateFilter);
-    }
     this.approverRoomTypeFilter = typeSelect?.value || 'all';
+    this.approverDeptFilter = deptSelect?.value || 'all';
+    this.approverFilter = statusSelect?.value || 'all';
 
     this.approverCurrentPage = 0;
     this.renderApproverRequests();
   }
-
 
   clearApproverSearch() {
     const searchInput = document.getElementById('approver-search-input');
@@ -231,7 +305,6 @@ class PitikaQueueView {
     searchInput?.focus();
   }
 
-
   clearApproverDateFilter() {
     const dateInput = document.getElementById('approver-date-filter');
     if (dateInput) dateInput.value = '';
@@ -239,50 +312,50 @@ class PitikaQueueView {
     dateInput?.focus();
   }
 
-
-  resetApproverFilters() {
-    this.approverFilter = 'all';
-    this.approverRoomTypeFilter = 'all';
-    this.approverSearchTerm = '';
-
-    const searchInput = document.getElementById('approver-search-input');
-    if (searchInput) searchInput.value = '';
-    const dateInput = document.getElementById('approver-date-filter');
-    if (dateInput) {
+  setApproverQuickDate(type) {
+    if (type === 'today') {
       const now = new Date();
       const y = now.getFullYear();
       const m = String(now.getMonth() + 1).padStart(2, '0');
       const d = String(now.getDate()).padStart(2, '0');
-      dateInput.value = `${y}-${m}-${d}`;
-      this.approverDateFilter = dateInput.value;
+      this.approverDateFilter = `${y}-${m}-${d}`;
+      const dateInput = document.getElementById('approver-date-filter');
+      if (dateInput) dateInput.value = this.approverDateFilter;
     }
+    this.approverCurrentPage = 0;
+    this.renderApproverRequests();
+  }
+
+  resetApproverFilters() {
+    this.approverFilter = 'all';
+    this.approverRoomTypeFilter = 'all';
+    this.approverDeptFilter = 'all';
+    this.approverSearchTerm = '';
+    this.approverDateFilter = '';
+
+    const searchInput = document.getElementById('approver-search-input');
+    if (searchInput) searchInput.value = '';
+    const dateInput = document.getElementById('approver-date-filter');
+    if (dateInput) dateInput.value = '';
     const typeSelect = document.getElementById('approver-room-type-filter');
     if (typeSelect) typeSelect.value = 'all';
+    const deptSelect = document.getElementById('approver-dept-filter');
+    if (deptSelect) deptSelect.value = 'all';
+    const statusSelect = document.getElementById('approver-status-filter');
+    if (statusSelect) statusSelect.value = 'all';
     const clearBtn = document.getElementById('approver-search-clear');
     if (clearBtn) clearBtn.classList.add('hidden');
-    const dateClearBtn = document.getElementById('approver-date-clear');
-    if (dateClearBtn) dateClearBtn.classList.remove('hidden');
-
-    const filterBtns = ['all', 'pending', 'approved', 'rejected'];
-    filterBtns.forEach(f => {
-      const btn = document.getElementById(`approver-filter-${f}`);
-      if (btn) btn.classList.toggle('active', f === 'all');
-    });
 
     this.approverCurrentPage = 0;
     this.renderApproverRequests();
   }
 
-
   filterApproverRequests(status) {
     this.approverFilter = status;
-    const filterBtns = ['all', 'pending', 'approved', 'rejected'];
-    filterBtns.forEach(f => {
-      const btn = document.getElementById(`approver-filter-${f}`);
-      if (btn) {
-        btn.classList.toggle('active', f === status);
-      }
-    });
+    const statusSelect = document.getElementById('approver-status-filter');
+    if (statusSelect) {
+      statusSelect.value = status;
+    }
     this.approverCurrentPage = 0;
     this.renderApproverRequests();
   }
@@ -294,48 +367,36 @@ class PitikaQueueView {
     if (listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-
   renderApproverRequests() {
     const container = document.getElementById('view-approver-requests-list');
     if (!container) return;
 
     const allRequests = bookingStore.getRequests();
 
-    // 1. Calculate Date References (Today, Tomorrow, 7 Days)
+    // 1. Calculate Date References
     const now = new Date();
     const todayStr = now.toISOString().split('T')[0];
-    const tomorrow = new Date(now);
-    tomorrow.setDate(now.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    const nextWeek = new Date(now);
-    nextWeek.setDate(now.getDate() + 7);
-    const nextWeekStr = nextWeek.toISOString().split('T')[0];
 
-    // 2. Status counts for pill badges (reflecting currently selected date, or all if cleared)
-    const baseRequestsForCounts = allRequests.filter(req => {
-      if (!this.approverDateFilter || this.approverDateFilter === 'all') return true;
-      return req.date === this.approverDateFilter;
-    });
+    // 2. Status counts for KPI overview
+    const totalRooms = bookingStore.getRooms ? bookingStore.getRooms().length : (bookingStore.rooms ? bookingStore.rooms.length : 8);
+    const overallPending = allRequests.filter(r => r.status === 'Pending Review' || r.status === 'Pending Manager Review' || r.statusDisplay === 'Pending Review').length;
+    const todayScheduled = allRequests.filter(r => r.date === todayStr).length;
+    const weekApproved = allRequests.filter(r => r.status.includes('Approved') || r.status === 'Pending Room Owner Approval').length;
 
-    const allCount = baseRequestsForCounts.length;
-    const pendingCount = baseRequestsForCounts.filter(r => r.status === 'Pending Review' || r.status === 'Pending Manager Review').length;
-    const approvedCount = baseRequestsForCounts.filter(r => r.status.includes('Approved') || r.status === 'Pending Room Owner Approval').length;
-    const rejectedCount = baseRequestsForCounts.filter(r => r.status === 'Rejected' || r.status === 'Cancelled').length;
+    const kpiPendingEl = document.getElementById('approver-kpi-pending');
+    const kpiTodayEl = document.getElementById('approver-kpi-today');
+    const kpiApprovedEl = document.getElementById('approver-kpi-approved');
+    const kpiRoomsEl = document.getElementById('approver-kpi-rooms');
 
-    const countAllEl = document.getElementById('approver-count-all');
-    const countPendingEl = document.getElementById('approver-count-pending');
-    const countApprovedEl = document.getElementById('approver-count-approved');
-    const countRejectedEl = document.getElementById('approver-count-rejected');
-
-    if (countAllEl) countAllEl.innerText = allCount;
-    if (countPendingEl) countPendingEl.innerText = pendingCount;
-    if (countApprovedEl) countApprovedEl.innerText = approvedCount;
-    if (countRejectedEl) countRejectedEl.innerText = rejectedCount;
+    if (kpiPendingEl) kpiPendingEl.innerText = overallPending;
+    if (kpiTodayEl) kpiTodayEl.innerText = todayScheduled;
+    if (kpiApprovedEl) kpiApprovedEl.innerText = weekApproved;
+    if (kpiRoomsEl) kpiRoomsEl.innerText = totalRooms;
 
     // 3. Filter by Status
     let filtered = allRequests.filter(req => {
       if (this.approverFilter === 'pending') {
-        return req.status === 'Pending Review' || req.status === 'Pending Manager Review';
+        return req.status === 'Pending Review' || req.status === 'Pending Manager Review' || req.statusDisplay === 'Pending Review';
       } else if (this.approverFilter === 'approved') {
         return req.status.includes('Approved') || req.status === 'Pending Room Owner Approval';
       } else if (this.approverFilter === 'rejected') {
@@ -372,17 +433,19 @@ class PitikaQueueView {
       filtered = filtered.filter(req => req.isPrivateRequest || req.room?.isPrivate);
     }
 
-    // Update Result Summary Counter
-    const filteredCountEl = document.getElementById('approver-filtered-count');
-    if (filteredCountEl) filteredCountEl.innerText = filtered.length;
+    // 7. Filter by Department
+    if (this.approverDeptFilter && this.approverDeptFilter !== 'all') {
+      filtered = filtered.filter(req => req.requester?.department === this.approverDeptFilter);
+    }
 
     // Pagination
+    const pageSize = this.approverViewMode === 'cards' ? (this.approverCardsPageSize || 4) : (this.approverTablePageSize || 6);
     const totalItems = filtered.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / this.approverPageSize));
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
     if (this.approverCurrentPage >= totalPages) this.approverCurrentPage = totalPages - 1;
     if (this.approverCurrentPage < 0) this.approverCurrentPage = 0;
-    const startIdx = this.approverCurrentPage * this.approverPageSize;
-    const endIdx = startIdx + this.approverPageSize;
+    const startIdx = this.approverCurrentPage * pageSize;
+    const endIdx = startIdx + pageSize;
     const paginatedItems = filtered.slice(startIdx, endIdx);
 
     // Empty State
@@ -585,21 +648,20 @@ class PitikaQueueView {
     }
 
     // =========================================================================
-    // RENDER MODE B: CARD VIEW (Fallback when user clicks Cards)
+    // RENDER MODE B: CARD VIEW (Exact match to Private Room Owner Review Request card)
     // =========================================================================
     let cardsHtml = paginatedItems.map(req => {
-      const isPending = req.status === 'Pending Review' || req.status === 'Pending Manager Review';
+      const isPending = req.status === 'Pending Review' || req.status === 'Pending Manager Review' || req.statusDisplay === 'Pending Review';
       const isOwnerPending = req.status === 'Pending Room Owner Approval';
+      const isConfirmed = req.status === 'Approved - Confirmed' || req.status === 'Approved' || req.statusDisplay === 'Approved';
       const isSetup = req.status === 'Approved - Setup In Progress';
-      const isConfirmed = req.status === 'Approved - Confirmed';
       const isRejected = req.status === 'Rejected';
       const isCancelled = req.status === 'Cancelled';
-      const isPrivate = req.isPrivateRequest || req.room?.isPrivate;
+      const isConflict = req.status === 'Time Conflict' || req.statusDisplay === 'Time Conflict' || req.hasConflict;
 
       // Check if the scheduled meeting date and time has passed
       let isPassed = false;
       if (req.date) {
-        const now = new Date();
         const endTimeStr = req.endTime || '23:59';
         const meetingEnd = new Date(`${req.date}T${endTimeStr}:00`);
         if (!isNaN(meetingEnd.getTime())) {
@@ -607,107 +669,121 @@ class PitikaQueueView {
         }
       }
 
-      let statusLabel = 'Waiting for Review';
-      if (isConfirmed) statusLabel = 'Confirmed';
-      else if (isRejected) statusLabel = 'Rejected';
-      else if (isCancelled) statusLabel = 'Cancelled';
-      else if (isOwnerPending) statusLabel = 'Sent to Owner';
-      else if (isSetup) statusLabel = 'Setting Up';
+      let statusLabel = 'Waiting Review';
+      let statusIcon = 'lucide:clock';
+      let statusColor = 'text-amber-600';
+
+      if (isConflict) {
+        statusLabel = 'Time Conflict';
+        statusIcon = 'lucide:alert-circle';
+        statusColor = 'text-red-600';
+      } else if (isConfirmed) {
+        statusLabel = 'Approved & Ready';
+        statusIcon = 'lucide:check-circle-2';
+        statusColor = 'text-emerald-600';
+      } else if (isOwnerPending) {
+        statusLabel = 'Waiting Owner';
+        statusIcon = 'lucide:clock';
+        statusColor = 'text-amber-600';
+      } else if (isSetup) {
+        statusLabel = 'Setting Up';
+        statusIcon = 'lucide:settings';
+        statusColor = 'text-blue-600';
+      } else if (isRejected) {
+        statusLabel = 'Rejected';
+        statusIcon = 'lucide:x-circle';
+        statusColor = 'text-red-600';
+      } else if (isCancelled) {
+        statusLabel = 'Cancelled';
+        statusIcon = 'lucide:slash';
+        statusColor = 'text-stone-500';
+      }
+
+      const avatarUrl = req.requester?.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(req.requester?.name || 'Jonathan Vance') + '&background=f3e8ff&color=7e22ce';
+      const roomImgUrl = req.room?.image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80';
+      const roomShortName = (req.room?.name || 'Meeting Room').split(' - ')[0];
+      const floorShort = (req.room?.floor || 'Level 18').split('(')[0].trim();
 
       return `
-        <div class="slate-card p-4 space-y-3 ${isPassed ? 'opacity-60 hover:opacity-100 transition-opacity bg-stone-50/60' : ''}">
-          
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-stone-200 pb-2.5">
-            <div class="flex items-center space-x-2.5">
-              <div class="w-8 h-8 rounded-lg ${isPending ? 'bg-amber-600 text-white' : 'bg-[#2A0808] text-white border border-amber-500/30'} flex items-center justify-center font-bold text-xs shadow-xs">
-                <span class="iconify text-xs" data-icon="${isPrivate ? 'lucide:key' : 'lucide:file-text'}" data-stroke-width="1.8"></span>
+        <div class="bg-white rounded-xl border border-[#E9E3DD] p-3.5 sm:p-4 transition-all duration-150 hover:border-[#D8CFC7] hover:shadow-2xs flex flex-col justify-between ${isPassed ? 'opacity-60 hover:opacity-100' : ''}">
+          <!-- Row 1: Meeting ID + Requester + Clean Status -->
+          <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-stone-100">
+            <div class="flex items-center space-x-2 min-w-0">
+              <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="font-mono font-bold text-xs text-[#991B1B] hover:underline shrink-0 cursor-pointer" title="Open in Review Workspace">
+                ${req.id}
+              </button>
+              <span class="text-stone-300 shrink-0">•</span>
+              <div class="flex items-center space-x-2 min-w-0 truncate">
+                <img src="${avatarUrl}" class="w-6 h-6 rounded-full object-cover border border-[#E9E3DD] shrink-0" style="width: 24px; height: 24px; min-width: 24px;" alt="Avatar" />
+                <span class="text-xs text-stone-800 font-semibold truncate">${req.requester?.name || 'Jonathan Vance'}</span>
               </div>
-              <div>
-                <div class="flex items-center space-x-2">
-                  <span class="font-mono text-[11px] font-bold text-red-950 bg-red-50 px-1.5 py-0.2 rounded border border-red-200">${req.id}</span>
-                  ${isPrivate ? `
-                    <span class="badge-private-room-tag text-[9px] font-bold px-1.5 py-0.2 rounded flex items-center space-x-1">
-                      <span class="iconify" data-icon="lucide:shield-check"></span>
-                      <span>Private Room (Step 1)</span>
-                    </span>
-                  ` : `
-                    <span class="badge-public-room text-[9px] font-bold px-1.5 py-0.2 rounded flex items-center space-x-1">
-                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                      <span>Public Room</span>
-                    </span>
-                  `}
-                  <span class="text-[11px] text-stone-500">From: <strong class="text-stone-800">${req.requester.name}</strong> (${req.requester.department})</span>
+            </div>
+            <div class="shrink-0 flex items-center space-x-1 text-xs font-bold ${statusColor}">
+              <span class="iconify text-xs" data-icon="${statusIcon}" data-stroke-width="2"></span>
+              <span class="whitespace-nowrap text-[11px]">${statusLabel}</span>
+            </div>
+          </div>
+
+          <!-- Row 2: Room Thumbnail + Schedule + Services -->
+          <div class="flex items-center gap-3 py-3">
+            <img src="${roomImgUrl}" class="rounded-lg object-cover border border-[#E9E3DD] shrink-0" style="width: 88px; height: 68px; min-width: 88px; max-width: 88px;" alt="Room" />
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center justify-between gap-1">
+                <h4 class="font-heading font-bold text-xs sm:text-sm text-stone-900 truncate leading-tight" title="${req.room?.name || ''}">${roomShortName}</h4>
+                <div class="flex items-center space-x-1.5 shrink-0 text-[10px] font-bold">
+                  ${req.isPrivateRequest || req.room?.isPrivate ? `<span class="text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200" title="Private Room">Private</span>` : ''}
+                  ${req.needsCatering ? `<span class="text-amber-600 flex items-center space-x-0.5" title="Food / Catering"><span class="iconify text-[11px]" data-icon="lucide:utensils" data-stroke-width="1.8"></span><span>Food</span></span>` : ''}
+                  ${req.needsIT ? `<span class="text-red-600 flex items-center space-x-0.5" title="IT Technician Setup"><span class="iconify text-[11px]" data-icon="lucide:headset" data-stroke-width="1.8"></span><span>IT</span></span>` : ''}
+                  ${req.attendees ? `<span class="text-stone-500 flex items-center space-x-0.5" title="${req.attendees} Attendees"><span class="iconify text-[11px]" data-icon="lucide:users" data-stroke-width="1.8"></span><span>${req.attendees}</span></span>` : ''}
                 </div>
-                <h3 class="font-heading font-bold text-xs sm:text-sm text-stone-900 mt-0.5">${req.meetingTitle}</h3>
               </div>
-            </div>
-
-            <div class="flex items-center space-x-2">
-              <span class="px-2 py-0.5 rounded text-[11px] font-bold ${isConfirmed ? 'badge-approved' : (isRejected ? 'badge-rejected' : (isCancelled ? 'badge-cancelled' : (isOwnerPending ? 'badge-owner-pending' : (isSetup ? 'badge-setup' : 'badge-pending'))))}">
-                ${statusLabel}
-              </span>
-            </div>
-          </div>
-
-          ${isPrivate ? `
-            <div class="px-3 py-1.5 bg-amber-50/60 rounded-lg border-l-4 border-amber-500 text-xs text-amber-950 flex items-center justify-between">
-              <span class="font-semibold text-[11px]">Reason: ${req.privateJustification || req.meetingPurpose}</span>
-              <span class="text-[10px] text-amber-800 font-bold">Owner: ${req.room.roomOwner?.name || 'Executive'}</span>
-            </div>
-          ` : ''}
-
-          <!-- SPECS: Clean divider -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 py-2.5 border-y border-stone-200 text-xs">
-            <div>
-              <span class="text-stone-500 block text-[10px] uppercase font-semibold">Room</span>
-              <strong class="text-stone-900 font-heading">${req.room.name}</strong>
-              <p class="text-[11px] text-stone-500">${req.room.floor}</p>
-            </div>
-            <div>
-              <span class="${isPassed ? 'text-stone-400' : 'text-stone-500'} block text-[10px] uppercase font-semibold">Date & Time</span>
-              <div class="flex items-center space-x-1 ${isPassed ? 'text-stone-500' : 'text-stone-900 font-bold'}">
-                ${isPassed ? '<span class="iconify text-xs text-stone-400 shrink-0" data-icon="lucide:history"></span>' : ''}
-                <span>${req.date}</span>
-              </div>
-              <p class="text-[11px] ${isPassed ? 'text-stone-400' : 'text-stone-500'}">${req.startTime} - ${req.endTime} (${req.attendees} People)</p>
-            </div>
-            <div>
-              <span class="text-stone-500 block text-[10px] uppercase font-semibold">Extra Help</span>
-              <div class="flex items-center space-x-1 mt-0.5">
-                ${req.needsCatering ? `<span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold text-[10px] border border-amber-300 flex items-center space-x-1"><span class="iconify text-[10px]" data-icon="lucide:utensils" data-stroke-width="1.8"></span><span>Food</span></span>` : ''}
-                ${req.needsIT ? `<span class="px-1.5 py-0.5 rounded bg-red-100 text-red-900 font-semibold text-[10px] border border-red-300 flex items-center space-x-1"><span class="iconify text-[10px]" data-icon="lucide:headset" data-stroke-width="1.8"></span><span>IT Help</span></span>` : ''}
-                ${!req.needsCatering && !req.needsIT ? `<span class="text-stone-400">None</span>` : ''}
+              <div class="text-[11px] text-stone-500 truncate mt-0.5">${floorShort}${req.meetingTitle ? ` • <span class="text-stone-700 font-medium">${req.meetingTitle}</span>` : ''}</div>
+              <div class="flex items-center space-x-1.5 text-xs font-mono font-medium text-stone-700 pt-1">
+                <span class="inline-flex items-center space-x-1">
+                  <span class="iconify text-xs text-[#D97706]" data-icon="lucide:calendar" data-stroke-width="2"></span>
+                  <span>${req.date}</span>
+                </span>
+                <span class="text-stone-300">•</span>
+                <span class="inline-flex items-center space-x-1 font-semibold text-stone-900">
+                  <span class="iconify text-xs text-[#D97706]" data-icon="lucide:clock" data-stroke-width="2"></span>
+                  <span>${req.startTime}–${req.endTime}</span>
+                </span>
               </div>
             </div>
           </div>
 
-          <div class="flex items-center justify-between pt-0.5">
-            <span class="text-[11px] text-stone-500">Sent on ${req.submissionTimestamp}</span>
-            <div class="flex items-center space-x-2">
-              ${isPassed ? `
-                <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="min-h-[30px] px-3.5 py-1.5 rounded-md text-xs font-semibold bg-white hover:bg-stone-100 text-stone-600 border border-[#E9E3DD] shadow-2xs transition inline-flex items-center space-x-1.5 cursor-pointer">
-                  <span class="iconify text-xs text-stone-400" data-icon="lucide:eye" data-stroke-width="1.8"></span>
-                  <span>View</span>
-                </button>
-              ` : `
-                <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="btn-primary min-h-[30px] px-3.5 py-1.5 rounded-md text-xs font-bold transition flex items-center space-x-1.5 shadow-xs cursor-pointer">
-                  <span class="iconify text-xs text-white" data-icon="lucide:eye" data-stroke-width="1.8"></span>
-                  <span>View</span>
-                </button>
-              `}
-            </div>
+          <!-- Row 3: Action Buttons -->
+          <div class="pt-2.5 border-t border-stone-100 flex items-center gap-2">
+            <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="w-full ${isPassed ? 'btn-secondary text-stone-600' : 'btn-primary text-white'} min-h-[34px] h-[34px] px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-1 cursor-pointer active:scale-[0.98]">
+              <span class="iconify ${isPassed ? 'text-stone-500' : 'text-white'} text-xs" data-icon="lucide:eye" data-stroke-width="2"></span>
+              <span>${isPassed ? 'View Details' : 'View Decision'}</span>
+            </button>
           </div>
-
         </div>
       `;
     }).join('');
 
+    // Wrap cards in a 2-column grid matching Private Room Owner cards
+    let finalHtml = `
+      <div class="flex flex-col flex-1 min-h-0">
+        <div class="flex-1 overflow-y-auto hide-scrollbar pb-4 pr-1">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            ${cardsHtml}
+          </div>
+        </div>
+    `;
+
     // Pagination Controls for Card View
-    if (totalPages > 1) {
-      cardsHtml += this._renderPaginationControls(totalPages, totalItems, startIdx, endIdx);
+    if (totalItems > 0) {
+      finalHtml += `
+        <div class="shrink-0 mt-auto pt-2 relative z-20">
+          ${this._renderPaginationControls(totalPages, totalItems, startIdx, endIdx)}
+        </div>
+      `;
     }
 
-    container.innerHTML = cardsHtml;
+    finalHtml += `</div>`;
+    container.innerHTML = finalHtml;
   }
 
   _renderPaginationControls(totalPages, totalItems, startIdx, endIdx) {
@@ -717,19 +793,21 @@ class PitikaQueueView {
     let pageButtons = '';
     for (let i = 0; i < totalPages; i++) {
       const isActive = i === currentPage;
-      pageButtons += `<button type="button" onclick="app.goToApproverPage(${i})" class="min-w-[32px] h-8 px-2 rounded-lg text-[12px] font-semibold transition ${isActive ? 'border border-red-800 text-red-900 bg-transparent font-bold' : 'border border-stone-200 bg-transparent text-stone-600 hover:border-stone-400'}">${i + 1}</button>`;
+      pageButtons += `<button type="button" onclick="app.goToApproverPage(${i})" class="min-w-[28px] h-7 px-2 rounded-md text-xs font-bold transition-all duration-150 flex items-center justify-center ${isActive ? 'btn-primary shadow-2xs text-white' : 'btn-secondary text-stone-700 shadow-2xs cursor-pointer active:scale-[0.98]'}">${i + 1}</button>`;
     }
 
     return `
-      <div class="flex items-center justify-between pt-3 mt-1">
-        <span class="text-[11px] text-stone-500 font-medium">Showing <strong class="text-stone-800">${startIdx + 1}–${showingEnd}</strong> of <strong class="text-stone-800">${totalItems}</strong> requests</span>
+      <div class="flex items-center justify-between pt-2 mt-0.5">
+        <span class="text-[11px] text-stone-500 font-medium">Showing <strong class="text-stone-800 font-semibold">${startIdx + 1}–${showingEnd}</strong> of <strong class="text-stone-800 font-semibold">${totalItems}</strong> requests</span>
         <div class="flex items-center space-x-1.5">
-          <button type="button" onclick="app.goToApproverPage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''} class="h-8 px-2.5 rounded-lg border border-stone-200 bg-transparent text-stone-600 text-[12px] font-medium transition ${currentPage === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:border-stone-400 cursor-pointer'}">
-            <span class="iconify text-[13px]" data-icon="lucide:chevron-left"></span>
+          <button type="button" onclick="app.goToApproverPage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''} aria-label="Previous page" class="btn-secondary h-7 px-2.5 rounded-md text-xs font-medium transition-all duration-150 shadow-2xs flex items-center space-x-1 ${currentPage === 0 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}">
+            <span class="iconify text-xs" data-icon="lucide:chevron-left" data-stroke-width="2"></span>
+            <span>Prev</span>
           </button>
           ${pageButtons}
-          <button type="button" onclick="app.goToApproverPage(${currentPage + 1})" ${currentPage >= totalPages - 1 ? 'disabled' : ''} class="h-8 px-2.5 rounded-lg border border-stone-200 bg-transparent text-stone-600 text-[12px] font-medium transition ${currentPage >= totalPages - 1 ? 'opacity-40 cursor-not-allowed' : 'hover:border-stone-400 cursor-pointer'}">
-            <span class="iconify text-[13px]" data-icon="lucide:chevron-right"></span>
+          <button type="button" onclick="app.goToApproverPage(${currentPage + 1})" ${currentPage >= totalPages - 1 ? 'disabled' : ''} aria-label="Next page" class="btn-secondary h-7 px-2.5 rounded-md text-xs font-medium transition-all duration-150 shadow-2xs flex items-center space-x-1 ${currentPage >= totalPages - 1 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}">
+            <span>Next</span>
+            <span class="iconify text-xs" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
           </button>
         </div>
       </div>

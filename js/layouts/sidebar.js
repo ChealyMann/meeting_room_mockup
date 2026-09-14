@@ -136,6 +136,17 @@ window.NBC.layouts.sidebar = {
                 1
               </span>
             </button>
+
+            <button
+              id="nav-room-availability"
+              onclick="app.navigateTo('room-availability')"
+              class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-left cursor-pointer"
+            >
+              <div class="flex items-center space-x-2.5">
+                <span class="iconify text-sm" data-icon="lucide:calendar-range"></span>
+                <span>Room Availability</span>
+              </div>
+            </button>
           </div>
 
           <div class="space-y-1">
@@ -334,6 +345,7 @@ window.NBC.layouts.sidebar = {
       receipt: 'nav-my-bookings',
       'pitika-queue': 'nav-pitika-queue',
       'pitika-review': 'nav-pitika-queue',
+      'room-availability': 'nav-room-availability',
       'room-owner-queue': 'nav-room-owner-queue',
       'room-owner-review': 'nav-room-owner-queue',
       'it-queue': 'nav-it-queue',
@@ -345,6 +357,7 @@ window.NBC.layouts.sidebar = {
       'nav-book-room',
       'nav-my-bookings',
       'nav-pitika-queue',
+      'nav-room-availability',
       'nav-room-owner-queue',
       'nav-it-queue',
       'nav-create-room'
