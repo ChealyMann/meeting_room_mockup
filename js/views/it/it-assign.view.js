@@ -67,7 +67,7 @@ class ITAssignView {
   }
 
 
-  renderITAssignPage(ticketId) {
+  _legacyRenderITAssignPage(ticketId) {
     const container = document.getElementById('view-it-assign');
     if (!container) return;
 
@@ -88,7 +88,7 @@ class ITAssignView {
     container.innerHTML = `
       <!-- Top Action Breadcrumb Bar -->
       <div class="flex items-center justify-between pb-2 border-b border-[#E9E3DD]">
-        <button type="button" onclick="app.navigateTo('it-queue')" class="px-3 py-1.5 rounded-lg bg-white hover:bg-stone-100 text-stone-700 border border-[#E9E3DD] text-xs font-semibold flex items-center space-x-1.5 transition shadow-2xs">
+        <button type="button" onclick="app.navigateTo('it-queue')" class="page-back-button px-3 py-1.5 rounded-lg bg-white hover:bg-stone-100 text-stone-700 border border-[#E9E3DD] text-xs font-semibold flex items-center space-x-1.5 transition shadow-2xs">
           <span class="iconify text-stone-500 text-sm" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
           <span>IT Tickets Queue</span>
         </button>
@@ -191,18 +191,8 @@ class ITAssignView {
           }).join('')}
         </div>
 
-        <!-- Setup Time & Notes -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-          <div class="form-field-group">
-            <label class="form-label text-xs"><span>Setup Time Before Meeting</span></label>
-            <select id="it-prep-time-select" class="bank-input text-xs">
-              <option value="15 mins before meeting">15 mins before meeting (Quick)</option>
-              <option value="30 mins before meeting" selected>30 mins before meeting (Standard)</option>
-              <option value="45 mins before meeting">45 mins before meeting (VIP)</option>
-              <option value="1 hour before meeting">1 hour before meeting (Full Test)</option>
-            </select>
-          </div>
-
+        <!-- Notes for IT Staff -->
+        <div class="grid grid-cols-1 gap-3 pt-2">
           <div class="form-field-group">
             <label class="form-label text-xs"><span>Notes for IT Staff</span></label>
             <input type="text" id="it-technician-notes" onkeydown="if(event.key==='Enter'){event.preventDefault();}" placeholder="e.g. Check HDMI adapter and wireless mics." value="${ticket.itDetails?.technicianNotes || ''}" class="bank-input text-xs" />
@@ -224,6 +214,175 @@ class ITAssignView {
     `;
   }
 
+
+  renderITAssignPage(ticketId) {
+    const container = document.getElementById('view-it-assign');
+    if (!container) return;
+
+    const ticket = bookingStore.getRequestById(ticketId) || this.selectedRequestForIT;
+    if (!ticket) {
+      container.innerHTML = `
+        <div class="py-12 text-center bg-white rounded-2xl border border-[#E9E3DD]">
+          <span class="iconify text-2xl text-stone-400" data-icon="lucide:ticket-x" data-stroke-width="1.8"></span>
+          <p class="mt-3 text-xs font-semibold text-stone-800">IT ticket not found.</p>
+          <button type="button" onclick="app.navigateTo('it-queue')" class="mt-4 btn-primary px-4 py-2 rounded-lg text-xs font-bold">Back to IT Queue</button>
+        </div>
+      `;
+      return;
+    }
+
+    this.selectedRequestForIT = ticket;
+    const count = this.selectedITStaffIds.size;
+    const requestedItems = ticket.itDetails?.requestedItems || [];
+    const staff = bookingStore.itStaff || [];
+
+    container.innerHTML = `
+      <style>
+        .it-assign-scroll::-webkit-scrollbar { display: none; }
+        .it-assign-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+      </style>
+      <div class="it-assign-shell w-full h-[calc(100dvh-170px)] flex flex-col min-h-0">
+        <div class="shrink-0 flex items-center justify-between gap-3 pb-3 border-b border-[#E9E3DD]">
+          <div class="flex items-center gap-3 min-w-0">
+            <button type="button" onclick="app.navigateTo('it-queue')" aria-label="Back to IT queue" class="page-back-button h-8 px-3 rounded-md bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 text-[13px] font-medium flex items-center space-x-1.5 transition shadow-2xs shrink-0 cursor-pointer">
+              <span class="iconify text-stone-400 text-sm" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+              <span>IT Queue</span>
+            </button>
+            <div class="page-breadcrumb flex items-center gap-1.5 min-w-0 truncate">
+              <span class="font-mono text-[11px] text-stone-500 shrink-0">${ticket.id}</span>
+              <span class="breadcrumb-separator">/</span>
+              <h2 class="breadcrumb-current font-heading truncate">Assign IT Staff</h2>
+            </div>
+          </div>
+          <span class="inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 shrink-0">
+            <span class="iconify text-sm" data-icon="lucide:clock" data-stroke-width="2"></span>
+            <span>Awaiting assignment</span>
+          </span>
+        </div>
+
+        <div class="it-assign-scroll flex-1 overflow-y-auto pb-5 pt-4">
+        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-4">
+          <section class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-5 shadow-xs">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="w-8 h-8 rounded-lg bg-[#F4EFEA] text-[#991B1B] flex items-center justify-center">
+                <span class="iconify text-sm" data-icon="lucide:calendar-days" data-stroke-width="2"></span>
+              </span>
+              <h3 class="font-heading font-semibold text-base text-stone-900">Meeting request</h3>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] p-3">
+                <span class="text-[10px] font-semibold uppercase tracking-wide text-stone-500">Meeting & time</span>
+                <strong class="block mt-1 text-sm font-semibold text-stone-900 truncate" title="${ticket.meetingTitle || ''}">${ticket.meetingTitle || 'Meeting'}</strong>
+                <span class="mt-1 flex items-center gap-1.5 text-xs font-mono text-stone-600">
+                  <span class="iconify text-[#991B1B]" data-icon="lucide:calendar" data-stroke-width="2"></span>
+                  <span>${ticket.date} · ${ticket.startTime}–${ticket.endTime}</span>
+                </span>
+              </div>
+              <div class="rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] p-3">
+                <span class="text-[10px] font-semibold uppercase tracking-wide text-stone-500">Room</span>
+                <strong class="block mt-1 text-sm font-semibold text-stone-900 truncate" title="${ticket.room?.name || ''}">${ticket.room?.name || 'Meeting room'}</strong>
+                <span class="mt-1 flex items-center gap-1.5 text-xs text-stone-600 truncate">
+                  <span class="iconify text-[#991B1B]" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+                  <span>${ticket.room?.floor || ''}</span>
+                </span>
+              </div>
+              <div class="rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] p-3 sm:col-span-2">
+                <span class="text-[10px] font-semibold uppercase tracking-wide text-stone-500">Booked by</span>
+                <div class="mt-1 flex items-center justify-between gap-3">
+                  <strong class="text-sm font-semibold text-stone-900 truncate">${ticket.requester?.name || 'Staff member'}</strong>
+                  <span class="flex items-center gap-1.5 text-xs text-stone-600 font-mono shrink-0">
+                    <span class="iconify text-stone-400" data-icon="lucide:phone" data-stroke-width="2"></span>
+                    <span>${ticket.requester?.phone || 'Internal extension'}</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-[#E9E3DD]">
+              <div class="flex items-center justify-between gap-3 mb-2.5">
+                <h3 class="font-heading font-semibold text-sm text-stone-900">Equipment needed</h3>
+                <span class="text-[11px] text-emerald-700 font-medium inline-flex items-center gap-1">
+                  <span class="iconify text-xs" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
+                  <span>${requestedItems.length} requested</span>
+                </span>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                ${requestedItems.length ? requestedItems.map(item => `
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50/60 border border-emerald-200/70 text-[11px] font-medium text-stone-800">
+                    <span class="w-3.5 h-3.5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                      <span class="iconify text-[9px]" data-icon="lucide:check" data-stroke-width="2.5"></span>
+                    </span>
+                    <span>${item}</span>
+                  </span>
+                `).join('') : '<span class="text-xs text-stone-500">Standard room equipment</span>'}
+              </div>
+              ${ticket.itDetails?.specialRequirements ? `
+                <div class="mt-3 flex items-start gap-1.5 text-xs text-stone-600">
+                  <span class="iconify text-stone-400 mt-0.5" data-icon="lucide:message-square" data-stroke-width="2"></span>
+                  <span><strong class="font-semibold text-stone-800">Note:</strong> ${ticket.itDetails.specialRequirements}</span>
+                </div>
+              ` : ''}
+            </div>
+          </section>
+
+          <section class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-5 shadow-xs flex flex-col">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-baseline gap-2">
+                <h3 class="font-heading font-semibold text-base text-stone-900">Select IT staff</h3>
+                <span class="text-xs text-stone-500">${count} selected</span>
+              </div>
+              <button type="button" onclick="app.toggleSelectAllITStaff()" class="btn-secondary h-8 px-3 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition active:scale-[0.98]">
+                <span class="iconify text-xs" data-icon="lucide:users-round" data-stroke-width="2"></span>
+                <span>Select all</span>
+              </button>
+            </div>
+
+            <div id="it-staff-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-4">
+              ${staff.length ? staff.map(item => {
+                const isSelected = this.selectedITStaffIds.has(item.id);
+                let specialty = 'General IT';
+                if ((item.title || '').toLowerCase().includes('audio')) specialty = 'Audio & Video';
+                else if ((item.title || '').toLowerCase().includes('network')) specialty = 'Network & Wi-Fi';
+                else if ((item.title || '').toLowerCase().includes('senior')) specialty = 'Lead Support';
+
+                return `
+                  <button type="button" onclick="app.toggleITStaffCard('${item.id}')" id="it-card-${item.id}" aria-pressed="${isSelected}" class="it-staff-card w-full p-3 rounded-xl bg-white border border-[#E9E3DD] hover:border-[#D8CFC7] cursor-pointer flex items-center justify-between text-left select-none transition shadow-2xs ${isSelected ? 'selected' : ''}">
+                    <span class="flex items-center gap-3 min-w-0">
+                      <img src="${item.avatar || ''}" alt="" class="w-10 h-10 rounded-full object-cover border border-stone-200 shrink-0" />
+                      <span class="min-w-0">
+                        <strong class="block font-heading text-sm font-semibold text-stone-900 truncate">${item.name}</strong>
+                        <span class="block text-[11px] text-stone-500 truncate">${specialty} · ${item.phone || 'Internal extension'}</span>
+                      </span>
+                    </span>
+                    <span class="w-5 h-5 rounded-md border border-stone-300 flex items-center justify-center shrink-0 ml-2 ${isSelected ? 'bg-[#991B1B] border-[#991B1B] text-white' : 'bg-white text-transparent'}">
+                      <span class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
+                    </span>
+                  </button>
+                `;
+              }).join('') : '<p class="text-xs text-stone-500 sm:col-span-2">No IT staff available.</p>'}
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-[#E9E3DD] grid grid-cols-1 gap-3">
+              <div>
+                <label for="it-technician-notes" class="form-label text-xs">Notes for IT staff</label>
+                <input type="text" id="it-technician-notes" onkeydown="if(event.key==='Enter'){event.preventDefault();}" placeholder="Add a setup note" value="${ticket.itDetails?.technicianNotes || ''}" class="bank-input text-xs w-full" />
+              </div>
+            </div>
+
+          </section>
+        </div>
+      </div>
+        <div class="shrink-0 pt-3 pb-1 border-t border-[#E9E3DD] bg-[#F9F7F5] flex items-center justify-end gap-2">
+          <button type="button" onclick="app.navigateTo('it-queue')" class="btn-secondary h-9 px-4 rounded-lg text-xs font-semibold transition active:scale-[0.98]">Cancel</button>
+          <button type="button" onclick="app.confirmITAssignment()" class="btn-primary h-9 px-4 rounded-lg text-xs font-bold flex items-center gap-1.5 transition active:scale-[0.98]">
+            <span class="iconify text-xs text-white" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
+            <span>Assign ${count} staff</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
 
   toggleITStaffCard(staffId) {
     if (this.selectedITStaffIds.has(staffId)) {
@@ -261,7 +420,7 @@ class ITAssignView {
     }
 
     const staffIds = Array.from(this.selectedITStaffIds);
-    const prepTime = document.getElementById('it-prep-time-select')?.value || '30 mins before meeting';
+    const prepTime = '30 mins before meeting';
     const itNotes = document.getElementById('it-technician-notes')?.value.trim() || '';
 
     bookingStore.assignITStaff(this.selectedRequestForIT.id, { staffIds, prepTime, itNotes });

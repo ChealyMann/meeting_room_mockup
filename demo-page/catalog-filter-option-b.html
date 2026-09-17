@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBC Room Catalog - Option B: Two-Tier Studio Deck</title>
+  
+  <!-- Fonts: Poppins, Kantumruy Pro, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN with NBC Cafe Design System Tokens -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            coffee: {
+              50: '#FDFCFA',
+              100: '#F9F7F5',
+              200: '#E9E3DD',
+              300: '#D8CFC7',
+              400: '#A8988B',
+              500: '#7D6857',
+              600: '#5D4432',
+              700: '#483425',
+              800: '#3E2B1E',
+              900: '#2A1C13'
+            },
+            brand: {
+              50: '#FEF2F2',
+              100: '#FEE2E2',
+              600: '#DC2626',
+              700: '#B91C1C',
+              800: '#991B1B',
+              900: '#7F1D1D',
+              950: '#450A0A'
+            },
+            sidebar: {
+              DEFAULT: '#260707',
+              surface: '#2A0808',
+              hover: '#380B0B',
+              active: '#4F0E0E',
+              border: '#3D0C0C',
+              edge: '#450A0A'
+            }
+          },
+          fontFamily: {
+            sans: ['Poppins', '-apple-system', 'sans-serif'],
+            heading: ['Poppins', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Iconify SVG Framework (Stroke-only Lucide icons) -->
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+  
+  <!-- Vue 3 CDN for live demo interactivity -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.38/dist/vue.global.prod.js"></script>
+
+  <style>
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #D6CCC2; border-radius: 9999px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Segmented Glider Pills Track */
+    #building-pills-track {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem;
+      background-color: #E9E3DD;
+      border-radius: 9999px;
+      border: 1px solid #D8CFC7;
+      user-select: none;
+    }
+    .glider-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      color: #57534E;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .glider-pill-btn:hover:not(.active) {
+      color: #1C1917;
+      background-color: rgba(255, 255, 255, 0.55);
+    }
+    .glider-pill-btn.active {
+      background-color: #991B1B;
+      color: #FFFFFF;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(153, 27, 27, 0.28);
+    }
+
+    /* Status Toggle Chips */
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      background-color: #FFFFFF;
+      border: 1px solid #E9E3DD;
+      color: #6F5849;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .status-chip:hover:not(.active) {
+      background-color: #F4EFEA;
+      border-color: #D8CFC7;
+      color: #3E2B1E;
+    }
+    .status-chip.active {
+      background-color: #991B1B;
+      border-color: #991B1B;
+      color: #FFFFFF;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(153, 27, 27, 0.28);
+    }
+    .status-chip.active .iconify {
+      color: #FFFFFF !important;
+    }
+  </style>
+</head>
+<body class="bg-[#F9F7F5] text-[#3E2B1E] min-h-screen antialiased flex flex-col">
+
+  <!-- Demo Switcher Top Bar -->
+  <header class="bg-[#260707] border-b border-[#3D0C0C] text-white px-4 py-2.5 sticky top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-lg bg-[#3D0C0C] border border-[#450A0A] flex items-center justify-center text-[#FACC15]">
+          <span class="iconify" data-icon="lucide:sliders-horizontal" data-stroke-width="2"></span>
+        </span>
+        <div>
+          <span class="text-xs font-mono uppercase tracking-wider text-amber-300 font-semibold">Demo Review</span>
+          <h1 class="text-sm font-bold text-white leading-tight">Option B: Two-Tier Studio Deck</h1>
+        </div>
+      </div>
+      
+      <!-- Option Switcher Links -->
+      <nav class="flex items-center gap-2">
+        <span class="text-xs text-stone-400 mr-1 hidden sm:inline">Switch demo:</span>
+        <a href="catalog-filter-option-a.html" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#2A0808] hover:bg-[#3D0C0C] text-stone-300 border border-[#3D0C0C] transition flex items-center gap-1.5">
+          Option A (Grid)
+        </a>
+        <a href="catalog-filter-option-b.html" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#991B1B] text-white border border-red-700/50 shadow-xs flex items-center gap-1.5">
+          <span class="iconify text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+          Option B (Two-Tier)
+        </a>
+        <a href="catalog-filter-option-c.html" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#2A0808] hover:bg-[#3D0C0C] text-stone-300 border border-[#3D0C0C] transition flex items-center gap-1.5">
+          Option C (FinTech Deck)
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main View Area -->
+  <main id="app" class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+    <!-- Page Header (Clean, bold, no sub-detail) -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h2 class="text-2xl font-bold text-[#3E2B1E] tracking-tight">Meeting Rooms Catalog</h2>
+      </div>
+      <div class="text-xs font-mono text-[#6F5849]">
+        {{ filteredRooms.length }} of {{ rooms.length }} rooms available
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- SEARCH & FILTER CARD: OPTION B (TWO-TIER STUDIO DECK)             -->
+    <!-- ================================================================= -->
+    <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-5 shadow-sm hover:shadow-md transition space-y-3.5">
+      
+      <!-- Tier 1: Search Input (Clean & Focused without Add Room) -->
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <!-- Search Bar with exterior icon -->
+        <div class="relative flex-1">
+          <span class="iconify absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7D6857] text-base pointer-events-none" data-icon="lucide:search" data-stroke-width="2"></span>
+          <input
+            id="room-search-input"
+            type="text"
+            v-model="searchQuery"
+            placeholder="Search rooms by name, floor, amenities, or department..."
+            class="w-full h-11 pl-10 pr-9 bg-[#F4EFEA] hover:bg-[#EAE3DC] focus:bg-white text-[#1C1917] text-xs sm:text-sm font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none"
+          />
+          <button
+            v-if="searchQuery.trim().length > 0"
+            @click="searchQuery = ''"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 text-xs p-1"
+            type="button"
+            title="Clear search"
+          >
+            <span class="iconify" data-icon="lucide:x" data-stroke-width="2"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tier 2: Unified Filter & Availability Ribbon -->
+      <div class="pt-3 border-t border-[#E9E3DD]/70 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        
+        <!-- Left: Location Track & Status Chips -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <!-- Segmented Glider Location Track -->
+          <div id="building-pills-track">
+            <button
+              v-for="p in buildingPills"
+              :key="p.id"
+              @click="currentBuilding = p.id"
+              class="glider-pill-btn"
+              :class="{ active: currentBuilding === p.id }"
+              type="button"
+            >
+              <span class="iconify text-xs" :data-icon="p.icon" data-stroke-width="2"></span>
+              <span>{{ p.label }}</span>
+            </button>
+          </div>
+
+          <div class="h-4 w-px bg-stone-300 mx-1 hidden sm:block"></div>
+
+          <!-- Status Chips -->
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <button
+              v-for="s in statusChips"
+              :key="s.id"
+              @click="toggleStatus(s.id)"
+              class="status-chip"
+              :class="{ active: currentStatus === s.id }"
+              type="button"
+            >
+              <span class="iconify text-xs" :data-icon="s.icon" data-stroke-width="2"></span>
+              <span>{{ s.label }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Inline Date Range Availability (External labels OUTSIDE the input boxes) -->
+        <div class="flex items-center gap-2.5 flex-wrap bg-[#FAF7F4] p-1.5 px-3 rounded-xl border border-[#E9E3DD]/80">
+          <span class="text-xs font-bold text-[#3E2B1E] flex items-center gap-1.5">
+            <span class="iconify text-[#991B1B]" data-icon="lucide:calendar-days" data-stroke-width="2"></span>
+            <span>Dates:</span>
+          </span>
+
+          <!-- From Date with External Label -->
+          <div class="flex items-center gap-1.5">
+            <label for="date-from" class="text-xs font-medium text-[#6F5849]">From</label>
+            <input
+              id="date-from"
+              type="date"
+              v-model="rangeStart"
+              :min="todayString"
+              class="h-8 px-2 bg-white text-[#3E2B1E] font-mono text-xs rounded-lg border border-[#E9E3DD] focus:border-[#991B1B] outline-none cursor-pointer"
+            />
+          </div>
+
+          <!-- To Date with External Label -->
+          <div class="flex items-center gap-1.5">
+            <label for="date-to" class="text-xs font-medium text-[#6F5849]">To</label>
+            <input
+              id="date-to"
+              type="date"
+              v-model="rangeEnd"
+              :min="rangeStart || todayString"
+              class="h-8 px-2 bg-white text-[#3E2B1E] font-mono text-xs rounded-lg border border-[#E9E3DD] focus:border-[#991B1B] outline-none cursor-pointer"
+            />
+          </div>
+
+          <!-- Clear Dates Action -->
+          <button
+            v-if="rangeStart || rangeEnd"
+            @click="clearDates"
+            type="button"
+            class="text-[11px] font-semibold text-[#991B1B] hover:text-[#7F1D1D] px-1.5 py-0.5 rounded hover:bg-[#FEF2F2]"
+            title="Clear date range"
+          >
+            Clear
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Reset notice if any filter is active -->
+      <div v-if="hasActiveFilters" class="flex items-center justify-between text-xs text-[#7D6857] pt-1 border-t border-[#E9E3DD]/40 px-1">
+        <span>Active filters applied</span>
+        <button
+          @click="resetAll"
+          type="button"
+          class="text-xs font-semibold text-[#991B1B] hover:text-[#7F1D1D] flex items-center gap-1 hover:underline cursor-pointer"
+        >
+          <span class="iconify text-xs" data-icon="lucide:rotate-ccw" data-stroke-width="2"></span>
+          <span>Reset all</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Results Room Cards Grid Preview -->
+    <div class="space-y-4 pt-2">
+      <div class="flex items-center justify-between text-xs font-semibold text-[#6F5849] px-1">
+        <span>Displaying {{ filteredRooms.length }} meeting rooms</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div
+          v-for="room in filteredRooms"
+          :key="room.id"
+          class="bg-white rounded-2xl border border-[#E9E3DD] overflow-hidden shadow-sm hover:shadow-md transition flex flex-col"
+        >
+          <!-- Image Header -->
+          <div class="relative h-44 bg-[#F4EFEA] overflow-hidden">
+            <img :src="room.image" :alt="room.name" class="w-full h-full object-cover">
+            <div class="absolute top-3 left-3 bg-[#260707]/80 backdrop-blur-xs text-white text-xs font-mono px-2.5 py-1 rounded-lg">
+              {{ room.floor }}
+            </div>
+            <div class="absolute top-3 right-3 text-xs font-semibold px-2.5 py-1 rounded-lg" :class="room.isPrivate ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'">
+              {{ room.isPrivate ? 'Private' : 'Shared' }}
+            </div>
+          </div>
+
+          <!-- Card Content -->
+          <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+            <div>
+              <h3 class="text-base font-bold text-[#3E2B1E]">{{ room.name }}</h3>
+              <p class="text-xs text-[#6F5849] mt-0.5">{{ room.location }}</p>
+              
+              <div class="flex items-center gap-4 text-xs font-medium text-[#6F5849] mt-3 pt-2 border-t border-[#E9E3DD]/60">
+                <span class="flex items-center gap-1.5">
+                  <span class="iconify text-[#7D6857]" data-icon="lucide:users" data-stroke-width="2"></span>
+                  {{ room.capacity }} Seats
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <span class="iconify text-[#7D6857]" data-icon="lucide:monitor" data-stroke-width="2"></span>
+                  Screen / VC
+                </span>
+              </div>
+            </div>
+
+            <!-- Card Actions -->
+            <div class="pt-2 flex items-center gap-2">
+              <button class="flex-1 h-9 rounded-xl border border-[#E9E3DD] hover:bg-[#FAF7F4] text-xs font-semibold text-[#3E2B1E] transition">
+                View Details
+              </button>
+              <button class="flex-1 h-9 rounded-xl bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <span class="iconify text-white text-xs" data-icon="lucide:calendar" data-stroke-width="2"></span>
+                Book
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const { createApp, ref, computed } = Vue;
+
+    createApp({
+      setup() {
+        const searchQuery = ref('');
+        const currentBuilding = ref('all');
+        const currentStatus = ref('all');
+        const rangeStart = ref('');
+        const rangeEnd = ref('');
+
+        const today = new Date();
+        const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+        const buildingPills = [
+          { id: 'all', label: 'All Locations', icon: 'lucide:layout-grid' },
+          { id: 'hq', label: 'Headquarters', icon: 'lucide:landmark' },
+          { id: 'it', label: 'IT Dept', icon: 'lucide:cpu' },
+          { id: 'branch', label: 'PP Branch', icon: 'lucide:building-2' },
+          { id: 'provinces', label: 'Provinces', icon: 'lucide:map-pin' }
+        ];
+
+        const statusChips = [
+          { id: 'available', label: 'Available Now', icon: 'lucide:check-circle-2' },
+          { id: 'public', label: 'Shared Only', icon: 'lucide:globe' },
+          { id: 'private', label: 'Private Only', icon: 'lucide:lock' }
+        ];
+
+        const rooms = ref([
+          { id: 'ROOM-101', name: 'Executive Boardroom Alpha', floor: 'Floor 18', location: 'Headquarters, Wat Phnom', capacity: 24, isPrivate: true, image: '../assets/rooms/boardroom-alpha.jpg' },
+          { id: 'ROOM-102', name: 'Policy & Research Amphitheater', floor: 'Floor 12', location: 'Headquarters, Wat Phnom', capacity: 45, isPrivate: false, image: '../assets/rooms/boardroom-beta.jpg' },
+          { id: 'ROOM-103', name: 'Internal Audit Strategy Suite', floor: 'Floor 5', location: 'Headquarters, Wat Phnom', capacity: 14, isPrivate: true, image: '../assets/rooms/meeting-room-1.jpg' },
+          { id: 'ROOM-105', name: 'Bakong FinTech Innovation Lab', floor: 'Floor 3', location: 'IT Department Building', capacity: 30, isPrivate: false, image: '../assets/rooms/meeting-room-2.jpg' },
+          { id: 'ROOM-106', name: 'Phnom Penh Operations Hall', floor: 'Ground Floor', location: 'PP Branch, Daun Penh', capacity: 50, isPrivate: false, image: '../assets/rooms/meeting-room-3.jpg' },
+          { id: 'ROOM-107', name: 'Siem Reap Regional Conference Room', floor: 'Floor 2', location: 'Siem Reap Provincial Branch', capacity: 20, isPrivate: false, image: '../assets/rooms/meeting-room-4.jpg' }
+        ]);
+
+        const hasActiveFilters = computed(() => {
+          return currentBuilding.value !== 'all' ||
+                 currentStatus.value !== 'all' ||
+                 searchQuery.value.trim().length > 0 ||
+                 rangeStart.value !== '' ||
+                 rangeEnd.value !== '';
+        });
+
+        const filteredRooms = computed(() => {
+          const q = searchQuery.value.trim().toLowerCase();
+          return rooms.value.filter(room => {
+            if (currentBuilding.value === 'hq' && !room.location.includes('Headquarters')) return false;
+            if (currentBuilding.value === 'it' && !room.location.includes('IT')) return false;
+            if (currentBuilding.value === 'branch' && !room.location.includes('PP Branch')) return false;
+            if (currentBuilding.value === 'provinces' && !room.location.includes('Siem Reap')) return false;
+
+            if (currentStatus.value === 'public' && room.isPrivate) return false;
+            if (currentStatus.value === 'private' && !room.isPrivate) return false;
+
+            if (q) {
+              return room.name.toLowerCase().includes(q) ||
+                     room.floor.toLowerCase().includes(q) ||
+                     room.location.toLowerCase().includes(q);
+            }
+            return true;
+          });
+        });
+
+        const toggleStatus = (id) => {
+          currentStatus.value = currentStatus.value === id ? 'all' : id;
+        };
+
+        const clearDates = () => {
+          rangeStart.value = '';
+          rangeEnd.value = '';
+        };
+
+        const resetAll = () => {
+          searchQuery.value = '';
+          currentBuilding.value = 'all';
+          currentStatus.value = 'all';
+          clearDates();
+        };
+
+        return {
+          searchQuery,
+          currentBuilding,
+          currentStatus,
+          rangeStart,
+          rangeEnd,
+          todayString,
+          buildingPills,
+          statusChips,
+          rooms,
+          filteredRooms,
+          hasActiveFilters,
+          toggleStatus,
+          clearDates,
+          resetAll
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

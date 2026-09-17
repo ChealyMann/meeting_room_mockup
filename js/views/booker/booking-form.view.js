@@ -24,7 +24,7 @@ class BookingFormView {
       <div class="pb-2 mb-1 border-b border-stone-200">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
           <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
-            <button type="button" onclick="app.navigateBackFromBookingForm()" class="h-8 px-3 rounded-md bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 text-[13px] font-medium flex items-center space-x-1.5 transition shadow-2xs shrink-0">
+            <button type="button" onclick="app.navigateBackFromBookingForm()" class="page-back-button h-8 px-3 rounded-md bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 text-[13px] font-medium flex items-center space-x-1.5 transition shadow-2xs shrink-0">
               <span class="iconify text-stone-400 text-sm" data-icon="lucide:arrow-left"></span>
               <span id="btn-request-form-back-label">All Rooms</span>
             </button>
@@ -993,6 +993,12 @@ class BookingFormView {
     if (params.sessions && Array.isArray(params.sessions) && params.sessions.length > 0) {
       this.selectedSessions = this.mergeContiguousSessions([...params.sessions]);
       this.slotSelectionMode = 'multi';
+    } else if (params.startTime && params.endTime) {
+      const defaultRoomId = params.roomId || (this.selectedRoomForBooking ? this.selectedRoomForBooking.id : 'ROOM-101');
+      const targetDate = params.date || new Date().toISOString().split('T')[0];
+      this.selectedSessions = [{ roomId: defaultRoomId, date: targetDate, startTime: params.startTime, endTime: params.endTime }];
+      this.selectedTimelineSlot = { roomId: defaultRoomId, date: targetDate, startTime: params.startTime, endTime: params.endTime };
+      this.slotSelectionMode = 'multi';
     } else {
       this.selectedSessions = [];
       this.slotSelectionMode = 'multi';
@@ -1050,17 +1056,17 @@ class BookingFormView {
     setTimeout(() => {
       this.mountStep1Calendar(defaultRoomId, targetDate);
       this.setSlotSelectionMode(this.slotSelectionMode, true);
-      if (this.slotSelectionMode === 'multi' && this.selectedSessions.length > 0) {
-        this.renderMultiSlotCalendarHighlights();
-        this.renderSelectedSessionsTray();
-        this.updateMultiBadge();
-      } else if (params.startTime && params.endTime) {
+      if (params.startTime && params.endTime) {
         this.setSelectedStep1Slot({
           roomId: defaultRoomId,
           date: targetDate,
           startTime: params.startTime,
           endTime: params.endTime
         });
+      } else if (this.slotSelectionMode === 'multi' && this.selectedSessions.length > 0) {
+        this.renderMultiSlotCalendarHighlights();
+        this.renderSelectedSessionsTray();
+        this.updateMultiBadge();
       } else {
         // Step 1 starts clean and empty without auto-selecting any slot
         this.resetStep1TimelineSelection(false);
@@ -1470,9 +1476,9 @@ class BookingFormView {
     }
   }
 
-  selectRoomAndProceed(roomId, fromView = 'book-room', targetDate = null, startTime = null, endTime = null) {
+  selectRoomAndProceed(roomId, fromView = 'book-room', targetDate = null, startTime = null, endTime = null, options = {}) {
     this.bookingFormFromView = fromView;
-    this.navigateTo('request-form', { roomId, date: targetDate, startTime, endTime, fromView });
+    this.navigateTo('request-form', { roomId, date: targetDate, startTime, endTime, fromView, ...options });
   }
 
   startFromTimelineSelection({ roomId, date, startTime, endTime, meetingTitle }) {

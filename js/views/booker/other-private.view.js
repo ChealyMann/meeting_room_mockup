@@ -9,14 +9,14 @@ window.NBC.views['request-other-private'] = {
     container.innerHTML = `
       <!-- Top Action Breadcrumb Bar -->
       <div class="flex items-center justify-between gap-3 pb-2 border-b border-[#E9E3DD]">
-        <button type="button" onclick="app.navigateTo('book-room')" class="px-3 py-1.5 rounded-lg bg-white hover:bg-stone-100 text-stone-700 border border-[#E9E3DD] text-xs font-semibold flex items-center space-x-1.5 transition shadow-2xs cursor-pointer">
+        <button type="button" onclick="app.navigateTo('book-room')" class="page-back-button px-3 py-1.5 rounded-lg bg-white hover:bg-stone-100 text-stone-700 border border-[#E9E3DD] text-xs font-semibold flex items-center space-x-1.5 transition shadow-2xs cursor-pointer">
           <span class="iconify text-stone-500 text-sm" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
           <span>All Meeting Rooms</span>
         </button>
-        <div class="flex items-center space-x-1.5 text-xs text-stone-500 font-medium">
+        <div class="page-breadcrumb flex items-center space-x-1.5">
           <span>Directory</span>
-          <span>/</span>
-          <span class="text-amber-800 font-bold">Other Private Rooms</span>
+          <span class="breadcrumb-separator">/</span>
+          <span class="breadcrumb-current">Other Private Rooms</span>
         </div>
       </div>
 

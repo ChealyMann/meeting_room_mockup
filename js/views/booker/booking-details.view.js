@@ -1,548 +1,539 @@
-// Booking Details View Component (view-booking-details)
-window.NBC = window.NBC || {};
-window.NBC.views = window.NBC.views || {};
+ // Booking Details View Component (view-booking-details)
+ // TypeUI Cafe Design System with NBC Crimson Heritage
+ window.NBC = window.NBC || {};
+ window.NBC.views = window.NBC.views || {};
 
-class BookingDetailsView {
-  constructor() {
-    this.id = 'booking-details';
-    this.currentBookingDetailsId = null;
-  }
+ class BookingDetailsView {
+   constructor() {
+     this.id = 'booking-details';
+     this.currentBookingDetailsId = null;
+   }
 
-  showToast(title, message, type = 'info') {
-    if (window.NBC && window.NBC.layouts && window.NBC.layouts.toast) {
-      window.NBC.layouts.toast.showToast(title, message, type);
-    } else if (window.app && window.app.showToast) {
-      window.app.showToast(title, message, type);
-    }
-  }
+   showToast(title, message, type = 'info') {
+     if (window.NBC && window.NBC.layouts && window.NBC.layouts.toast) {
+       window.NBC.layouts.toast.showToast(title, message, type);
+     } else if (window.app && window.app.showToast) {
+       window.app.showToast(title, message, type);
+     }
+   }
 
-  navigateTo(viewId, params = {}) {
-    if (window.app && window.app.navigateTo) {
-      window.app.navigateTo(viewId, params);
-    }
-  }
+   navigateTo(viewId, params = {}) {
+     if (window.app && window.app.navigateTo) {
+       window.app.navigateTo(viewId, params);
+     }
+   }
 
-  render(container, params = {}) {
-    if (!container) return;
-    const requestId = params.requestId || this.currentBookingDetailsId || 'REQ-001';
-    this.currentBookingDetailsId = requestId;
+   render(container, params = {}) {
+     if (!container) return;
+     const requestId = params.requestId || this.currentBookingDetailsId || 'REQ-001';
+     this.currentBookingDetailsId = requestId;
+     container.innerHTML = `
+       <div id="view-booking-details" class="w-full lg:h-[calc(100vh-150px)] lg:min-h-0 flex flex-col gap-4"></div>
+     `;
+     this.renderBookingDetailsPage(requestId);
+   }
+
+   init(params = {}) {
+     if (params.requestId) this.currentBookingDetailsId = params.requestId;
+     window.app = window.app || {};
+     window.app.openBookingDetailsPage = (id) => this.openBookingDetailsPage(id);
+     window.app.handleCancelBooking = (id) => this.handleCancelBooking(id);
+     window.app.downloadCalendarInvite = (id) => this.downloadCalendarInvite(id);
+     window.app.copyReferenceCode = (code, label) => this.copyReferenceCode(code, label);
+     window.app.handleAddFoodDrinks = (id) => this.handleAddFoodDrinks(id);
+     window.app.handleViewRequestDetails = (id) => this.handleViewRequestDetails(id);
+     window.app.handleContactSupport = (id) => this.handleContactSupport(id);
+   }
+
+   openBookingDetailsPage(requestId) {
+     this.currentBookingDetailsId = requestId;
+     this.navigateTo('booking-details', { requestId });
+   }
+
+   renderBookingDetailsPage(requestId) {
+     const container = document.getElementById('view-booking-details');
+     if (!container) return;
+
+     const req = bookingStore.getRequestById(requestId);
+     if (!req) {
+       container.innerHTML = `
+         <div class="py-12 px-4 text-center bg-white rounded-2xl border border-[#E9E3DD] shadow-xs">
+           <span class="iconify text-2xl text-stone-400" data-icon="lucide:calendar-x-2" data-stroke-width="1.8"></span>
+           <h2 class="font-heading font-bold text-sm text-stone-900 mt-3">Booking Request Not Found</h2>
+           <button type="button" onclick="app.navigateTo('my-bookings')" class="btn-primary mt-4 min-h-[44px] px-4 rounded-lg text-xs font-bold inline-flex items-center gap-1.5">
+             <span class="iconify text-sm text-white" data-icon="lucide:arrow-left" data-stroke-width="1.8"></span>
+             <span class="text-white">Back to My Bookings</span>
+           </button>
+         </div>
+       `;
+       return;
+     }
+
+     const isPrivate = !!req.isPrivateRequest || !!req.room?.isPrivate;
+     const isConfirmed = req.status === 'Approved - Confirmed' || req.statusDisplay === 'Approved';
+     const isCancelled = req.status === 'Cancelled';
+     const isRejected = req.status === 'Rejected' || req.statusDisplay === 'Rejected';
+     const isOwnerPending = isPrivate && req.status === 'Pending Room Owner Approval';
+     const isPending = req.status === 'Pending Review' || req.status === 'Pending Manager Review' || req.statusDisplay === 'Pending Review';
+     const isSetup = req.status === 'Approved - Setup In Progress';
+     const isMyRoom = req.isMyRoom || (req.room?.id === 'ROOM-107' || req.room?.roomOwner?.name === 'Jonathan Vance' || req.room?.roomOwner?.id === 'OWNER-VANCE');
+     const isPitikaApproved = req.managerReview?.decision === 'Approved';
+     const isCancelledAfterPitika = isCancelled && isPitikaApproved;
+     const isCancelledBeforePitika = isCancelled && !isPitikaApproved;
+     const isOwnerRejected = isRejected && (req.roomOwnerReview?.decision === 'Rejected' || req.managerReview?.decision === 'Approved');
+
+     let statusLabel = 'In Review';
+     let statusIcon = 'lucide:clock';
+     let statusToneClass = 'text-[#B45309]';
+     if (isConfirmed) {
+       statusLabel = 'Confirmed';
+       statusIcon = 'lucide:check-circle-2';
+       statusToneClass = 'text-emerald-700';
+     } else if (isSetup) {
+       statusLabel = 'In Progress';
+       statusIcon = 'lucide:settings';
+       statusToneClass = 'text-blue-700';
+     } else if (isRejected) {
+       statusLabel = 'Rejected';
+       statusIcon = 'lucide:x-circle';
+       statusToneClass = 'text-rose-700';
+     } else if (isCancelled) {
+       statusLabel = 'Cancelled';
+       statusIcon = 'lucide:slash';
+       statusToneClass = 'text-stone-600';
+     }
+
+     const roomObj = bookingStore.getRoomById(req.room?.id) || req.room || {};
+     const roomImgUrl = roomObj.image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80';
+     const floorShort = (roomObj.floor || 'Level 18').split('(')[0].trim();
+     const doorAccess = bookingStore.getDoorAccessState
+       ? bookingStore.getDoorAccessState(req)
+       : { code: req.doorPasscode || req.referenceCode, expiresAt: null, isExpired: false };
+
+     let durationText = '1 hour';
+     if (req.startTime && req.endTime) {
+       const startParts = req.startTime.split(':').map(Number);
+       const endParts = req.endTime.split(':').map(Number);
+       if (startParts.length === 2 && endParts.length === 2) {
+         const diffMinutes = (endParts[0] * 60 + endParts[1]) - (startParts[0] * 60 + startParts[1]);
+         if (diffMinutes > 0) {
+           const hours = Math.floor(diffMinutes / 60);
+           const mins = diffMinutes % 60;
+           if (hours > 0 && mins > 0) durationText = `${hours}h ${mins}m`;
+           else if (hours > 0) durationText = `${hours} hour${hours > 1 ? 's' : ''}`;
+           else durationText = `${mins} mins`;
+         }
+       }
+     }
+
+
     container.innerHTML = `
-      <div id="view-booking-details" class="w-full space-y-5"></div>
-    `;
-    this.renderBookingDetailsPage(requestId);
-  }
-
-  init(params = {}) {
-    if (params.requestId) {
-      this.currentBookingDetailsId = params.requestId;
-    }
-  }
-
-  openBookingDetailsPage(requestId) {
-    this.currentBookingDetailsId = requestId;
-    this.navigateTo('booking-details', { requestId });
-  }
-
-  // Backward compatibility alias
-
-  renderBookingDetailsPage(requestId) {
-    const container = document.getElementById('view-booking-details');
-    if (!container) return;
-
-    const req = bookingStore.getRequestById(requestId);
-    if (!req) {
-      container.innerHTML = `
-        <div class="py-12 text-center bg-white rounded-xl border border-[#E9E3DD]">
-          <p class="text-xs font-semibold text-stone-800">Booking request not found.</p>
-          <button onclick="app.navigateTo('my-bookings')" class="mt-3 px-4 py-2 btn-primary rounded-lg text-xs font-bold">Back to My Bookings</button>
-        </div>
-      `;
-      return;
-    }
-
-    const isPrivate = !!req.isPrivateRequest || !!req.room?.isPrivate;
-    const isConfirmed = req.status === 'Approved - Confirmed';
-    const isCancelled = req.status === 'Cancelled';
-    const isRejected = req.status === 'Rejected';
-    const isOwnerPending = isPrivate && req.status === 'Pending Room Owner Approval';
-    const isPending = req.status === 'Pending Review' || req.status === 'Pending Manager Review';
-    const isSetup = req.status === 'Approved - Setup In Progress';
-    const isMyRoom = req.isMyRoom || (req.room?.id === 'ROOM-107' || req.room?.roomOwner?.name === 'Jonathan Vance' || req.room?.roomOwner?.id === 'OWNER-VANCE');
-    const isPitikaApproved = req.managerReview?.decision === 'Approved';
-    const isCancelledAfterPitika = isCancelled && isPitikaApproved;
-    const isCancelledBeforePitika = isCancelled && !isPitikaApproved;
-    const isOwnerRejected = isRejected && (req.roomOwnerReview?.decision === 'Rejected' || req.managerReview?.decision === 'Approved');
-    const isPitikaRejected = isRejected && !isOwnerRejected;
-    const stepperStepsClass = isMyRoom ? (req.needsIT || req.needsCatering ? 'steps-4' : 'steps-3') : (isPrivate ? 'steps-5' : 'steps-4');
-
-    // Calculate progress percentage
-    let progressPercent = '20%';
-    if (isMyRoom && !req.needsIT && !req.needsCatering) {
-      progressPercent = '100%';
-    } else if (isMyRoom && (req.needsIT || req.needsCatering)) {
-      if (isConfirmed) progressPercent = '100%';
-      else if (isSetup) progressPercent = '66.6%';
-      else progressPercent = '33.3%';
-    } else if (isPrivate) {
-      if (isConfirmed) progressPercent = '100%';
-      else if (isSetup) progressPercent = '75%';
-      else if (isOwnerPending || isOwnerRejected || isCancelledAfterPitika) progressPercent = '50%';
-      else if (isPitikaRejected || isPending || isCancelledBeforePitika) progressPercent = '25%';
-    } else {
-      if (isConfirmed) progressPercent = '100%';
-      else if (isSetup) progressPercent = '66.6%';
-      else if (isPitikaRejected || isPending || isCancelled) progressPercent = '33.3%';
-    }
-
-    container.innerHTML = `
-      <!-- Top Action Breadcrumb Bar -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-[#E9E3DD]">
-        <div class="flex items-center space-x-3">
-          <button onclick="app.navigateTo('my-bookings')" aria-label="Back to my bookings" class="min-h-[44px] px-3.5 py-2 rounded-lg bg-white hover:bg-stone-100 text-stone-700 border border-[#E9E3DD] text-xs font-semibold flex items-center space-x-1.5 transition shadow-2xs">
-            <span class="iconify text-stone-500 text-sm" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-[#E9E3DD] shrink-0">
+        <div class="flex items-center gap-3 min-w-0">
+          <button type="button" onclick="app.navigateTo('my-bookings')" aria-label="Back to my bookings" class="page-back-button min-h-[44px] px-3.5 py-2 rounded-lg bg-white hover:bg-[#F4EFEA] text-stone-700 border border-[#E9E3DD] text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs shrink-0 cursor-pointer active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#991B1B]">
+            <span class="iconify text-sm" data-icon="lucide:arrow-left" data-stroke-width="1.8"></span>
             <span>My Bookings</span>
           </button>
-          <div>
-            <div class="flex items-center space-x-2">
-              <span class="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-stone-100 text-stone-800 border border-stone-200">
-                #${req.referenceCode}
-              </span>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${
-                isConfirmed ? 'badge-approved' : 
-                (isRejected ? 'badge-rejected' : 
-                (isCancelled ? 'badge-cancelled' : 
-                (isSetup ? 'badge-setup' : 'badge-pending')))
-              }">
-                ${req.status}
-              </span>
-            </div>
-            <h2 class="font-heading font-bold text-base sm:text-lg text-stone-900 leading-tight mt-0.5">${req.meetingTitle}</h2>
+
+          <div class="page-breadcrumb flex items-center gap-2 min-w-0 overflow-hidden">
+            <span class="font-mono text-[11px] text-stone-500 shrink-0">${req.id}</span>
+            <span class="text-stone-300" aria-hidden="true">&bull;</span>
+            <span class="font-mono text-[11px] text-stone-700 truncate">${req.referenceCode || req.id}</span>
+            ${isConfirmed && !isCancelled && !doorAccess.isExpired && doorAccess.code ? `
+              <span class="text-stone-300" aria-hidden="true">&bull;</span>
+              <button type="button" onclick="app.copyReferenceCode('${doorAccess.code}', 'Door Access Code')" title="Click to copy door access code" class="font-mono text-[11px] text-stone-600 hover:text-[#991B1B] flex items-center gap-1 shrink-0 cursor-pointer transition">
+                <span class="iconify text-xs text-stone-400 hover:text-[#991B1B]" data-icon="lucide:key-round" data-stroke-width="1.8"></span>
+                <span>Door: ${doorAccess.code}</span>
+              </button>
+            ` : ''}
           </div>
         </div>
 
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center gap-3 shrink-0">
+          <span class="${statusToneClass} inline-flex items-center gap-1.5 text-xs font-semibold">
+            <span class="iconify text-sm" data-icon="${statusIcon}" data-stroke-width="1.8"></span>
+            <span>${statusLabel}</span>
+          </span>
           ${isConfirmed ? `
-            <button onclick="app.openReceiptPage('${req.id}', 'booking-details')" aria-label="View booking receipt" class="btn-primary min-h-[44px] px-4 py-2.5 rounded-lg text-xs font-bold shadow-xs flex items-center space-x-1.5 transition">
-              <span class="iconify text-xs text-white" data-icon="lucide:receipt" data-stroke-width="2"></span>
-              <span>Booking Receipt</span>
+            <button type="button" onclick="app.openReceiptPage('${req.id}', 'booking-details')" class="btn-primary min-h-[44px] px-4 py-2 rounded-lg text-xs font-bold shadow-xs flex items-center gap-1.5 transition cursor-pointer active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#991B1B]">
+              <span class="iconify text-sm text-white" data-icon="lucide:receipt" data-stroke-width="1.8"></span>
+              <span class="text-white">Booking Receipt</span>
             </button>
           ` : ''}
         </div>
       </div>
 
-      <!-- Main Booking Presentation Card -->
-      <div class="bg-white rounded-xl border border-[#E9E3DD] p-5 shadow-xs space-y-6">
-        
-        <!-- Stepper Container -->
-        <div class="stepper-container">
-          <div class="stepper-track ${stepperStepsClass}">
-            <div class="stepper-line">
-              <div class="stepper-line-progress" style="width: ${progressPercent};"></div>
+      <div class="flex-1 min-h-0 lg:overflow-y-auto no-scrollbar pb-4 pr-1">
+        <div class="space-y-4">
+          <section class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:px-6 shadow-xs" aria-labelledby="booking-progress-heading">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <h2 id="booking-progress-heading" class="font-heading font-bold text-sm text-stone-900">Approval Progress</h2>
+              <span class="font-mono text-[11px] text-stone-500">${req.submissionTimestamp || req.submittedText || 'Submitted'}</span>
             </div>
+            ${this._renderStepper(req, isPrivate, isMyRoom, isConfirmed, isSetup, isOwnerPending, isPending, isRejected, isCancelled, isCancelledAfterPitika, isCancelledBeforePitika, isOwnerRejected)}
+          </section>
 
-            ${isMyRoom ? (req.needsIT || req.needsCatering ? `
-              <!-- Own Room With Services: 4 Steps (Pitika Cost Review) -->
-              <div class="stepper-node completed">
-                <div class="stepper-circle">
-                  <span class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-4 items-start">
+            <div class="xl:col-span-8 space-y-4">
+              <section class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-5 shadow-xs" aria-labelledby="meeting-overview-heading">
+                <div class="flex items-center gap-2 pb-3 border-b border-[#E9E3DD]">
+                  <span class="w-8 h-8 rounded-lg bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
+                    <span class="iconify text-sm" data-icon="lucide:calendar-days" data-stroke-width="1.8"></span>
+                  </span>
+                  <h2 id="meeting-overview-heading" class="font-heading font-bold text-base text-stone-900">Meeting Overview</h2>
                 </div>
-                <span class="stepper-label">1. Booked</span>
-                <span class="stepper-sub">Instant</span>
-              </div>
 
-              <div class="stepper-node ${isConfirmed || isSetup ? 'completed' : (isRejected ? 'failed' : (isPending ? 'active' : ''))}">
-                <div class="stepper-circle">
-                  ${isConfirmed || isSetup ? `
-                    <span class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
-                  ` : (isRejected ? `
-                    <span class="iconify text-xs" data-icon="lucide:x" data-stroke-width="2.5"></span>
-                  ` : (isPending ? `
-                    <span class="iconify text-xs animate-spin" data-icon="lucide:loader-2" data-stroke-width="2"></span>
-                  ` : `<span>2</span>`))}
-                </div>
-                <span class="stepper-label">2. Cost Review</span>
-                <span class="stepper-sub">${isConfirmed || isSetup ? 'Approved' : (isPending ? 'In Review' : 'Rejected')}</span>
-              </div>
-
-              <div class="stepper-node ${isConfirmed ? 'completed' : (isSetup ? 'active' : '')}">
-                <div class="stepper-circle">
-                  ${isConfirmed ? `
-                    <span class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
-                  ` : (isSetup ? `
-                    <span class="iconify text-xs animate-spin" data-icon="${req.needsIT ? 'lucide:headset' : 'lucide:settings'}" data-stroke-width="2"></span>
-                  ` : `<span>3</span>`)}
-                </div>
-                <span class="stepper-label">${req.needsIT ? '3. IT Setup' : '3. Setup'}</span>
-                <span class="stepper-sub">${isConfirmed ? 'Ready' : (isSetup ? 'In Progress' : 'Waiting')}</span>
-              </div>
-
-              <div class="stepper-node ${isConfirmed ? 'completed' : ''}">
-                <div class="stepper-circle">
-                  ${isConfirmed ? `
-                    <span class="iconify text-xs" data-icon="lucide:check-check" data-stroke-width="2.5"></span>
-                  ` : `<span>4</span>`}
-                </div>
-                <span class="stepper-label">4. Door Pass</span>
-                <span class="stepper-sub">${isConfirmed ? 'Active' : 'Pending'}</span>
-              </div>
-            ` : `
-              <!-- Vance Room: 3 Steps -->
-              <div class="stepper-node completed">
-                <div class="stepper-circle">
-                  <span class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
-                </div>
-                <span class="stepper-label">Booked</span>
-                <span class="stepper-sub">Instant</span>
-              </div>
-
-              <div class="stepper-node completed">
-                <div class="stepper-circle">
-                  <span class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
-                </div>
-                <span class="stepper-label">Setup</span>
-                <span class="stepper-sub">Ready</span>
-              </div>
-
-              <div class="stepper-node completed">
-                <div class="stepper-circle">
-                  <span class="iconify text-xs" data-icon="lucide:check-check" data-stroke-width="2.5"></span>
-                </div>
-                <span class="stepper-label">Door Pass</span>
-                <span class="stepper-sub">Active</span>
-              </div>
-            `) : (isPrivate ? `
-              <!-- Other Private Room: 5 Step Stepper -->
-              <div class="stepper-node completed">
-                <div class="stepper-circle">
-                  <span class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
-                </div>
-                <span class="stepper-label">1. Sent</span>
-                <span class="stepper-sub">${req.submissionTimestamp}</span>
-              </div>
-
-              <div class="stepper-node ${isOwnerPending || isConfirmed || isSetup || isOwnerRejected || isCancelledAfterPitika ? 'completed' : (isPitikaRejected || isCancelledBeforePitika ? 'failed' : (isPending ? 'active' : ''))}">
-                <div class="stepper-circle">
-                  ${isOwnerPending || isConfirmed || isSetup || isOwnerRejected || isCancelledAfterPitika ? `
-                    <span class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
-                  ` : (isPitikaRejected || isCancelledBeforePitika ? `
-                    <span class="iconify text-xs" data-icon="lucide:x" data-stroke-width="2.5"></span>
-                  ` : (isPending ? `
-                    <span class="iconify text-xs animate-spin" data-icon="lucide:loader-2" data-stroke-width="2"></span>
-                  ` : `<span>2</span>`))}
-                </div>
-                <span class="stepper-label">2. Pitika</span>
-                <span class="stepper-sub">${isOwnerPending || isConfirmed || isSetup || isOwnerRejected || isCancelledAfterPitika ? 'Approved' : (isPending ? 'In Review' : (isPitikaRejected ? 'Rejected' : (isCancelledBeforePitika ? 'Cancelled' : 'Waiting')))}</span>
-              </div>
-
-              <div class="stepper-node ${isConfirmed || isSetup ? 'completed' : (isOwnerRejected ? 'failed' : (isCancelledAfterPitika ? 'failed' : (isOwnerPending ? 'active' : '')))}">
-                <div class="stepper-circle">
-                  ${isConfirmed || isSetup ? `
-                    <span class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
-                  ` : (isOwnerRejected ? `
-                    <span class="iconify text-xs" data-icon="lucide:x" data-stroke-width="2.5"></span>
-                  ` : (isCancelledAfterPitika ? `
-                    <span class="iconify text-xs" data-icon="lucide:x" data-stroke-width="2.5"></span>
-                  ` : (isOwnerPending ? `
-                    <span class="iconify text-xs animate-spin" data-icon="lucide:key" data-stroke-width="2"></span>
-                  ` : `<span>3</span>`)))}
-                </div>
-                <span class="stepper-label">3. Room Owner</span>
-                <span class="stepper-sub">${isConfirmed || isSetup ? 'Approved' : (isOwnerPending ? 'Reviewing' : (isOwnerRejected ? 'Rejected' : (isCancelledAfterPitika ? 'Cancelled' : 'Waiting')))}</span>
-              </div>
-
-              <div class="stepper-node ${isConfirmed ? 'completed' : (isSetup ? 'active' : '')}">
-                <div class="stepper-circle">
-                  ${isConfirmed ? `
-                    <span class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
-                  ` : (isSetup ? `
-                    <span class="iconify text-xs animate-spin" data-icon="${req.needsIT ? 'lucide:headset' : 'lucide:settings'}" data-stroke-width="2"></span>
-                  ` : `<span>4</span>`)}
-                </div>
-                <span class="stepper-label">${req.needsIT ? '4. IT Setup' : '4. Setup'}</span>
-                <span class="stepper-sub">${isConfirmed ? 'Ready' : (isSetup ? 'In Progress' : (isPending || isOwnerPending ? 'Waiting for Both Approvals' : 'Queued'))}</span>
-              </div>
-
-              <div class="stepper-node ${isConfirmed ? 'completed' : ''}">
-                <div class="stepper-circle">
-                  ${isConfirmed ? `
-                    <span class="iconify text-xs" data-icon="lucide:check-check" data-stroke-width="2.5"></span>
-                  ` : `<span>5</span>`}
-                </div>
-                <span class="stepper-label">5. Door Pass</span>
-                <span class="stepper-sub">${isConfirmed ? 'Confirmed' : 'Pending'}</span>
-              </div>
-              ` : `
-                <!-- Standard Public Room: 4 Step Stepper -->
-                <div class="stepper-node completed">
-                  <div class="stepper-circle">
-                    <span class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
+                <div class="py-4">
+                  <h3 class="font-heading font-bold text-lg text-stone-900 leading-snug">${req.meetingTitle || 'Department Meeting'}</h3>
+                  <div class="flex items-center gap-1.5 mt-1.5 text-xs text-stone-600">
+                    <span class="iconify text-[#991B1B]" data-icon="lucide:map-pin" data-stroke-width="1.8"></span>
+                    <span>${roomObj.name || req.room?.name || 'Meeting Room'} &bull; ${floorShort}</span>
                   </div>
-                  <span class="stepper-label">1. Sent</span>
-                  <span class="stepper-sub">${req.submissionTimestamp}</span>
                 </div>
 
-                <div class="stepper-node ${isConfirmed || isSetup ? 'completed' : (isRejected || isCancelled ? 'failed' : (isPending ? 'active' : ''))}">
-                  <div class="stepper-circle">
-                    ${isConfirmed || isSetup ? `
-                      <span class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
-                    ` : (isRejected || isCancelled ? `
-                      <span class="iconify text-xs" data-icon="lucide:x" data-stroke-width="2.5"></span>
-                    ` : (isPending ? `
-                      <span class="iconify text-xs animate-spin" data-icon="lucide:loader-2" data-stroke-width="2"></span>
-                    ` : `<span>2</span>`))}
+                <div class="grid grid-cols-2 ${isConfirmed && !isCancelled && doorAccess.code ? 'sm:grid-cols-3 lg:grid-cols-5' : 'lg:grid-cols-4'} gap-2">
+                  <div class="p-3 bg-[#FAF7F4] rounded-lg border border-[#E9E3DD]">
+                    <span class="text-[10px] uppercase tracking-wider font-bold text-stone-500 block">Date</span>
+                    <strong class="text-xs text-stone-900 block mt-1">${req.date || 'Not set'}</strong>
                   </div>
-                  <span class="stepper-label">2. Pitika</span>
-                  <span class="stepper-sub">${isConfirmed || isSetup ? 'Approved' : (isRejected ? 'Rejected' : (isCancelled ? 'Cancelled' : (isPending ? 'In Review' : 'Waiting')))}</span>
-                </div>
-
-                <div class="stepper-node ${isConfirmed ? 'completed' : (isSetup ? 'active' : '')}">
-                  <div class="stepper-circle">
-                    ${isConfirmed ? `
-                      <span class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
-                    ` : (isSetup ? `
-                      <span class="iconify text-xs animate-spin" data-icon="lucide:settings" data-stroke-width="2"></span>
-                    ` : `<span>3</span>`)}
+                  <div class="p-3 bg-[#FAF7F4] rounded-lg border border-[#E9E3DD]">
+                    <span class="text-[10px] uppercase tracking-wider font-bold text-stone-500 block">Time</span>
+                    <strong class="font-mono text-xs text-stone-900 block mt-1">${req.startTime || '07:30'} - ${req.endTime || '08:30'}</strong>
+                    <span class="text-[10px] text-stone-500">${durationText}</span>
                   </div>
-                  <span class="stepper-label">3. Setup</span>
-                  <span class="stepper-sub">${isConfirmed ? 'Ready' : (isSetup ? 'In Progress' : 'Waiting')}</span>
-                </div>
-
-                <div class="stepper-node ${isConfirmed ? 'completed' : ''}">
-                  <div class="stepper-circle">
-                    ${isConfirmed ? `
-                      <span class="iconify text-xs" data-icon="lucide:check-check" data-stroke-width="2.5"></span>
-                    ` : `<span>4</span>`}
+                  <div class="p-3 bg-[#FAF7F4] rounded-lg border border-[#E9E3DD]">
+                    <span class="text-[10px] uppercase tracking-wider font-bold text-stone-500 block">Attendees</span>
+                    <strong class="font-mono text-xs text-stone-900 block mt-1">${req.attendees || 8} people</strong>
                   </div>
-                  <span class="stepper-label">Door Pass</span>
-                  <span class="stepper-sub">${isConfirmed ? 'Confirmed' : 'Pending'}</span>
+                  <div class="p-3 bg-[#FAF7F4] rounded-lg border border-[#E9E3DD]">
+                    <span class="text-[10px] uppercase tracking-wider font-bold text-stone-500 block">Booking Code</span>
+                    <div class="flex items-center justify-between gap-2 mt-1">
+                      <strong class="font-mono text-xs text-[#991B1B] truncate">${req.referenceCode || req.id}</strong>
+                      <button type="button" onclick="app.copyReferenceCode('${req.referenceCode || req.id}', 'Booking Code')" aria-label="Copy booking code" title="Copy booking code" class="w-7 h-7 -my-1 rounded-md text-stone-500 hover:text-[#991B1B] hover:bg-white flex items-center justify-center transition cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#991B1B]">
+                        <span class="iconify text-sm" data-icon="lucide:copy" data-stroke-width="1.8"></span>
+                      </button>
+                    </div>
+                  </div>
+                  ${isConfirmed && !isCancelled && doorAccess.code ? `
+                    <div class="p-3 bg-[#FAF7F4] rounded-lg border border-[#E9E3DD]">
+                      <span class="text-[10px] uppercase tracking-wider font-bold text-stone-500 block">Door Access</span>
+                      <div class="flex items-center justify-between gap-2 mt-1">
+                        <strong class="font-mono text-xs ${doorAccess.isExpired ? 'text-stone-500' : 'text-emerald-800'} truncate">${doorAccess.isExpired ? 'Expired' : doorAccess.code}</strong>
+                        ${doorAccess.isExpired ? '' : `
+                          <button type="button" onclick="app.copyReferenceCode('${doorAccess.code}', 'Door Access Code')" aria-label="Copy door access code" title="Copy door access code" class="w-7 h-7 -my-1 rounded-md text-stone-500 hover:text-[#991B1B] hover:bg-white flex items-center justify-center transition cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#991B1B]">
+                            <span class="iconify text-sm" data-icon="lucide:copy" data-stroke-width="1.8"></span>
+                          </button>
+                        `}
+                      </div>
+                    </div>
+                  ` : ''}
                 </div>
-              `)}
 
-            </div>
-          </div>
-        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                  <div class="p-3.5 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD]">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="iconify text-[#991B1B]" data-icon="lucide:user-round" data-stroke-width="1.8"></span>
+                      <h3 class="font-heading font-semibold text-xs text-stone-900">Booked By</h3>
+                    </div>
+                    <strong class="text-xs text-stone-900 block">${req.requester?.name || 'NBC Staff'}</strong>
+                    <span class="text-[11px] text-stone-600">${req.requester?.department || 'National Bank of Cambodia'}</span>
+                  </div>
 
-        ${isConfirmed ? `
-          <!-- Door Access Pass Callout -->
-          <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-300 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center space-x-3.5">
-              <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xl shadow-xs shrink-0">
-                <span class="iconify" data-icon="lucide:key"></span>
-              </div>
-              <div>
-                <span class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">Meeting Room Door Pass</span>
-                <p class="text-sm font-bold text-emerald-950">Passcode: <span class="font-mono bg-white px-2 py-0.5 rounded border border-emerald-300">${req.referenceCode}</span></p>
-                <p class="text-xs text-emerald-700 mt-0.5">Use this code or scan your receipt at the door to enter.</p>
-              </div>
-            </div>
-            <button onclick="app.openReceiptPage('${req.id}', 'booking-details')" class="btn-primary px-4 py-2 rounded-lg text-xs font-bold shadow-xs shrink-0">
-              Print Receipt
-            </button>
-          </div>
-        ` : ''}
+                  <div class="p-3.5 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD]">
+                    <div class="flex items-center gap-2 mb-2">
+                      <span class="iconify text-[#991B1B]" data-icon="lucide:file-text" data-stroke-width="1.8"></span>
+                      <h3 class="font-heading font-semibold text-xs text-stone-900">Meeting Notes</h3>
+                    </div>
+                    <p class="text-xs text-stone-700 leading-relaxed">${req.meetingPurpose || req.notes || 'No additional notes provided.'}</p>
+                  </div>
+                </div>
 
-        <!-- 4-Card Overview Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="p-3 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD]">
-            <span class="text-stone-500 text-[10px] uppercase font-bold block">Meeting Room</span>
-            <strong class="text-stone-900 text-xs font-heading font-bold block mt-1">${req.room.name}</strong>
-            <span class="text-[10px] text-stone-500 block truncate">${req.room.branch ? req.room.branch.split('(')[0].trim() + ' • ' : ''}${req.room.floor}</span>
-          </div>
-
-          <div class="p-3 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD]">
-            <span class="text-stone-500 text-[10px] uppercase font-bold block">Time</span>
-            <strong class="text-stone-900 text-xs font-heading font-bold block mt-1">${req.startTime} - ${req.endTime}</strong>
-            <span class="text-[10px] text-stone-500 block">${req.date}</span>
-          </div>
-
-          <div class="p-3 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD]">
-            <span class="text-stone-500 text-[10px] uppercase font-bold block">People</span>
-            <strong class="text-stone-900 text-xs font-heading font-bold block mt-1">${req.attendees} People</strong>
-            <span class="text-[10px] text-stone-500 block">Seated</span>
-          </div>
-
-          <div class="p-3 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD]">
-            <span class="text-stone-500 text-[10px] uppercase font-bold block">Booking Code</span>
-            <strong class="font-mono text-red-950 text-xs font-bold block mt-1">${req.referenceCode}</strong>
-            <span class="text-[10px] text-stone-500 block">${req.id}</span>
-          </div>
-        </div>
-
-        ${req.isPrivateRequest ? `
-          <div class="p-3.5 bg-amber-50 rounded-xl border border-amber-300 text-xs space-y-1">
-            <span class="text-[10px] font-bold text-amber-900 uppercase tracking-wider flex items-center space-x-1">
-              <span class="iconify text-amber-700" data-icon="lucide:shield-check"></span>
-              <span>Reason for Private Room</span>
-            </span>
-            <p class="text-amber-950 font-medium">${req.privateJustification || req.meetingPurpose}</p>
-            ${req.roomOwnerDecision?.timeAdjusted ? `
-              <p class="text-xs font-bold text-emerald-800 mt-1 flex items-center space-x-1">
-                <span class="iconify" data-icon="lucide:clock"></span>
-                <span>Approved Time: ${req.startTime} - ${req.endTime}</span>
-              </p>
-            ` : ''}
-          </div>
-        ` : ''}
-
-        <!-- Meeting Purpose -->
-        <div class="p-3.5 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD] text-xs">
-          <span class="text-[10px] font-bold text-stone-500 uppercase tracking-wider block mb-1">Meeting Notes</span>
-          <p class="text-stone-700 leading-relaxed">${req.meetingPurpose || 'Department Meeting'}</p>
-        </div>
-
-        <!-- 2 Column Services Summary -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="p-3.5 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD] space-y-1.5 text-xs">
-            <div class="flex items-center space-x-2 text-stone-800 font-bold">
-              <span class="iconify text-amber-700 text-sm" data-icon="lucide:utensils"></span>
-              <span>Food & Drinks</span>
-            </div>
-            ${req.needsCatering ? `
-              <p class="font-bold text-stone-900 text-xs">${req.cateringDetails?.packageName}</p>
-              <p class="text-stone-600">Quantity: ${req.cateringDetails?.servings} Servings</p>
-              <p class="text-stone-500 text-[11px]">Instructions: ${req.cateringDetails?.dietaryRemarks || 'Standard'}</p>
-            ` : `
-              <p class="text-stone-400">No food or drinks requested.</p>
-            `}
-          </div>
-
-          <div class="p-3.5 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD] space-y-1.5 text-xs">
-            <div class="flex items-center space-x-2 text-stone-800 font-bold">
-              <span class="iconify text-red-800 text-sm" data-icon="lucide:headset"></span>
-              <span>Equipment & IT Support</span>
-            </div>
-            ${req.needsIT ? `
-              <p class="font-bold text-stone-900 text-xs">${req.itDetails?.assignedStaff ? `IT Staff: ${req.itDetails.assignedStaff.name}` : 'Technician assignment in progress'}</p>
-              <p class="text-stone-600">${req.itDetails?.requestedItems?.join(', ') || 'Video Call Setup'}</p>
-              <p class="text-stone-500 text-[11px]">${req.itDetails?.isReady ? 'Equipment ready' : 'Scheduled for preparation'}</p>
-              <div class="p-2 rounded bg-red-50 border border-red-200 text-[10px] text-red-900 flex items-start space-x-1.5 mt-1.5">
-                <span class="iconify text-xs text-red-700 shrink-0 mt-0.5" data-icon="lucide:workflow"></span>
-                <span><strong>IT Setup Process:</strong> ${req.isPrivateRequest && isPending ? 'Waiting for Manager Pitika and Room Owner approval before IT setup begins.' : (req.isPrivateRequest && isOwnerPending ? 'Step 1 approved. Waiting for Room Owner approval before IT setup begins.' : (isSetup ? 'Both approvals granted! Dispatched to IT technician queue for equipment preparation.' : (isConfirmed ? 'IT equipment verified and confirmed ready.' : 'Will dispatch to IT Support upon approval.')))}</span>
-              </div>
-            ` : `
-              <p class="text-stone-400">Standard equipment only. No extra IT help requested.</p>
-            `}
-          </div>
-        </div>
-
-        <!-- Services & Logistics Summary -->
-        <div class="p-4 bg-white rounded-xl border border-[#E9E3DD] shadow-xs space-y-3">
-          <div class="flex items-center justify-between border-b border-stone-100 pb-2">
-            <div class="flex items-center space-x-2">
-              <span class="iconify text-red-900 text-sm" data-icon="lucide:layers"></span>
-              <h4 class="text-xs font-heading font-bold text-stone-900 uppercase tracking-wide">Services & Logistics Summary</h4>
-            </div>
-            <span class="text-[10px] text-stone-500 font-semibold">NBC Internal Hospitality & Facilities</span>
-          </div>
-
-          <div class="table-responsive">
-            <table class="w-full text-xs text-left border border-[#E9E3DD] rounded-lg overflow-hidden">
-              <thead class="bg-[#FAF7F4] text-stone-700 font-semibold border-b border-[#E9E3DD] text-[11px]">
-                <tr>
-                  <th class="p-2.5 w-1/3">Service</th>
-                  <th class="p-2.5">Details & Specifications</th>
-                  <th class="p-2.5 text-right w-28">Status</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-[#E9E3DD] text-stone-800 text-[11px]">
-                <tr>
-                  <td class="p-2.5 font-semibold text-stone-900">
-                    <span class="block">${req.room.name}</span>
-                    <span class="text-[10px] font-normal text-stone-500">${req.room.floor} &bull; ${req.attendees} Attendees</span>
-                  </td>
-                  <td class="p-2.5 text-stone-700">${req.date || ''} (${req.startTime} - ${req.endTime})</td>
-                  <td class="p-2.5 text-right">
-                    <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <span class="iconify" data-icon="lucide:check-circle-2"></span>
-                      <span>Reserved</span>
+                ${(isPrivate || req.privateJustification) ? `
+                  <div class="mt-3 p-3.5 bg-[#FFFBEB] rounded-xl border border-[#FDE68A] flex items-start gap-3">
+                    <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                      <span class="iconify text-sm" data-icon="lucide:shield-alert" data-stroke-width="1.8"></span>
                     </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-semibold text-stone-900">
-                    <span class="block">IT & Equipment Support</span>
-                    <span class="text-[10px] font-normal text-stone-500">Audio/Visual Setup</span>
-                  </td>
-                  <td class="p-2.5 text-stone-700">
-                    ${req.needsIT ? (req.itDetails?.requestedItems?.join(', ') || 'Video Call & Screen Setup') : 'Standard room setup without extra equipment'}
-                  </td>
-                  <td class="p-2.5 text-right">
-                    ${req.needsIT ? `
-                      <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                        <span class="iconify" data-icon="lucide:check-circle-2"></span>
-                        <span>Requested</span>
-                      </span>
-                    ` : `
-                      <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 text-stone-600 border border-stone-200">
-                        <span>Standard</span>
-                      </span>
-                    `}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-semibold text-stone-900">
-                    <span class="block">Catering & Refreshments</span>
-                    <span class="text-[10px] font-normal text-stone-500">Hospitality Service</span>
-                  </td>
-                  <td class="p-2.5 text-stone-700">
-                    ${req.needsCatering ? `
-                      <span class="font-medium text-stone-900">${req.cateringDetails?.packageName || 'Standard Catering'}</span> for ${req.attendees} attendees
-                      ${req.cateringDetails?.dietaryRemarks ? `<span class="block text-[10px] text-stone-500 mt-0.5">Notes: ${req.cateringDetails.dietaryRemarks}</span>` : ''}
-                    ` : 'No catering requested'}
-                  </td>
-                  <td class="p-2.5 text-right">
-                    ${req.needsCatering ? `
-                      <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                        <span class="iconify" data-icon="lucide:check-circle-2"></span>
-                        <span>Requested</span>
-                      </span>
-                    ` : `
-                      <span class="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 text-stone-600 border border-stone-200">
-                        <span>None</span>
-                      </span>
-                    `}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                    <div class="min-w-0">
+                      <strong class="text-xs text-amber-950 block">Private Room Request</strong>
+                      <p class="text-xs text-amber-900 leading-relaxed mt-1">${req.privateJustification || 'A private meeting room was requested for this booking.'}</p>
+                    </div>
+                  </div>
+                ` : ''}
+              </section>
+
+              <section class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-5 shadow-xs" aria-labelledby="services-heading">
+                <div class="flex items-center gap-2 pb-3 border-b border-[#E9E3DD]">
+                  <span class="w-8 h-8 rounded-lg bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
+                    <span class="iconify text-sm" data-icon="lucide:concierge-bell" data-stroke-width="1.8"></span>
+                  </span>
+                  <h2 id="services-heading" class="font-heading font-bold text-base text-stone-900">Services & Support</h2>
+                </div>
+
+                <div class="divide-y divide-[#E9E3DD]">
+                  <div class="py-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <span class="w-9 h-9 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+                      <span class="iconify text-base" data-icon="lucide:utensils" data-stroke-width="1.8"></span>
+                    </span>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2">
+                        <h3 class="font-heading font-semibold text-sm text-stone-900">Food & Drinks</h3>
+                        <span class="${req.needsCatering ? 'text-emerald-700' : 'text-stone-500'} inline-flex items-center gap-1 text-[11px] font-semibold">
+                          <span class="iconify" data-icon="${req.needsCatering ? 'lucide:check-circle-2' : 'lucide:minus-circle'}" data-stroke-width="1.8"></span>
+                          <span>${req.needsCatering ? 'Requested' : 'Not requested'}</span>
+                        </span>
+                      </div>
+                      <p class="text-xs text-stone-600 mt-1">${req.needsCatering ? `${req.cateringDetails?.packageName || 'Standard Catering Package'} &bull; ${req.cateringDetails?.servings || req.attendees || 8} servings` : 'No catering is attached to this booking.'}</p>
+                    </div>
+                    <button type="button" onclick="app.handleAddFoodDrinks('${req.id}')" class="btn-secondary min-h-[44px] px-3.5 rounded-lg text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#991B1B]">
+                      <span class="iconify text-sm" data-icon="${req.needsCatering ? 'lucide:eye' : 'lucide:plus'}" data-stroke-width="1.8"></span>
+                      <span>${req.needsCatering ? 'Service Details' : 'Add Service'}</span>
+                    </button>
+                  </div>
+
+                  <div class="py-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <span class="w-9 h-9 rounded-lg bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
+                      <span class="iconify text-base" data-icon="lucide:monitor-cog" data-stroke-width="1.8"></span>
+                    </span>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2">
+                        <h3 class="font-heading font-semibold text-sm text-stone-900">Equipment & IT</h3>
+                        <span class="${req.needsIT ? (isConfirmed ? 'text-emerald-700' : 'text-amber-700') : 'text-stone-500'} inline-flex items-center gap-1 text-[11px] font-semibold">
+                          <span class="iconify" data-icon="${req.needsIT ? (isConfirmed ? 'lucide:check-circle-2' : 'lucide:clock-3') : 'lucide:minus-circle'}" data-stroke-width="1.8"></span>
+                          <span>${req.needsIT ? (isConfirmed ? 'Ready' : 'In progress') : 'Not requested'}</span>
+                        </span>
+                      </div>
+                      <p class="text-xs text-stone-600 mt-1">${req.needsIT ? (req.itDetails?.requestedItems?.join(', ') || 'Video conference and audio setup') : 'The room standard equipment will be used.'}</p>
+                    </div>
+                    <button type="button" onclick="app.handleViewRequestDetails('${req.id}')" class="btn-secondary min-h-[44px] px-3.5 rounded-lg text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#991B1B]">
+                      <span class="iconify text-sm" data-icon="lucide:eye" data-stroke-width="1.8"></span>
+                      <span>Request Details</span>
+                    </button>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <aside class="xl:col-span-4 space-y-4">
+              <section class="bg-white rounded-2xl border border-[#E9E3DD] overflow-hidden shadow-xs" aria-labelledby="room-information-heading">
+                <div class="relative">
+                  <img src="${roomImgUrl}" class="w-full h-44 object-cover" alt="${roomObj.name || 'Meeting room'}" />
+                  <div class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#260707]/80 to-transparent pointer-events-none"></div>
+                  <h2 id="room-information-heading" class="absolute left-4 bottom-3 font-heading font-bold text-base text-white">${roomObj.name || req.room?.name || 'Meeting Room'}</h2>
+                </div>
+
+                <div class="p-4">
+                  <div class="flex items-center gap-1.5 text-xs text-stone-600 pb-3 border-b border-[#E9E3DD]">
+                    <span class="iconify text-[#991B1B]" data-icon="lucide:map-pin" data-stroke-width="1.8"></span>
+                    <span>${roomObj.floor || req.room?.floor || 'Floor'}</span>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-2 py-3">
+                    <div class="p-2.5 rounded-lg bg-[#FAF7F4] border border-[#E9E3DD] flex items-center gap-2">
+                      <span class="iconify text-[#991B1B]" data-icon="lucide:users" data-stroke-width="1.8"></span>
+                      <span class="text-[11px] text-stone-700"><strong class="font-mono text-stone-900">${roomObj.capacity || req.attendees || 8}</strong> seats</span>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-[#FAF7F4] border border-[#E9E3DD] flex items-center gap-2">
+                      <span class="iconify text-[#991B1B]" data-icon="lucide:monitor" data-stroke-width="1.8"></span>
+                      <span class="text-[11px] text-stone-700">Display</span>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-[#FAF7F4] border border-[#E9E3DD] flex items-center gap-2">
+                      <span class="iconify text-[#991B1B]" data-icon="lucide:wifi" data-stroke-width="1.8"></span>
+                      <span class="text-[11px] text-stone-700">Wi-Fi</span>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-[#FAF7F4] border border-[#E9E3DD] flex items-center gap-2">
+                      <span class="iconify text-[#991B1B]" data-icon="lucide:wind" data-stroke-width="1.8"></span>
+                      <span class="text-[11px] text-stone-700">Climate</span>
+                    </div>
+                  </div>
+
+                  <button type="button" onclick="app.openRoomDetailsPage('${roomObj.id || req.room?.id || 'ROOM-101'}')" class="btn-secondary w-full min-h-[44px] px-4 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#991B1B]">
+                    <span>View Room Details</span>
+                    <span class="iconify text-sm" data-icon="lucide:arrow-right" data-stroke-width="1.8"></span>
+                  </button>
+                </div>
+              </section>
+
+
+              <section class="bg-white rounded-2xl border border-[#E9E3DD] p-4 shadow-xs" aria-labelledby="booking-actions-heading">
+                <h2 id="booking-actions-heading" class="font-heading font-bold text-sm text-stone-900 pb-3 border-b border-[#E9E3DD]">Booking Actions</h2>
+                <div class="space-y-2 mt-3">
+                  ${isConfirmed ? `
+                    <button type="button" onclick="app.downloadCalendarInvite('${req.id}')" class="btn-secondary w-full min-h-[44px] px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#991B1B]">
+                      <span class="iconify text-sm" data-icon="lucide:calendar-plus" data-stroke-width="1.8"></span>
+                      <span>Save to Calendar</span>
+                    </button>
+                  ` : ''}
+                  <button type="button" onclick="app.handleContactSupport('${req.id}')" class="btn-primary w-full min-h-[44px] px-4 rounded-lg text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition cursor-pointer active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#991B1B]">
+                    <span class="iconify text-sm text-white" data-icon="lucide:message-square" data-stroke-width="1.8"></span>
+                    <span class="text-white">Contact Support</span>
+                  </button>
+                  ${!isCancelled && !isRejected ? `
+                    <button type="button" onclick="app.handleCancelBooking('${req.id}')" class="btn-danger-outline w-full min-h-[44px] px-4 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#991B1B]">
+                      <span class="iconify text-sm" data-icon="lucide:x-circle" data-stroke-width="1.8"></span>
+                      <span>Cancel Booking</span>
+                    </button>
+                  ` : ''}
+                </div>
+              </section>
+            </aside>
           </div>
         </div>
-
-        <!-- Bottom Action Bar -->
-        <div class="pt-4 border-t border-stone-200 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            ${!isCancelled && !isRejected ? `
-              <button onclick="app.handleCancelBooking('${req.id}')" aria-label="Cancel this booking" class="min-h-[44px] px-4 py-2.5 text-rose-700 hover:text-rose-900 hover:bg-rose-50 rounded-lg text-xs font-bold transition flex items-center">
-                Cancel Booking
-              </button>
-            ` : ''}
-          </div>
-
-          <div class="flex items-center space-x-2">
-            ${isConfirmed ? `
-              <button onclick="app.downloadCalendarInvite('${req.id}')" aria-label="Save to calendar" class="min-h-[44px] px-4 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition">
-                <span class="iconify text-stone-600" data-icon="lucide:calendar-plus"></span>
-                <span>Save to Calendar (.ics)</span>
-              </button>
-            ` : ''}
-          </div>
-        </div>
-
       </div>
     `;
   }
 
+  // Dynamic Stepper Generator
+  _renderStepper(req, isPrivate, isMyRoom, isConfirmed, isSetup, isOwnerPending, isPending, isRejected, isCancelled, isCancelledAfterPitika, isCancelledBeforePitika, isOwnerRejected) {
+    let steps = [];
+
+    if (isMyRoom && !req.needsIT && !req.needsCatering) {
+      // 3 steps
+      steps = [
+        { label: '1. Booked', sub: 'Instant', state: 'completed' },
+        { label: '2. Setup', sub: 'Ready', state: 'completed' },
+        { label: '3. Door Pass', sub: 'Active', state: 'completed' }
+      ];
+    } else if (isMyRoom && (req.needsIT || req.needsCatering)) {
+      // 4 steps
+      steps = [
+        { label: '1. Booked', sub: 'Instant', state: 'completed' },
+        { label: '2. Cost Review', sub: isConfirmed || isSetup ? 'Approved' : (isPending ? 'In Review' : 'Rejected'), state: isConfirmed || isSetup ? 'completed' : (isPending ? 'active' : 'pending') },
+        { label: '3. IT Setup', sub: isConfirmed ? 'Ready' : (isSetup ? 'In Progress' : 'Waiting'), state: isConfirmed ? 'completed' : (isSetup ? 'active' : 'pending') },
+        { label: '4. Door Pass', sub: isConfirmed ? 'Active' : 'Pending', state: isConfirmed ? 'completed' : 'pending' }
+      ];
+    } else if (isPrivate) {
+      // 5 steps (Matches screenshot: 1. Sent -> 2. Pitika -> 3. Room Owner -> 4. IT Setup -> 5. Door Pass)
+      const step1State = 'completed';
+      const step2State = isOwnerPending || isConfirmed || isSetup || isOwnerRejected || isCancelledAfterPitika ? 'completed' : (isPending ? 'active' : (isRejected ? 'failed' : 'pending'));
+      const step3State = isConfirmed || isSetup ? 'completed' : (isOwnerPending ? 'active' : (isOwnerRejected || isCancelledAfterPitika ? 'failed' : 'pending'));
+      const step4State = isConfirmed ? 'completed' : (isSetup ? 'active' : 'pending');
+      const step5State = isConfirmed ? 'completed' : 'pending';
+
+      const step2Sub = isOwnerPending || isConfirmed || isSetup || isOwnerRejected || isCancelledAfterPitika ? 'Approved' : (isPending ? 'In Review' : (isRejected ? 'Rejected' : 'Waiting'));
+      const step3Sub = isConfirmed || isSetup ? 'Approved' : (isOwnerPending ? 'In Review' : (isOwnerRejected ? 'Rejected' : 'Waiting'));
+      const step4Sub = isConfirmed ? 'Ready' : (isSetup ? 'In Progress' : (isPending || isOwnerPending ? 'Waiting' : 'Pending'));
+      const step5Sub = isConfirmed ? 'Confirmed' : 'Pending';
+
+      steps = [
+        { label: '1. Sent', sub: 'Just now', state: step1State },
+        { label: '2. Pitika', sub: step2Sub, state: step2State },
+        { label: '3. Room Owner', sub: step3Sub, state: step3State },
+        { label: '4. IT Setup', sub: step4Sub, state: step4State },
+        { label: '5. Door Pass', sub: step5Sub, state: step5State }
+      ];
+    } else {
+      // 4 steps
+      const step1State = 'completed';
+      const step2State = isConfirmed || isSetup ? 'completed' : (isPending ? 'active' : 'pending');
+      const step3State = isConfirmed ? 'completed' : (isSetup ? 'active' : 'pending');
+      const step4State = isConfirmed ? 'completed' : 'pending';
+
+      steps = [
+        { label: '1. Sent', sub: 'Submitted', state: step1State },
+        { label: '2. Pitika', sub: isConfirmed || isSetup ? 'Approved' : (isPending ? 'In Review' : 'Waiting'), state: step2State },
+        { label: '3. Setup', sub: isConfirmed ? 'Ready' : (isSetup ? 'In Progress' : 'Waiting'), state: step3State },
+        { label: '4. Door Pass', sub: isConfirmed ? 'Active' : 'Pending', state: step4State }
+      ];
+    }
+
+    // Calculate progress line percentage
+    let completedIndex = 0;
+    steps.forEach((st, idx) => {
+      if (st.state === 'completed') completedIndex = idx;
+      else if (st.state === 'active') completedIndex = idx - 0.5;
+    });
+    const progressWidth = Math.max(0, Math.min(100, (completedIndex / (steps.length - 1)) * 100));
+
+    return `
+      <div class="w-full">
+        <!-- Stepper Nodes Flex Row -->
+        <div class="flex items-start justify-between w-full">
+          ${steps.map((st, i) => {
+            let circleHtml = '';
+            let labelClass = 'text-stone-600';
+            let subClass = 'text-stone-400';
+
+            // Determine if the line connecting this node to the next should be active (crimson) or pending (stone)
+            const nextStep = steps[i + 1];
+            const isLineActive = st.state === 'completed' && nextStep && (nextStep.state === 'completed' || nextStep.state === 'active');
+            const lineColor = isLineActive ? 'bg-[#991B1B]' : 'bg-[#E9E3DD]';
+
+            if (st.state === 'completed') {
+              circleHtml = `
+                <div class="relative z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+                  <span class="iconify text-xs sm:text-sm text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
+                </div>
+              `;
+              labelClass = 'text-stone-900 font-bold';
+              subClass = 'text-stone-500';
+            } else if (st.state === 'active') {
+              circleHtml = `
+                <div class="relative z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border-2 border-[#991B1B] text-[#991B1B] flex items-center justify-center shadow-xs">
+                  <div class="w-2.5 h-2.5 rounded-full bg-[#991B1B] animate-pulse"></div>
+                </div>
+              `;
+              labelClass = 'text-[#991B1B] font-bold';
+              subClass = 'text-[#991B1B] font-semibold';
+            } else if (st.state === 'failed') {
+              circleHtml = `
+                <div class="relative z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-2xs">
+                  <span class="iconify text-xs" data-icon="lucide:x" data-stroke-width="2.5"></span>
+                </div>
+              `;
+              labelClass = 'text-rose-700 font-bold';
+              subClass = 'text-rose-600 font-medium';
+            } else {
+              circleHtml = `
+                <div class="relative z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-[#E9E3DD] text-stone-400 flex items-center justify-center text-xs font-mono font-medium">
+                  <span>${i + 1}</span>
+                </div>
+              `;
+              labelClass = 'text-stone-500 font-medium';
+              subClass = 'text-stone-400';
+            }
+
+            return `
+              <div class="flex-1 flex flex-col items-center text-center relative px-1">
+                <!-- Connecting Line to next step (centered vertically on the circle, spans from this node center to next node center) -->
+                ${i < steps.length - 1 ? `
+                  <div class="absolute top-3.5 sm:top-4 -translate-y-1/2 left-1/2 w-full h-[2px] z-0 pointer-events-none ${lineColor}"></div>
+                ` : ''}
+
+                <!-- Step Circle Icon -->
+                ${circleHtml}
+
+                <!-- Step Labels -->
+                <span class="mt-2 text-xs sm:text-[13px] font-heading leading-tight truncate w-full ${labelClass}">${st.label}</span>
+                <span class="mt-0.5 text-[10px] sm:text-[11px] leading-tight truncate w-full ${subClass}">${st.sub}</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  handleAddFoodDrinks(requestId) {
+    this.showToast("Catering Service", "Food & Drinks service is coordinated via internal hospitality hotline (ext 2305).", "info");
+  }
+
+  handleViewRequestDetails(requestId) {
+    const req = bookingStore.getRequestById(requestId);
+    const items = req?.itDetails?.requestedItems?.join(', ') || 'Video Conference & Audio Setup';
+    this.showToast("Equipment Details", `IT Equipment requested: ${items}`, "info");
+  }
+
+  handleContactSupport(requestId) {
+    this.showToast("NBC Support", "NBC Facilities & IT Support Hotline: +855 23 722 563 (ext 2305).", "info");
+  }
 
   handleCancelBooking(requestId) {
     if (confirm("Are you sure you want to cancel this meeting room booking?")) {
       bookingStore.cancelBookingRequest(requestId);
-      this.renderRequesterBookings();
-      if (this.currentView === 'booking-details') {
-        this.renderBookingDetailsPage(requestId);
-      }
+      this.showToast("Booking Cancelled", "Your booking reservation has been cancelled.", "info");
+      this.renderBookingDetailsPage(requestId);
     }
   }
-
 
   downloadCalendarInvite(requestId) {
     const req = bookingStore.getRequestById(requestId);
@@ -563,7 +554,7 @@ class BookingDetailsView {
       `DTEND:${cleanDate}T${endTimeClean}`,
       `SUMMARY:${req.meetingTitle}`,
       `DESCRIPTION:National Bank of Cambodia meeting room booking. Reference Code: ${req.referenceCode}. Notes: ${req.meetingPurpose || 'None'}`,
-      `LOCATION:${req.room.name}, ${req.room.floor}`,
+      `LOCATION:${req.room?.name || 'Meeting Room'}, ${req.room?.floor || 'Level 18'}`,
       'STATUS:CONFIRMED',
       'END:VEVENT',
       'END:VCALENDAR'
@@ -572,7 +563,7 @@ class BookingDetailsView {
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.setAttribute('download', `${req.referenceCode}-${req.room.name}.ics`);
+    link.setAttribute('download', `${req.referenceCode || req.id}-${req.room?.name || 'booking'}.ics`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -580,17 +571,17 @@ class BookingDetailsView {
     this.showToast("Calendar Invite Downloaded", `Added ${req.meetingTitle} to your calendar file.`, "success");
   }
 
-
-  copyReferenceCode(code) {
-    navigator.clipboard.writeText(code).then(() => {
-      this.showToast("Security Code Copied", `Booking code ${code} copied to clipboard.`, "success");
-    }).catch(() => {
-      this.showToast("Code: " + code, "Security reference code.", "info");
-    });
+  copyReferenceCode(code, label = "Security Code") {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(() => {
+        this.showToast(`${label} Copied`, `${label} ${code} copied to clipboard.`, "success");
+      }).catch(() => {
+        this.showToast(`${label}: ${code}`, `${label} for your booking.`, "info");
+      });
+    } else {
+      this.showToast(`${label}: ${code}`, `${label} for your booking.`, "info");
+    }
   }
-
-  // ==================== 4. PITIKA APPROVER QUEUE ====================
-
 }
 
 window.NBC.views['booking-details'] = new BookingDetailsView();

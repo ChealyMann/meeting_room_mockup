@@ -97,16 +97,16 @@ class CreateRoomView {
       <div class="pb-2 mb-4 border-b border-stone-200">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
-            <button type="button" onclick="app.navigateTo('book-room')" class="h-8 px-3 rounded-md bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 text-[13px] font-medium flex items-center space-x-1.5 transition shadow-2xs shrink-0 cursor-pointer">
+            <button type="button" onclick="app.navigateTo('book-room')" class="page-back-button h-8 px-3 rounded-md bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 text-[13px] font-medium flex items-center space-x-1.5 transition shadow-2xs shrink-0 cursor-pointer">
               <span class="iconify text-stone-400 text-sm" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
               <span>All Rooms</span>
             </button>
-            <div class="flex items-center space-x-1.5 text-xs text-stone-500 font-medium truncate">
+            <div class="page-breadcrumb flex items-center space-x-1.5 truncate">
               <span>Directory</span>
-              <span>/</span>
+              <span class="breadcrumb-separator">/</span>
               <span>Facilities</span>
-              <span>/</span>
-              <span class="text-amber-800 font-bold">Add Meeting Room</span>
+              <span class="breadcrumb-separator">/</span>
+              <span class="breadcrumb-current">Add Meeting Room</span>
             </div>
           </div>
 

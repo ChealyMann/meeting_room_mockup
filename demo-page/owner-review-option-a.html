@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Style 1: Executive Editorial Showcase - Room Owner Review</title>
+  
+  <!-- Fonts: Poppins, Kantumruy Pro, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cafe: {
+              canvas: '#F9F7F5',
+              surface: '#FFFFFF',
+              border: '#E9E3DD',
+              subtle: '#FAF7F4',
+              ink: '#3E2B1E',
+              coffee: '#6F5849',
+              latte: '#7D6857'
+            },
+            crimson: {
+              DEFAULT: '#991B1B',
+              hover: '#7F1D1D',
+              active: '#691515',
+              subtle: '#FEF2F2'
+            }
+          },
+          fontFamily: {
+            sans: ['Poppins', 'Kantumruy Pro', '-apple-system', 'sans-serif'],
+            heading: ['Poppins', 'Kantumruy Pro', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Iconify SVG Framework (Stroke-only Lucide icons) -->
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+
+  <!-- Vue 3 for reactive demo states -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.38/dist/vue.global.prod.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', 'Kantumruy Pro', sans-serif;
+      background-color: #F9F7F5;
+      color: #3E2B1E;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="h-screen flex flex-col antialiased selection:bg-[#991B1B] selection:text-white bg-[#F9F7F5]">
+
+  <div id="app" class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Top Option Switcher Bar (For testing all 3 brand new styles) -->
+    <header class="bg-[#260707] text-white px-5 py-2.5 flex items-center justify-between border-b border-[#450A0A] shrink-0 z-30">
+      <div class="flex items-center gap-3">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#FACC15]"></span>
+        <span class="font-mono text-xs tracking-wider text-[#FACC15] uppercase font-bold">NBC UI LAB</span>
+        <span class="text-stone-500">•</span>
+        <span class="text-xs font-medium text-stone-200">Brand New Style Explorations</span>
+      </div>
+
+      <!-- 3 Brand New Style Tabs -->
+      <div class="flex items-center gap-1.5 bg-[#2A0808] p-1 rounded-xl border border-[#3D0C0C]">
+        <a href="owner-review-option-a.html" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#991B1B] text-white shadow-xs flex items-center gap-1.5 transition">
+          <span class="iconify text-xs" data-icon="lucide:sparkles" data-stroke-width="2"></span>
+          <span>Style 1: Editorial Showcase</span>
+        </a>
+        <a href="owner-review-option-b.html" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-stone-300 hover:text-white hover:bg-white/5 flex items-center gap-1.5 transition">
+          <span class="iconify text-xs" data-icon="lucide:layout-grid" data-stroke-width="2"></span>
+          <span>Style 2: Bento Terminal</span>
+        </a>
+        <a href="owner-review-option-c.html" class="px-3.5 py-1.5 rounded-lg text-xs font-medium text-stone-300 hover:text-white hover:bg-white/5 flex items-center gap-1.5 transition">
+          <span class="iconify text-xs" data-icon="lucide:split" data-stroke-width="2"></span>
+          <span>Style 3: Split Cockpit</span>
+        </a>
+      </div>
+
+      <!-- State Simulator & Back to App -->
+      <div class="flex items-center gap-2">
+        <span class="text-[11px] text-stone-400 font-mono">State:</span>
+        <select v-model="currentStatus" class="bg-[#2A0808] text-white border border-[#3D0C0C] text-xs rounded-lg px-2.5 py-1 font-medium cursor-pointer focus:outline-none focus:border-[#991B1B]">
+          <option value="pending">Pending Owner Review</option>
+          <option value="setup">Approved - Setup In Progress</option>
+          <option value="confirmed">Approved - Confirmed</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <a href="../index.html" class="text-xs text-stone-300 hover:text-white flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-white/5 transition ml-2">
+          <span class="iconify text-xs" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+          <span>App</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Viewport (No Full-Page Scroll, Clean Max-W Layout) -->
+    <main class="flex-1 flex flex-col max-w-7xl w-full mx-auto p-4 sm:p-6 overflow-hidden">
+      
+      <!-- Top Action Strip -->
+      <div class="flex items-center justify-between pb-3.5 border-b border-[#E9E3DD] shrink-0 gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <a href="../index.html" class="min-h-[38px] px-3.5 py-1.5 rounded-xl bg-white hover:bg-[#FAF7F4] text-stone-700 border border-[#E9E3DD] text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs shrink-0">
+            <span class="iconify text-sm" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+            <span>Back to Queue</span>
+          </a>
+          <div class="h-4 w-[1px] bg-[#E9E3DD]"></div>
+          <div class="flex items-center gap-2 text-xs truncate">
+            <span class="font-mono font-bold text-[#991B1B]">{{ request.id }}</span>
+            <span class="text-stone-300">•</span>
+            <span class="font-mono text-stone-500 font-medium">{{ request.referenceCode }}</span>
+            <span class="text-stone-300">•</span>
+            <span class="font-medium text-stone-700">{{ request.room.name }}</span>
+          </div>
+        </div>
+
+        <!-- Clean Status Indicator (Strict No-Badge Mandate) -->
+        <div class="flex items-center gap-2 shrink-0">
+          <span v-if="currentStatus === 'pending'" class="flex items-center gap-1.5 text-xs font-bold text-amber-700">
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            <span>Action Required</span>
+          </span>
+          <span v-else-if="currentStatus === 'setup'" class="flex items-center gap-1.5 text-xs font-bold text-blue-700">
+            <span class="w-2 h-2 rounded-full bg-blue-500 animate-spin"></span>
+            <span>Approved • IT Setup In Progress</span>
+          </span>
+          <span v-else-if="currentStatus === 'confirmed'" class="flex items-center gap-1.5 text-xs font-bold text-emerald-700">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Approved • Ready for Session</span>
+          </span>
+          <span v-else class="flex items-center gap-1.5 text-xs font-bold text-rose-700">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            <span>Rejected</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Scrollable Inner Content Area -->
+      <div class="flex-1 overflow-y-auto hide-scrollbar pt-4 pb-6 space-y-4">
+        
+        <!-- BRAND NEW STYLE 1: CINEMATIC ROOM HERO WITH FLOATING IDENTITY -->
+        <div class="relative w-full rounded-2xl overflow-hidden border border-[#E9E3DD] shadow-xs bg-[#260707]">
+          <div class="relative h-48 sm:h-56 w-full">
+            <img :src="request.room.image" class="w-full h-full object-cover opacity-85" alt="Room Hero" />
+            <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+            
+            <!-- Hero Left: Meeting & Room Typography -->
+            <div class="absolute bottom-5 left-6 right-6 sm:right-auto max-w-xl text-white space-y-1.5">
+              <div class="flex items-center gap-2 text-[11px] font-mono tracking-wider uppercase text-[#FACC15]">
+                <span class="iconify" data-icon="lucide:shield-check" data-stroke-width="2"></span>
+                <span>Executive Private Suite • {{ request.room.floor }}</span>
+              </div>
+              <h1 class="font-heading font-extrabold text-xl sm:text-2xl text-white leading-tight">
+                {{ request.meetingTitle }}
+              </h1>
+              <p class="text-xs text-stone-200 font-medium">
+                Requested for {{ request.room.name }} • Capacity {{ request.room.capacity }} Seats
+              </p>
+            </div>
+
+            <!-- Hero Right: Quick Schedule Pill Strip (Floating Glass) -->
+            <div class="hidden sm:flex absolute bottom-5 right-6 items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-xl border border-white/20 text-white shadow-lg">
+              <div class="text-right">
+                <span class="text-[10px] uppercase font-bold text-amber-200 block">Session Slot</span>
+                <span class="font-mono text-sm font-bold">{{ request.startTime }} – {{ request.endTime }}</span>
+              </div>
+              <div class="h-7 w-[1px] bg-white/20"></div>
+              <div>
+                <span class="text-[10px] uppercase font-bold text-stone-300 block">Date</span>
+                <span class="text-xs font-semibold">{{ request.dateFormatted }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5-STAGE PROGRESS RAIL (Clean, Minimalist, Horizontal) -->
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 px-6 shadow-xs">
+          <div class="flex items-center justify-between mb-3 pb-2 border-b border-stone-100">
+            <h2 class="font-heading font-bold text-xs uppercase tracking-wider text-stone-700">Approval Milestone Rail</h2>
+            <span class="font-mono text-[11px] text-stone-500">Security Stage 3 of 5</span>
+          </div>
+
+          <div class="relative flex items-center justify-between w-full py-1">
+            <div class="absolute top-[14px] left-[5%] right-[5%] h-[2px] bg-[#E9E3DD]"></div>
+            <div class="absolute top-[14px] left-[5%] h-[2px] bg-[#991B1B] transition-all duration-300" :style="{ width: progressPercent }"></div>
+
+            <!-- Node 1 -->
+            <div class="relative z-10 flex flex-col items-center gap-1">
+              <div class="w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+                <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
+              </div>
+              <span class="text-xs font-bold text-stone-900">1. Sent</span>
+              <span class="text-[10px] text-stone-400">14:22</span>
+            </div>
+
+            <!-- Node 2 -->
+            <div class="relative z-10 flex flex-col items-center gap-1">
+              <div class="w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+                <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
+              </div>
+              <span class="text-xs font-bold text-stone-900">2. Pitika</span>
+              <span class="text-[10px] font-semibold text-emerald-700">Endorsed</span>
+            </div>
+
+            <!-- Node 3 -->
+            <div class="relative z-10 flex flex-col items-center gap-1">
+              <div v-if="currentStatus === 'pending'" class="w-7 h-7 rounded-full bg-white border-2 border-[#991B1B] text-[#991B1B] flex items-center justify-center shadow-xs">
+                <div class="w-2.5 h-2.5 rounded-full bg-[#991B1B] animate-pulse"></div>
+              </div>
+              <div v-else-if="currentStatus === 'rejected'" class="w-7 h-7 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-2xs">
+                <span class="iconify text-xs text-white" data-icon="lucide:x" data-stroke-width="2.5"></span>
+              </div>
+              <div v-else class="w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+                <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
+              </div>
+              <span class="text-xs font-bold" :class="currentStatus === 'pending' ? 'text-[#991B1B]' : 'text-stone-900'">3. Owner</span>
+              <span class="text-[10px] font-semibold" :class="currentStatus === 'pending' ? 'text-amber-700' : (currentStatus === 'rejected' ? 'text-rose-700' : 'text-emerald-700')">
+                {{ currentStatus === 'pending' ? 'Action Required' : (currentStatus === 'rejected' ? 'Rejected' : 'Approved') }}
+              </span>
+            </div>
+
+            <!-- Node 4 -->
+            <div class="relative z-10 flex flex-col items-center gap-1">
+              <div v-if="currentStatus === 'setup'" class="w-7 h-7 rounded-full bg-white border-2 border-blue-600 text-blue-600 flex items-center justify-center shadow-xs">
+                <div class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></div>
+              </div>
+              <div v-else-if="currentStatus === 'confirmed'" class="w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+                <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
+              </div>
+              <div v-else class="w-7 h-7 rounded-full bg-[#FAF7F4] border border-[#E9E3DD] text-stone-400 flex items-center justify-center text-xs font-bold">
+                4
+              </div>
+              <span class="text-xs font-medium" :class="currentStatus === 'setup' ? 'text-blue-700 font-bold' : (currentStatus === 'confirmed' ? 'text-stone-900 font-bold' : 'text-stone-500')">4. IT Setup</span>
+              <span class="text-[10px]" :class="currentStatus === 'setup' ? 'text-blue-700 font-semibold' : (currentStatus === 'confirmed' ? 'text-emerald-700 font-semibold' : 'text-stone-400')">
+                {{ currentStatus === 'setup' ? 'In Progress' : (currentStatus === 'confirmed' ? 'Ready' : 'Waiting') }}
+              </span>
+            </div>
+
+            <!-- Node 5 -->
+            <div class="relative z-10 flex flex-col items-center gap-1">
+              <div v-if="currentStatus === 'confirmed'" class="w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+                <span class="iconify text-xs text-white" data-icon="lucide:check-check" data-stroke-width="2.5"></span>
+              </div>
+              <div v-else class="w-7 h-7 rounded-full bg-[#FAF7F4] border border-[#E9E3DD] text-stone-400 flex items-center justify-center text-xs font-bold">
+                5
+              </div>
+              <span class="text-xs font-medium" :class="currentStatus === 'confirmed' ? 'text-stone-900 font-bold' : 'text-stone-500'">5. Door Pass</span>
+              <span class="text-[10px]" :class="currentStatus === 'confirmed' ? 'text-emerald-700 font-semibold' : 'text-stone-400'">
+                {{ currentStatus === 'confirmed' ? 'Issued' : 'Pending' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN 2-COLUMN DOSSIER GRID (7 Cols : 5 Cols) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+          
+          <!-- LEFT 7 COLS: SECURITY DOSSIER & SERVICE SPECIFICATIONS -->
+          <div class="lg:col-span-7 space-y-4">
+            
+            <!-- Security Clearance & Justification Card -->
+            <section class="bg-white rounded-2xl border border-[#E9E3DD] p-5 shadow-xs space-y-4">
+              <div class="flex items-center justify-between pb-3 border-b border-[#E9E3DD]">
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-lg bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
+                    <span class="iconify text-base" data-icon="lucide:shield-alert" data-stroke-width="2"></span>
+                  </span>
+                  <h2 class="font-heading font-bold text-base text-stone-900">Security Clearance & Justification</h2>
+                </div>
+                <span class="text-emerald-700 text-xs font-semibold flex items-center gap-1">
+                  <span class="iconify" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
+                  <span>Manager Pitika Verified</span>
+                </span>
+              </div>
+
+              <!-- Booker Statement -->
+              <div class="p-4 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD] space-y-1.5">
+                <span class="text-[10px] uppercase font-bold text-stone-500 tracking-wider block">Necessity Statement by Booker</span>
+                <p class="text-xs text-stone-900 leading-relaxed font-medium">
+                  "{{ request.privateJustification }}"
+                </p>
+              </div>
+
+              <!-- Official Pitika Endorsement Note -->
+              <div class="p-4 bg-stone-50 rounded-xl border border-stone-200 space-y-2 text-xs">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-stone-800 flex items-center gap-1.5">
+                    <span class="iconify text-[#991B1B]" data-icon="lucide:user-check" data-stroke-width="2"></span>
+                    <span>Manager Pitika S. • Official Endorsement</span>
+                  </span>
+                  <span class="font-mono text-stone-500 text-[11px]">16 Sep 2026, 16:45</span>
+                </div>
+                <p class="text-stone-700 leading-relaxed italic">
+                  "{{ request.pitikaNote }}"
+                </p>
+              </div>
+
+              <!-- Booker & Attendees Manifest Grid -->
+              <div class="grid grid-cols-2 gap-3 pt-1 text-xs">
+                <div class="p-3 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD]">
+                  <span class="text-[10px] uppercase font-bold text-stone-500 block">Booked By</span>
+                  <strong class="text-stone-900 block mt-1">{{ request.requester.name }}</strong>
+                  <span class="text-stone-600 text-[11px] block mt-0.5">{{ request.requester.department }} • Ext. {{ request.requester.ext }}</span>
+                  <span class="font-mono text-stone-500 text-[10px] block mt-0.5">{{ request.requester.phone }}</span>
+                </div>
+
+                <div class="p-3 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD]">
+                  <span class="text-[10px] uppercase font-bold text-stone-500 block">Session Delegation</span>
+                  <strong class="font-mono text-stone-900 text-sm block mt-1">{{ request.attendees }} Executive Participants</strong>
+                  <span class="text-stone-600 text-[11px] block mt-0.5">Board of Directors & Senior Economic Advisers</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- Technical Services & Logistics Card -->
+            <section class="bg-white rounded-2xl border border-[#E9E3DD] p-5 shadow-xs space-y-4">
+              <div class="flex items-center gap-2 pb-3 border-b border-[#E9E3DD]">
+                <span class="w-8 h-8 rounded-lg bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
+                  <span class="iconify text-base" data-icon="lucide:concierge-bell" data-stroke-width="2"></span>
+                </span>
+                <h2 class="font-heading font-bold text-base text-stone-900">Services & Logistics Manifest</h2>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <!-- IT Setup -->
+                <div class="p-3.5 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD] space-y-2">
+                  <div class="flex items-center justify-between pb-1.5 border-b border-[#E9E3DD]">
+                    <span class="font-bold text-stone-900 flex items-center gap-1.5">
+                      <span class="iconify text-[#991B1B]" data-icon="lucide:monitor-cog" data-stroke-width="2"></span>
+                      <span>IT Equipment</span>
+                    </span>
+                    <span class="text-[10px] font-bold text-emerald-700">30 min prep</span>
+                  </div>
+                  <ul class="space-y-1 text-stone-700 text-[11px]">
+                    <li v-for="item in request.itItems" :key="item" class="flex items-center gap-1.5">
+                      <span class="iconify text-emerald-600 text-xs shrink-0" data-icon="lucide:check" data-stroke-width="2"></span>
+                      <span>{{ item }}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Catering Setup -->
+                <div class="p-3.5 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD] space-y-2">
+                  <div class="flex items-center justify-between pb-1.5 border-b border-[#E9E3DD]">
+                    <span class="font-bold text-stone-900 flex items-center gap-1.5">
+                      <span class="iconify text-amber-700" data-icon="lucide:utensils" data-stroke-width="2"></span>
+                      <span>Hospitality</span>
+                    </span>
+                    <span class="text-[10px] font-bold text-amber-700">{{ request.catering.portions }} Portions</span>
+                  </div>
+                  <div class="space-y-1 text-[11px] text-stone-700">
+                    <div><span class="text-stone-500">Package:</span> <strong class="text-stone-900 font-semibold">{{ request.catering.package }}</strong></div>
+                    <div><span class="text-stone-500">Delivery:</span> {{ request.catering.time }} (Prompt)</div>
+                    <div class="text-[10px] text-stone-500 pt-0.5 border-t border-[#E9E3DD]">{{ request.catering.dietary }}</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+
+          <!-- RIGHT 5 COLS: ROOM OWNER DECISION TERMINAL -->
+          <div class="lg:col-span-5 space-y-4">
+            
+            <section class="bg-white rounded-2xl border border-[#E9E3DD] p-5 shadow-xs space-y-4">
+              
+              <!-- Terminal Header -->
+              <div class="flex items-center justify-between pb-3 border-b border-[#E9E3DD]">
+                <h2 class="font-heading font-bold text-base text-stone-900">Room Owner Authority</h2>
+                <span class="text-xs font-bold text-stone-700">{{ request.ownerName }}</span>
+              </div>
+
+              <!-- Time Authorization Box -->
+              <div class="p-4 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD] space-y-3">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-bold text-stone-900">Approve Session Hours</span>
+                  <span class="font-mono font-bold text-[#991B1B]">{{ calculatedDuration }}</span>
+                </div>
+
+                <!-- Instant Duration Chips -->
+                <div v-if="currentStatus === 'pending'" class="flex items-center gap-1.5 flex-wrap">
+                  <button @click="setTime('11:00', '13:00')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer" :class="startTime === '11:00' && endTime === '13:00' ? 'bg-[#991B1B] text-white border-[#991B1B]' : 'bg-white text-stone-700 border-[#E9E3DD] hover:bg-stone-50'">
+                    Confirm 11:00 – 13:00 (2h)
+                  </button>
+                  <button @click="setTime('11:00', '12:30')" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer" :class="startTime === '11:00' && endTime === '12:30' ? 'bg-[#991B1B] text-white border-[#991B1B]' : 'bg-white text-stone-700 border-[#E9E3DD] hover:bg-stone-50'">
+                    Shorten: 1.5h
+                  </button>
+                </div>
+
+                <!-- Clean Time Input Fields -->
+                <div class="grid grid-cols-2 gap-2.5 pt-1">
+                  <div>
+                    <label class="text-[10px] font-bold uppercase text-stone-500 block mb-1">Start Time</label>
+                    <input type="time" v-model="startTime" :disabled="currentStatus !== 'pending'" class="w-full h-9 px-2.5 text-xs font-semibold bg-white border border-[#E9E3DD] rounded-lg focus:outline-none focus:border-[#991B1B] disabled:bg-stone-100" />
+                  </div>
+                  <div>
+                    <label class="text-[10px] font-bold uppercase text-stone-500 block mb-1">End Time</label>
+                    <input type="time" v-model="endTime" :disabled="currentStatus !== 'pending'" class="w-full h-9 px-2.5 text-xs font-semibold bg-white border border-[#E9E3DD] rounded-lg focus:outline-none focus:border-[#991B1B] disabled:bg-stone-100" />
+                  </div>
+                </div>
+
+                <!-- Special Directives -->
+                <div>
+                  <label class="text-[10px] font-bold uppercase text-stone-500 block mb-1">Owner Protocol Directive</label>
+                  <input type="text" v-model="ownerNote" placeholder="e.g. Approved. Please ensure room sanitized." :disabled="currentStatus !== 'pending'" class="w-full h-9 px-2.5 text-xs bg-white border border-[#E9E3DD] rounded-lg focus:outline-none focus:border-[#991B1B] disabled:bg-stone-100" />
+                </div>
+              </div>
+
+              <!-- Action Decision Deck -->
+              <div class="space-y-2 pt-1">
+                
+                <template v-if="currentStatus === 'pending'">
+                  <!-- PRIMARY APPROVE BUTTON (NBC Crimson, Stark White Icon) -->
+                  <button @click="approveRequest" class="w-full min-h-[46px] py-2.5 bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-2 transition cursor-pointer">
+                    <span class="iconify text-white text-sm" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
+                    <span>Approve & Dispatch to IT Team</span>
+                  </button>
+
+                  <!-- Decline Link & Drawer -->
+                  <div class="pt-2 border-t border-[#E9E3DD]">
+                    <button @click="showDeclineBox = !showDeclineBox" class="w-full py-2 text-xs font-semibold text-stone-600 hover:text-rose-700 flex items-center justify-center gap-1.5 transition cursor-pointer">
+                      <span class="iconify text-xs" :data-icon="showDeclineBox ? 'lucide:chevron-up' : 'lucide:chevron-down'" data-stroke-width="2"></span>
+                      <span>Decline or Reject Request</span>
+                    </button>
+
+                    <div v-if="showDeclineBox" class="mt-2 p-3.5 bg-rose-50/80 border border-rose-200 rounded-xl space-y-2.5">
+                      <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-rose-950">Rejection Rationale</span>
+                        <span class="text-[10px] text-rose-700 font-medium">Required</span>
+                      </div>
+                      <div class="flex flex-wrap gap-1">
+                        <button @click="rejectionReason = 'Room needed for urgent Executive Board session'" class="px-2 py-0.5 text-[10px] bg-white border border-rose-200 rounded text-rose-900 hover:bg-rose-100 transition">
+                          Executive Override
+                        </button>
+                        <button @click="rejectionReason = 'Schedule conflict with planned facility maintenance'" class="px-2 py-0.5 text-[10px] bg-white border border-rose-200 rounded text-rose-900 hover:bg-rose-100 transition">
+                          Maintenance
+                        </button>
+                      </div>
+                      <textarea v-model="rejectionReason" rows="2" placeholder="Write rationale for the booker..." class="w-full p-2 text-xs bg-white border border-rose-200 rounded-lg focus:outline-none focus:border-rose-600"></textarea>
+                      <button @click="rejectRequest" class="w-full h-9 bg-rose-700 hover:bg-rose-800 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span class="iconify text-xs text-white" data-icon="lucide:ban" data-stroke-width="2"></span>
+                        <span>Confirm Rejection</span>
+                      </button>
+                    </div>
+                  </div>
+                </template>
+
+                <template v-else-if="currentStatus === 'setup'">
+                  <div class="p-4 bg-blue-50/80 rounded-xl border border-blue-200 text-center space-y-2">
+                    <div class="flex items-center justify-center gap-1.5 text-blue-900 font-bold text-xs">
+                      <span class="iconify text-blue-700 text-sm animate-spin" data-icon="lucide:settings"></span>
+                      <span>Approved • Dispatched to IT Support</span>
+                    </div>
+                    <p class="text-[11px] text-stone-600">Technicians are preparing video and presentation displays.</p>
+                    <button class="w-full h-9 bg-stone-900 hover:bg-black text-white rounded-lg text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition">
+                      <span class="iconify text-xs text-white" data-icon="lucide:server"></span>
+                      <span>View IT Support Status</span>
+                    </button>
+                  </div>
+                </template>
+
+                <template v-else-if="currentStatus === 'confirmed'">
+                  <div class="p-4 bg-emerald-50/80 rounded-xl border border-emerald-200 text-center space-y-2">
+                    <div class="flex items-center justify-center gap-1.5 text-emerald-900 font-bold text-xs">
+                      <span class="iconify text-emerald-700 text-sm" data-icon="lucide:check-circle-2"></span>
+                      <span>Booking Confirmed & Ready</span>
+                    </div>
+                    <p class="text-[11px] text-stone-600">All approvals and setups completed. Door pass generated.</p>
+                    <button class="w-full h-10 bg-[#991B1B] hover:bg-[#7F1D1D] text-white rounded-lg text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
+                      <span class="iconify text-xs text-white" data-icon="lucide:receipt" data-stroke-width="1.8"></span>
+                      <span>View Official Booking Receipt</span>
+                    </button>
+                  </div>
+                </template>
+
+                <template v-else>
+                  <div class="p-4 bg-rose-50/80 rounded-xl border border-rose-200 text-center space-y-1.5">
+                    <div class="flex items-center justify-center gap-1.5 text-rose-900 font-bold text-xs">
+                      <span class="iconify text-rose-700 text-sm" data-icon="lucide:x-circle"></span>
+                      <span>Request Rejected</span>
+                    </div>
+                    <p class="text-[11px] text-stone-600">Reason: {{ rejectionReason || 'Room needed for urgent Executive Board session' }}</p>
+                    <button @click="currentStatus = 'pending'" class="mt-2 text-xs text-[#991B1B] hover:underline font-semibold">
+                      Reopen Decision
+                    </button>
+                  </div>
+                </template>
+
+              </div>
+
+            </section>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <script>
+    const { createApp, ref, computed } = Vue;
+
+    createApp({
+      setup() {
+        const currentStatus = ref('pending');
+        const startTime = ref('11:00');
+        const endTime = ref('13:00');
+        const ownerNote = ref('Approved. Please ensure room sanitized.');
+        const showDeclineBox = ref(false);
+        const rejectionReason = ref('');
+
+        const request = {
+          id: 'REQ-2026-008',
+          referenceCode: 'REF-492042',
+          dateFormatted: 'Thursday, 18 Sep 2026',
+          startTime: '11:00 AM',
+          endTime: '01:00 PM',
+          meetingTitle: 'Confidential Board Monetary Policy Briefing',
+          attendees: 10,
+          ownerName: 'H.E. Chea Serey Cabinet',
+          room: {
+            code: 'EXEC-ROOM-01',
+            name: 'Malis Executive Suite',
+            floor: 'Level 18 • Executive Wing',
+            capacity: 16,
+            image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80'
+          },
+          requester: {
+            name: 'Jonathan Vance',
+            department: 'Board & Executive Office',
+            phone: '+855 23 722 563',
+            ext: '4410'
+          },
+          privateJustification: 'Confidential Board of Directors quarterly monetary policy briefing requiring secure executive boardroom with encrypted video link.',
+          pitikaNote: 'Endorsed. All public conference rooms are occupied today. Executive room clearance verified by Manager Pitika.',
+          itItems: ['Video Call Polycom 4K', 'Encrypted Line Access', 'Dual Presentation Screen'],
+          catering: {
+            package: 'Executive Tea & Pastries',
+            portions: 10,
+            time: '10:45 AM',
+            dietary: 'Khmer herbal teas & fresh fruit'
+          }
+        };
+
+        const progressPercent = computed(() => {
+          if (currentStatus.value === 'confirmed') return '90%';
+          if (currentStatus.value === 'setup') return '68%';
+          if (currentStatus.value === 'rejected') return '45%';
+          return '45%';
+        });
+
+        const calculatedDuration = computed(() => {
+          if (!startTime.value || !endTime.value) return '2 hours';
+          const [sh, sm] = startTime.value.split(':').map(Number);
+          const [eh, em] = endTime.value.split(':').map(Number);
+          const totalMin = (eh * 60 + em) - (sh * 60 + sm);
+          if (totalMin <= 0) return '0 hours';
+          const hours = Math.floor(totalMin / 60);
+          const mins = totalMin % 60;
+          return `${hours} hour${hours > 1 ? 's' : ''}${mins > 0 ? ' ' + mins + 'm' : ''}`;
+        });
+
+        const setTime = (s, e) => {
+          startTime.value = s;
+          endTime.value = e;
+        };
+
+        const approveRequest = () => {
+          currentStatus.value = 'setup';
+        };
+
+        const rejectRequest = () => {
+          if (!rejectionReason.value.trim()) {
+            rejectionReason.value = 'Room needed for urgent Executive Board session';
+          }
+          currentStatus.value = 'rejected';
+          showDeclineBox.value = false;
+        };
+
+        return {
+          currentStatus,
+          startTime,
+          endTime,
+          ownerNote,
+          showDeclineBox,
+          rejectionReason,
+          request,
+          progressPercent,
+          calculatedDuration,
+          setTime,
+          approveRequest,
+          rejectRequest
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

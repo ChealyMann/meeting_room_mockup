@@ -7,7 +7,7 @@ class RoomOwnerQueueView {
   constructor() {
     this.id = 'room-owner-queue';
     this.ownerFilter = 'all'; // 'all', 'pending', 'conflict', 'approved', 'rejected'
-    this.ownerViewMode = 'table'; // 'table' or 'cards'
+    this.ownerViewMode = 'cards'; // Cards view by default matching my-bookings & it-queue
     this.ownerSearchTerm = '';
     this.ownerDateFilter = '';
     this.ownerRoomFilter = 'all';
@@ -20,12 +20,38 @@ class RoomOwnerQueueView {
     this.ownerTablePageSize = 6;
     this.ownerCardsPageSize = 4;
     this.ownerPageSize = 6;
+    this.ownerLoadedBatches = 1;
+    this.ownerBatchSize = 4;
+    this.ownerIsLoadingMore = false;
+    this.ownerAutoScrollEnabled = true;
+    this._cardsIntersectionObserver = null;
     this._currentPaginatedItems = [];
     this._pendingRejectTarget = null; // null, 'batch', or requestId
 
     this.template = `<style>
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+        @keyframes ownerCardFadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-card-fade-in {
+          animation: ownerCardFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .owner-queue-cards-grid {
+          display: grid !important;
+          grid-template-columns: 1fr !important;
+          gap: 0.875rem !important;
+          width: 100% !important;
+        }
+        .owner-queue-cards-grid.hidden {
+          display: none !important;
+        }
+        @media (min-width: 1400px) {
+          .owner-queue-cards-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          }
+        }
       </style>
       <!-- Executive Queue Header -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b border-[#E9E3DD]">
@@ -35,13 +61,13 @@ class RoomOwnerQueueView {
 
         <!-- View Mode Switcher -->
         <div class="flex items-center space-x-1 shrink-0 bg-stone-100 p-0.5 rounded-lg border border-[#E9E3DD]">
-          <button id="owner-view-table-btn" onclick="app.setOwnerViewMode('table')" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 flex items-center space-x-1.5 bg-[#991B1B] text-white shadow-2xs cursor-pointer">
-            <span class="iconify text-xs text-white" data-icon="lucide:table" data-stroke-width="2"></span>
-            <span>Table</span>
-          </button>
-          <button id="owner-view-cards-btn" onclick="app.setOwnerViewMode('cards')" class="px-3 py-1.5 rounded-md text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-200/50 transition-all duration-150 flex items-center space-x-1.5 cursor-pointer">
-            <span class="iconify text-xs text-stone-500" data-icon="lucide:layout-grid" data-stroke-width="2"></span>
+          <button id="owner-view-cards-btn" onclick="app.setOwnerViewMode('cards')" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 flex items-center space-x-1.5 bg-[#991B1B] text-white shadow-2xs cursor-pointer">
+            <span class="iconify text-xs text-white" data-icon="lucide:layout-grid" data-stroke-width="2"></span>
             <span>Cards</span>
+          </button>
+          <button id="owner-view-table-btn" onclick="app.setOwnerViewMode('table')" class="px-3 py-1.5 rounded-md text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-200/50 transition-all duration-150 flex items-center space-x-1.5 cursor-pointer">
+            <span class="iconify text-xs text-stone-500" data-icon="lucide:table" data-stroke-width="2"></span>
+            <span>Table</span>
           </button>
         </div>
       </div>
@@ -222,7 +248,7 @@ class RoomOwnerQueueView {
   render(container) {
     if (!container) return;
     container.innerHTML = `
-      <div id="view-room-owner-queue-content" class="w-full h-[calc(100dvh-104px)] flex flex-col space-y-2.5 min-h-0">
+      <div id="view-room-owner-queue-content" class="w-full h-[calc(100dvh-140px)] flex flex-col space-y-2.5 min-h-0">
         ${this.template}
       </div>
     `;
@@ -292,6 +318,9 @@ class RoomOwnerQueueView {
     window.app.batchApproveOwnerSelected = () => this.batchApproveOwnerSelected();
     window.app.batchRejectOwnerSelected = () => this.batchRejectOwnerSelected();
     window.app.openRoomOwnerReviewWorkspace = (reqId) => this.openRoomOwnerReviewWorkspace(reqId);
+    window.app.loadNextOwnerCardsBatch = () => this.loadNextOwnerCardsBatch();
+    window.app.scrollOwnerQueueToTop = () => this.scrollOwnerQueueToTop();
+    window.app.copyOwnerReferenceCode = (code) => this.copyOwnerReferenceCode(code);
   }
 
   _populateRoomDropdown() {
@@ -311,8 +340,12 @@ class RoomOwnerQueueView {
   setOwnerViewMode(mode) {
     this.ownerViewMode = mode;
     this.ownerCurrentPage = 0;
+    this.ownerLoadedBatches = 1;
     this._updateViewModeButtons();
     this.renderRoomOwnerRequests();
+    if (mode === 'cards') {
+      this.scrollOwnerQueueToTop();
+    }
   }
 
   _updateViewModeButtons() {
@@ -320,18 +353,18 @@ class RoomOwnerQueueView {
     const cardsBtn = document.getElementById('owner-view-cards-btn');
 
     if (tableBtn && cardsBtn) {
-      const isTable = this.ownerViewMode === 'table';
-      tableBtn.className = isTable
+      const isCards = this.ownerViewMode === 'cards';
+      cardsBtn.className = isCards
         ? 'px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 flex items-center space-x-1.5 bg-[#991B1B] text-white shadow-2xs cursor-pointer'
         : 'px-3 py-1.5 rounded-md text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-200/50 transition-all duration-150 flex items-center space-x-1.5 cursor-pointer';
-      cardsBtn.className = !isTable
+      tableBtn.className = !isCards
         ? 'px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 flex items-center space-x-1.5 bg-[#991B1B] text-white shadow-2xs cursor-pointer'
         : 'px-3 py-1.5 rounded-md text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-200/50 transition-all duration-150 flex items-center space-x-1.5 cursor-pointer';
 
       const tIcon = tableBtn.querySelector('.iconify');
       const cIcon = cardsBtn.querySelector('.iconify');
-      if (tIcon) tIcon.setAttribute('class', `iconify text-xs ${isTable ? 'text-white' : 'text-stone-500'}`);
-      if (cIcon) cIcon.setAttribute('class', `iconify text-xs ${!isTable ? 'text-white' : 'text-stone-500'}`);
+      if (cIcon) cIcon.setAttribute('class', `iconify text-xs ${isCards ? 'text-white' : 'text-stone-500'}`);
+      if (tIcon) tIcon.setAttribute('class', `iconify text-xs ${!isCards ? 'text-white' : 'text-stone-500'}`);
     }
   }
 
@@ -354,7 +387,11 @@ class RoomOwnerQueueView {
     this.ownerFilter = statusSelect?.value || 'all';
 
     this.ownerCurrentPage = 0;
+    this.ownerLoadedBatches = 1;
     this.renderRoomOwnerRequests();
+    if (this.ownerViewMode === 'cards') {
+      this.scrollOwnerQueueToTop();
+    }
   }
 
   clearOwnerSearch() {
@@ -405,7 +442,11 @@ class RoomOwnerQueueView {
       statusSelect.value = status;
     }
     this.ownerCurrentPage = 0;
+    this.ownerLoadedBatches = 1;
     this.renderRoomOwnerRequests();
+    if (this.ownerViewMode === 'cards') {
+      this.scrollOwnerQueueToTop();
+    }
   }
 
   resetOwnerFilters() {
@@ -430,7 +471,11 @@ class RoomOwnerQueueView {
     if (clearBtn) clearBtn.classList.add('hidden');
 
     this.ownerCurrentPage = 0;
+    this.ownerLoadedBatches = 1;
     this.renderRoomOwnerRequests();
+    if (this.ownerViewMode === 'cards') {
+      this.scrollOwnerQueueToTop();
+    }
   }
 
   toggleOwnerRowExpansion(reqId) {
@@ -508,10 +553,15 @@ class RoomOwnerQueueView {
         if (typeof bookingStore.approveByRoomOwner === 'function') {
           bookingStore.approveByRoomOwner(id, { ownerNotes: "Batch authorized by Room Owner." });
         }
-        r.status = 'Approved - Confirmed';
-        r.statusDisplay = 'Approved';
         r.indicator = 'transparent';
         r.hasConflict = false;
+        if (r.needsIT || r.needsCatering) {
+          r.status = 'Approved - Setup In Progress';
+          r.statusDisplay = 'Setting Up';
+        } else {
+          r.status = 'Approved - Confirmed';
+          r.statusDisplay = 'Approved';
+        }
         count++;
       }
     });
@@ -539,10 +589,15 @@ class RoomOwnerQueueView {
         ownerNotes: "Authorized by Room Owner with requested standard session hours."
       });
     }
-    req.status = "Approved - Confirmed";
-    req.statusDisplay = "Approved";
     req.indicator = "transparent";
     req.hasConflict = false;
+    if (req.needsIT || req.needsCatering) {
+      req.status = "Approved - Setup In Progress";
+      req.statusDisplay = "Setting Up";
+    } else {
+      req.status = "Approved - Confirmed";
+      req.statusDisplay = "Approved";
+    }
 
     if (typeof bookingStore.saveState === 'function') {
       bookingStore.saveState();
@@ -1131,37 +1186,13 @@ class RoomOwnerQueueView {
     this.renderRoomOwnerRequests();
   }
 
-  renderRoomOwnerRequests() {
-    const container = document.getElementById('view-owner-requests-list');
-    if (!container || typeof bookingStore === 'undefined') return;
+  _getFilteredOwnerRequests() {
+    if (typeof bookingStore === 'undefined') return [];
 
     // 1. Fetch all private room requests
     const allRequests = bookingStore.getRequests().filter(r => !!r.isPrivateRequest || !!r.room?.isPrivate);
 
-    // 2. Calculate Date References
-    const now = new Date();
-    const todayYear = now.getFullYear();
-    const todayMonth = String(now.getMonth() + 1).padStart(2, '0');
-    const todayDay = String(now.getDate()).padStart(2, '0');
-    const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
-
-    // 3. Update High-Level KPI Summary Cards
-    const pendingOwnerRequests = allRequests.filter(r => r.status === 'Pending Room Owner Approval' || r.statusDisplay === 'Pending Review' || r.status === 'Pending Review');
-    const todayRequests = allRequests.filter(r => r.date === todayStr || r.date === '2026-09-10' || r.indicator === 'sky');
-    const approvedRequests = allRequests.filter(r => r.status.includes('Approved') || r.statusDisplay === 'Approved');
-    const privateRooms = bookingStore.getPrivateRooms ? bookingStore.getPrivateRooms() : [];
-
-    const kpiPending = document.getElementById('owner-kpi-pending');
-    const kpiToday = document.getElementById('owner-kpi-today');
-    const kpiApproved = document.getElementById('owner-kpi-approved');
-    const kpiRooms = document.getElementById('owner-kpi-rooms');
-
-    if (kpiPending) kpiPending.innerText = pendingOwnerRequests.length;
-    if (kpiToday) kpiToday.innerText = todayRequests.length;
-    if (kpiApproved) kpiApproved.innerText = approvedRequests.length;
-    if (kpiRooms) kpiRooms.innerText = privateRooms.length || 3;
-
-    // 4. Apply Status Filter
+    // 2. Apply Status Filter
     let filtered = allRequests.filter(req => {
       if (this.ownerFilter === 'pending') {
         return req.status === 'Pending Room Owner Approval' || req.status === 'Pending Review' || req.statusDisplay === 'Pending Review';
@@ -1175,9 +1206,9 @@ class RoomOwnerQueueView {
       return true;
     });
 
-    // 5. Apply Search Query Filter
+    // 3. Apply Search Query Filter
     if (this.ownerSearchTerm) {
-      const q = this.ownerSearchTerm;
+      const q = this.ownerSearchTerm.toLowerCase();
       filtered = filtered.filter(req => {
         return (req.id && req.id.toLowerCase().includes(q)) ||
                (req.referenceCode && req.referenceCode.toLowerCase().includes(q)) ||
@@ -1191,50 +1222,23 @@ class RoomOwnerQueueView {
       });
     }
 
-    // 6. Apply Date Filter
+    // 4. Apply Date Filter
     if (this.ownerDateFilter && this.ownerDateFilter !== 'all') {
       const selectedDate = this.ownerDateFilter.trim();
       filtered = filtered.filter(req => req.date === selectedDate);
     }
 
-    // 7. Apply Room Filter
+    // 5. Apply Room Filter
     if (this.ownerRoomFilter && this.ownerRoomFilter !== 'all') {
       filtered = filtered.filter(req => req.room?.id === this.ownerRoomFilter);
     }
 
-    // 8. Apply Department Filter
+    // 6. Apply Department Filter
     if (this.ownerDeptFilter && this.ownerDeptFilter !== 'all') {
       filtered = filtered.filter(req => req.requester?.department === this.ownerDeptFilter);
     }
 
-    // 9. Empty State Handling
-    if (filtered.length === 0) {
-      this._currentPaginatedItems = [];
-      container.innerHTML = `
-        <div class="py-12 px-4 text-center bg-white rounded-2xl border border-[#E9E3DD] shadow-2xs space-y-3">
-          <div class="w-12 h-12 rounded-full bg-stone-100 text-stone-500 mx-auto flex items-center justify-center">
-            <span class="iconify text-xl text-stone-400" data-icon="lucide:shield-alert" data-stroke-width="1.8"></span>
-          </div>
-          <div class="space-y-1">
-            <h4 class="text-sm font-heading font-bold text-stone-900">No Private Room Requests Found</h4>
-            <p class="text-xs text-stone-500 max-w-md mx-auto leading-relaxed">There are no private room approval requests matching your current filters.</p>
-          </div>
-          <div class="flex items-center justify-center gap-2 pt-2">
-            <button onclick="app.resetOwnerFilters()" class="btn-secondary px-4 py-2 rounded-lg font-semibold text-xs transition-all shadow-2xs active:scale-[0.98] cursor-pointer flex items-center space-x-1.5">
-              <span class="iconify text-xs text-[#78716C]" data-icon="lucide:rotate-ccw" data-stroke-width="1.8"></span>
-              <span>Reset Filters</span>
-            </button>
-            <button onclick="app.seedSampleOwnerRequests()" class="btn-primary px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer active:scale-[0.98]">
-              <span class="iconify text-xs text-white" data-icon="lucide:sparkles" data-stroke-width="1.8"></span>
-              <span>Load Reference Data</span>
-            </button>
-          </div>
-        </div>
-      `;
-      return;
-    }
-
-    // 10. Column Sorting
+    // 7. Column Sorting
     const sortCol = this.ownerSortColumn || 'id';
     const sortDir = this.ownerSortDirection === 'asc' ? 1 : -1;
     filtered.sort((a, b) => {
@@ -1260,8 +1264,610 @@ class RoomOwnerQueueView {
       return 0;
     });
 
-    // 11. Pagination Calculations (6 rows per page for Table, 4 cards per page for Cards)
-    const pageSize = this.ownerViewMode === 'table' ? (this.ownerTablePageSize || 6) : (this.ownerCardsPageSize || 4);
+    return filtered;
+  }
+
+  renderRoomOwnerRequests() {
+    const container = document.getElementById('view-owner-requests-list');
+    if (!container || typeof bookingStore === 'undefined') return;
+
+    // 1. Calculate Date & KPI References
+    const allRequests = bookingStore.getRequests().filter(r => !!r.isPrivateRequest || !!r.room?.isPrivate);
+    const now = new Date();
+    const todayYear = now.getFullYear();
+    const todayMonth = String(now.getMonth() + 1).padStart(2, '0');
+    const todayDay = String(now.getDate()).padStart(2, '0');
+    const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
+
+    const pendingOwnerRequests = allRequests.filter(r => r.status === 'Pending Room Owner Approval' || r.statusDisplay === 'Pending Review' || r.status === 'Pending Review');
+    const todayRequests = allRequests.filter(r => r.date === todayStr || r.date === '2026-09-10' || r.indicator === 'sky');
+    const approvedRequests = allRequests.filter(r => r.status.includes('Approved') || r.statusDisplay === 'Approved');
+    const privateRooms = bookingStore.getPrivateRooms ? bookingStore.getPrivateRooms() : [];
+
+    const kpiPending = document.getElementById('owner-kpi-pending');
+    const kpiToday = document.getElementById('owner-kpi-today');
+    const kpiApproved = document.getElementById('owner-kpi-approved');
+    const kpiRooms = document.getElementById('owner-kpi-rooms');
+
+    if (kpiPending) kpiPending.innerText = pendingOwnerRequests.length;
+    if (kpiToday) kpiToday.innerText = todayRequests.length;
+    if (kpiApproved) kpiApproved.innerText = approvedRequests.length;
+    if (kpiRooms) kpiRooms.innerText = privateRooms.length || 3;
+
+    // 2. Get Filtered & Sorted Requests
+    const filtered = this._getFilteredOwnerRequests();
+
+    // 3. Empty State Handling
+    if (filtered.length === 0) {
+      this._disconnectCardsObserver();
+      this._currentPaginatedItems = [];
+      container.innerHTML = `
+        <div class="py-12 px-4 text-center bg-white rounded-2xl border border-[#E9E3DD] shadow-2xs space-y-3">
+          <div class="w-12 h-12 rounded-full bg-stone-100 text-stone-500 mx-auto flex items-center justify-center">
+            <span class="iconify text-xl text-stone-400" data-icon="lucide:shield-alert" data-stroke-width="1.8"></span>
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-sm font-heading font-bold text-stone-900">No Private Room Requests Found</h4>
+            <p class="text-xs text-stone-500 max-w-md mx-auto leading-relaxed">There are no private room approval requests matching your current filters.</p>
+          </div>
+          <div class="flex items-center justify-center gap-2 pt-2">
+            <button onclick="app.resetOwnerFilters()" class="btn-secondary px-4 py-2 rounded-lg font-semibold text-xs transition-all shadow-2xs active:scale-[0.98] cursor-pointer flex items-center space-x-1.5">
+              <span class="iconify text-xs text-[#78716C]" data-icon="lucide:rotate-ccw" data-stroke-width="1.8"></span>
+              <span>Reset Filters</span>
+            </button>
+            <button onclick="app.seedSampleOwnerRequests()" class="btn-primary px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer active:scale-[0.98]">
+              <span class="iconify text-xs text-white" data-icon="lucide:sparkles" data-stroke-width="1.8"></span>
+              <span class="text-white">Load Reference Data</span>
+            </button>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    // 4. Card View (Unified with My-Bookings & IT-Queue, Infinite Scroll)
+    if (this.ownerViewMode === 'cards') {
+      const totalItems = filtered.length;
+      const currentlyDisplayedCount = Math.min(totalItems, this.ownerLoadedBatches * this.ownerBatchSize);
+      const displayedItems = filtered.slice(0, currentlyDisplayedCount);
+      this._currentPaginatedItems = displayedItems;
+      const hasMore = currentlyDisplayedCount < totalItems;
+      const remaining = Math.max(0, totalItems - currentlyDisplayedCount);
+
+      const cardsHtml = displayedItems.map(req => this._renderSingleOwnerCard(req, false)).join('');
+
+      let finalHtml = `
+        <div class="flex flex-col flex-1 min-h-0">
+          <div id="owner-cards-scroll-container" class="flex-1 overflow-y-auto hide-scrollbar pt-1 pb-6 pr-1 relative">
+            <!-- Card Grid: Single-column on tablets & standard laptops, 2-col on ultra-wide screens (>=1400px) -->
+            <div id="owner-cards-grid" class="owner-queue-cards-grid">
+              ${cardsHtml}
+            </div>
+
+            <!-- Skeleton Loading Slot for Zero-Shift Infinite Scroll -->
+            <div id="owner-cards-skeleton-slot" class="owner-queue-cards-grid mt-3.5 ${this.ownerIsLoadingMore && hasMore ? '' : 'hidden'}">
+              ${this.ownerIsLoadingMore && hasMore ? this._renderCardSkeleton(Math.min(2, remaining)) : ''}
+            </div>
+
+            <!-- Sentinel trigger element for IntersectionObserver -->
+            <div id="owner-cards-infinite-sentinel" class="w-full h-2 pointer-events-none mt-2"></div>
+
+            <!-- Footer Status / Fallback Controls -->
+            <div id="owner-cards-footer-controls" class="w-full">
+              ${this._renderCardsFooterControls(totalItems, currentlyDisplayedCount, hasMore, remaining)}
+            </div>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = finalHtml;
+      this._setupCardsInfiniteScrollObserver();
+      return;
+    }
+
+    // 5. Table View (Option 4 Refined Minimal Ledger)
+    this._disconnectCardsObserver();
+    this._renderOption4Table(container, filtered);
+  }
+
+  _renderSingleOwnerCard(req, isNew = false) {
+    const isOwnerPending = req.status === 'Pending Room Owner Approval' || req.statusDisplay === 'Pending Review' || req.status === 'Pending Review';
+    const isConfirmed = req.status === 'Approved - Confirmed' || req.statusDisplay === 'Approved';
+    const isSetup = req.status === 'Approved - Setup In Progress';
+    const isRejected = req.status === 'Rejected' || req.statusDisplay === 'Rejected';
+    const isCancelled = req.status === 'Cancelled';
+    const isConflict = req.status === 'Time Conflict' || req.statusDisplay === 'Time Conflict' || req.hasConflict;
+
+    let statusLabel = 'Waiting Owner';
+    let statusIcon = 'lucide:clock';
+    let statusBadgeClass = 'bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]';
+
+    if (isConflict) {
+      statusLabel = 'Time Conflict';
+      statusIcon = 'lucide:alert-circle';
+      statusBadgeClass = 'bg-rose-50 text-rose-700 border border-rose-200';
+    } else if (isConfirmed) {
+      statusLabel = 'Approved';
+      statusIcon = 'lucide:check-circle-2';
+      statusBadgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+    } else if (isSetup) {
+      statusLabel = 'Setting Up';
+      statusIcon = 'lucide:settings';
+      statusBadgeClass = 'bg-blue-50 text-blue-700 border border-blue-200';
+    } else if (isRejected) {
+      statusLabel = 'Rejected';
+      statusIcon = 'lucide:x-circle';
+      statusBadgeClass = 'bg-stone-50 text-stone-700 border border-stone-200';
+    } else if (isCancelled) {
+      statusLabel = 'Cancelled';
+      statusIcon = 'lucide:slash';
+      statusBadgeClass = 'bg-stone-50 text-stone-700 border border-stone-200';
+    }
+
+    const roomObj = (typeof bookingStore !== 'undefined' && bookingStore.getRoomById) ? (bookingStore.getRoomById(req.room?.id) || req.room || {}) : (req.room || {});
+    const roomImgUrl = roomObj.image || req.room?.image || 'assets/rooms/boardroom-alpha.jpg';
+    const roomShortName = (roomObj.name || req.room?.name || 'Private Room').split(' - ')[0];
+    const floorShort = (roomObj.floor || req.room?.floor || 'Level 18').split('(')[0].trim();
+    const refCode = req.referenceCode || req.id || 'NBC-PR-8821';
+    const requesterName = req.requester?.name || 'Jonathan Vance';
+    const avatarUrl = req.requester?.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(requesterName) + '&background=f3e8ff&color=7e22ce';
+
+    return `
+      <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-4.5 shadow-xs transition-all duration-150 hover:border-[#D8CFC7] hover:shadow-sm flex flex-col justify-between ${isNew ? 'animate-card-fade-in' : ''}">
+        <!-- Row 1: ID + Reference Code + Status Pill -->
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center space-x-2 min-w-0">
+            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" class="font-mono font-bold text-xs text-[#991B1B] hover:underline cursor-pointer" title="Open Review Workspace">
+              ${req.id}
+            </button>
+            <span class="text-stone-300 font-light">•</span>
+            <button type="button" onclick="app.copyOwnerReferenceCode('${refCode}')" title="Click to copy reference code" class="font-mono text-xs font-normal text-stone-500 hover:text-stone-800 flex items-center space-x-1 cursor-pointer">
+              <span>${refCode}</span>
+              <span class="iconify text-xs text-stone-400 hover:text-stone-600" data-icon="lucide:copy" data-stroke-width="2"></span>
+            </button>
+          </div>
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass} shrink-0">
+            <span class="iconify text-xs" data-icon="${statusIcon}" data-stroke-width="2"></span>
+            <span>${statusLabel}</span>
+          </div>
+        </div>
+
+        <!-- Row 2: Room Thumbnail + Meeting Specs + Services Tag -->
+        <div class="flex items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-3.5">
+          <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
+            <img src="${roomImgUrl}" class="rounded-xl object-cover border border-[#E9E3DD] shrink-0 w-[116px] sm:w-[124px] h-[74px] sm:h-[78px] shadow-2xs" alt="Room" />
+            <div class="min-w-0">
+              <h4 class="font-heading font-semibold text-sm text-stone-900 leading-snug truncate" title="${req.meetingTitle || ''}">${req.meetingTitle || 'Private Board Meeting'}</h4>
+              <div class="flex items-center space-x-1.5 text-xs text-stone-500 mt-1 font-normal">
+                <span class="iconify text-stone-400 text-xs shrink-0" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+                <span>${floorShort} • ${roomShortName}</span>
+              </div>
+              <div class="flex items-center flex-wrap sm:flex-nowrap gap-x-2 gap-y-0.5 text-xs font-mono font-medium text-stone-600 mt-1.5">
+                <span class="inline-flex items-center space-x-1 text-stone-600 shrink-0">
+                  <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:calendar" data-stroke-width="2"></span>
+                  <span>${req.date}</span>
+                </span>
+                <span class="text-stone-300 font-light hidden sm:inline">•</span>
+                <span class="inline-flex items-center space-x-1 font-semibold text-stone-800 shrink-0">
+                  <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:clock" data-stroke-width="2"></span>
+                  <span>${req.startTime} – ${req.endTime}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Services Tag (Right Side) -->
+          <div class="shrink-0 flex items-center space-x-2 text-xs font-medium">
+            ${req.needsCatering ? `
+              <span class="flex items-center space-x-1 text-[#D97706]" title="Catering / Food">
+                <span class="iconify text-sm text-[#D97706]" data-icon="lucide:utensils" data-stroke-width="2"></span>
+                <span>Food</span>
+              </span>
+            ` : ''}
+            ${req.needsIT ? `
+              <span class="flex items-center space-x-1 text-[#991B1B]" title="IT Setup">
+                <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:headset" data-stroke-width="2"></span>
+                <span>IT</span>
+              </span>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- Row 3: Requester Metadata Strip (Approver View) -->
+        <div class="flex items-center justify-between gap-2 py-2 px-3 mb-2 rounded-xl bg-stone-50 border border-stone-200/70 text-xs">
+          <div class="flex items-center space-x-2 min-w-0">
+            <img src="${avatarUrl}" class="w-5 h-5 rounded-full object-cover border border-[#E9E3DD] shrink-0" alt="Requester" />
+            <span class="font-semibold text-stone-800 truncate">${requesterName}</span>
+            <span class="text-stone-400 hidden sm:inline">•</span>
+            <span class="text-stone-500 truncate hidden sm:inline">${req.requester?.department || 'Executive Office'}</span>
+          </div>
+          <div class="flex items-center space-x-1.5 shrink-0">
+            <span class="inline-flex items-center space-x-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+              <span class="iconify text-xs text-emerald-600" data-icon="lucide:shield-check" data-stroke-width="2"></span>
+              <span>Pitika Endorsed</span>
+            </span>
+            ${isConflict ? `
+              <span class="inline-flex items-center space-x-1 text-[11px] font-medium text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                <span class="iconify text-xs text-rose-600" data-icon="lucide:alert-triangle" data-stroke-width="2"></span>
+                <span>Conflict</span>
+              </span>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- Stepper: Visual Approval Progress (5 Steps) -->
+        ${this._renderOwnerBookingStepper(req)}
+
+        <!-- Row 5: Action Buttons (Consistently h-[36px] rounded-xl) -->
+        <div class="mt-3.5 flex items-center gap-2 sm:gap-2.5">
+          ${isOwnerPending ? `
+            <button type="button" onclick="app.quickOwnerApprove('${req.id}')" title="Approve reservation" class="btn-primary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-bold text-white flex items-center justify-center space-x-1.5 shadow-2xs transition cursor-pointer active:scale-[0.98]">
+              <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
+              <span class="text-white">Approve</span>
+            </button>
+            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" title="Open Review Workspace" class="flex-1 btn-secondary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
+              <span class="iconify text-xs text-stone-600" data-icon="lucide:file-text" data-stroke-width="2"></span>
+              <span>Review</span>
+            </button>
+            <button type="button" onclick="app.quickOwnerReject('${req.id}')" title="Decline reservation" class="w-9 h-9 shrink-0 rounded-xl bg-white hover:bg-rose-50 text-[#991B1B] border border-rose-200 transition flex items-center justify-center cursor-pointer active:scale-[0.98]">
+              <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:x" data-stroke-width="2"></span>
+            </button>
+          ` : (isConflict ? `
+            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" title="Resolve Schedule Conflict" class="min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98] shadow-2xs">
+              <span class="iconify text-xs text-amber-700" data-icon="lucide:alert-circle" data-stroke-width="2"></span>
+              <span>Resolve Conflict</span>
+            </button>
+            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" title="Open Review Workspace" class="flex-1 btn-secondary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
+              <span class="iconify text-xs text-stone-600" data-icon="lucide:file-text" data-stroke-width="2"></span>
+              <span>Review</span>
+            </button>
+            <button type="button" onclick="app.quickOwnerReject('${req.id}')" title="Decline reservation" class="w-9 h-9 shrink-0 rounded-xl bg-white hover:bg-rose-50 text-[#991B1B] border border-rose-200 transition flex items-center justify-center cursor-pointer active:scale-[0.98]">
+              <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:x" data-stroke-width="2"></span>
+            </button>
+          ` : `
+            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" class="w-full btn-secondary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
+              <span class="iconify text-xs text-stone-600" data-icon="lucide:eye" data-stroke-width="2"></span>
+              <span>View Workspace & Decision</span>
+            </button>
+          `)}
+        </div>
+      </div>
+    `;
+  }
+
+  _renderOwnerBookingStepper(req) {
+    const isConfirmed = req.status === 'Approved - Confirmed' || req.statusDisplay === 'Approved';
+    const isSetup = req.status === 'Approved - Setup In Progress';
+    const isRejected = req.status === 'Rejected' || req.statusDisplay === 'Rejected';
+    const isCancelled = req.status === 'Cancelled';
+    const isConflict = req.status === 'Time Conflict' || req.statusDisplay === 'Time Conflict' || req.hasConflict;
+    const isOwnerPending = req.status === 'Pending Room Owner Approval' || (!isConfirmed && !isRejected && !isCancelled && !isSetup && !isConflict);
+
+    let progressPercent = '50%';
+    if (isConfirmed) progressPercent = '100%';
+    else if (isSetup) progressPercent = '75%';
+    else if (isOwnerPending || isConflict || isRejected) progressPercent = '50%';
+
+    return `
+      <div class="relative w-full my-3.5 pt-0.5 pb-1">
+        <!-- Connecting Line Background & Progress -->
+        <div class="absolute top-[10px] left-[8%] right-[8%] sm:left-[10%] sm:right-[10%] h-[2px] bg-[#E7DFD7] rounded-full z-0 pointer-events-none">
+          <div class="h-full bg-[#991B1B] rounded-full transition-all duration-300" style="width: ${progressPercent};"></div>
+        </div>
+
+        <!-- Stepper Nodes Track: 5 Steps -->
+        <div class="relative z-10 flex items-start justify-between w-full">
+          <!-- Step 1: 1. Submitted -->
+          <div class="flex flex-col items-center text-center flex-1 min-w-0">
+            <div class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+              <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+            </div>
+            <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">1. Submitted</span>
+          </div>
+
+          <!-- Step 2: 2. Pitika (Approved) -->
+          <div class="flex flex-col items-center text-center flex-1 min-w-0">
+            <div class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+              <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+            </div>
+            <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">2. Pitika</span>
+          </div>
+
+          <!-- Step 3: 3. Room Owner -->
+          <div class="flex flex-col items-center text-center flex-1 min-w-0">
+            ${isConfirmed || isSetup ? `
+              <div class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+                <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">3. Room Owner</span>
+            ` : (isRejected || isCancelled ? `
+              <div class="w-5 h-5 rounded-full bg-rose-50 border border-rose-300 text-rose-600 flex items-center justify-center shadow-2xs">
+                <span class="iconify text-xs text-rose-600" data-icon="lucide:x" data-stroke-width="2"></span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-semibold text-rose-700 mt-2 whitespace-nowrap">3. Room Owner</span>
+              <span class="text-[10px] sm:text-xs font-normal text-rose-600 mt-0.5 whitespace-nowrap">${isCancelled ? 'Cancelled' : 'Rejected'}</span>
+            ` : (isConflict ? `
+              <div class="w-5 h-5 rounded-full bg-amber-50 border border-amber-300 text-amber-600 flex items-center justify-center shadow-2xs">
+                <span class="iconify text-xs text-amber-600" data-icon="lucide:alert-circle" data-stroke-width="2"></span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-semibold text-amber-700 mt-2 whitespace-nowrap">3. Room Owner</span>
+              <span class="text-[10px] sm:text-xs font-normal text-amber-600 mt-0.5 whitespace-nowrap">Conflict</span>
+            ` : `
+              <div class="w-5 h-5 rounded-full bg-[#991B1B] border-2 border-white ring-[5px] ring-rose-200/60 flex items-center justify-center shadow-xs"></div>
+              <span class="text-[11px] sm:text-xs font-semibold text-[#991B1B] mt-2 whitespace-nowrap">3. Room Owner</span>
+              <span class="text-[10px] sm:text-xs font-normal text-stone-500 mt-0.5 whitespace-nowrap">Reviewing</span>
+            `))}
+          </div>
+
+          <!-- Step 4: 4. IT Setup -->
+          <div class="flex flex-col items-center text-center flex-1 min-w-0">
+            ${isConfirmed ? `
+              <div class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+                <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">4. IT Setup</span>
+            ` : (isSetup ? `
+              <div class="w-5 h-5 rounded-full bg-[#991B1B] ring-[5px] ring-rose-100 flex items-center justify-center shadow-xs">
+                <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-semibold text-[#991B1B] mt-2 whitespace-nowrap">4. IT Setup</span>
+              <span class="text-[10px] sm:text-xs font-normal text-stone-500 mt-0.5 whitespace-nowrap">Setting Up</span>
+            ` : `
+              <div class="w-5 h-5 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs">
+                <span>4</span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">4. IT Setup</span>
+            `)}
+          </div>
+
+          <!-- Step 5: 5. Door Pass -->
+          <div class="flex flex-col items-center text-center flex-1 min-w-0">
+            ${isConfirmed ? `
+              <div class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+                <span class="iconify text-xs text-white" data-icon="lucide:check-check" data-stroke-width="2"></span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-semibold text-stone-900 mt-2 whitespace-nowrap">5. Door Pass</span>
+              <span class="text-[10px] sm:text-xs font-medium text-emerald-700 mt-0.5 whitespace-nowrap">Active</span>
+            ` : `
+              <div class="w-5 h-5 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs">
+                <span>5</span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">5. Door Pass</span>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  _renderCardsFooterControls(totalItems, currentlyDisplayedCount, hasMore, remaining) {
+    if (this.ownerIsLoadingMore) {
+      return `
+        <div class="py-5 flex items-center justify-center space-x-2 text-xs font-semibold text-stone-500 animate-pulse">
+          <span class="iconify animate-spin text-sm text-[#991B1B]" data-icon="lucide:loader-2" data-stroke-width="2"></span>
+          <span>Loading more private room requests...</span>
+        </div>
+      `;
+    }
+
+    if (hasMore) {
+      return `
+        <div class="py-5 flex flex-col items-center justify-center space-y-2">
+          <button type="button" onclick="app.loadNextOwnerCardsBatch()" class="h-9 px-5 rounded-xl bg-white hover:bg-stone-50 text-stone-800 border border-[#E9E3DD] text-xs font-bold transition-all shadow-2xs hover:shadow-xs flex items-center space-x-2 cursor-pointer active:scale-[0.98]">
+            <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:arrow-down-circle" data-stroke-width="2"></span>
+            <span>Load More Requests</span>
+            <span class="text-xs text-stone-500 font-normal">(${remaining} remaining)</span>
+          </button>
+          <span class="text-xs text-stone-400">Scroll down to auto-load</span>
+        </div>
+      `;
+    }
+
+    // End of data: subtle warm divider + Back to Top
+    return `
+      <div class="py-7 flex flex-col items-center justify-center space-y-2.5">
+        <div class="flex items-center space-x-3 w-full max-w-md px-4">
+          <div class="flex-1 h-[1px] bg-[#E9E3DD]"></div>
+          <div class="flex items-center space-x-1.5 text-xs font-semibold text-[#7D6857] shrink-0">
+            <span class="iconify text-sm text-emerald-600" data-icon="lucide:check-circle" data-stroke-width="2"></span>
+            <span>All ${totalItems} private requests loaded</span>
+          </div>
+          <div class="flex-1 h-[1px] bg-[#E9E3DD]"></div>
+        </div>
+        <button type="button" onclick="app.scrollOwnerQueueToTop()" class="btn-secondary h-7 px-3 rounded-lg text-xs font-bold text-stone-700 flex items-center space-x-1.5 transition active:scale-[0.98] shadow-2xs hover:border-stone-300 cursor-pointer">
+          <span class="iconify text-xs text-stone-500" data-icon="lucide:arrow-up" data-stroke-width="2"></span>
+          <span>Back to Top</span>
+        </button>
+      </div>
+    `;
+  }
+
+  _renderCardSkeleton(count = 2) {
+    let skeletons = '';
+    for (let i = 0; i < count; i++) {
+      skeletons += `
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-4.5 shadow-xs flex flex-col justify-between animate-pulse">
+          <!-- Row 1: Header shimmer -->
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-2">
+              <div class="w-24 h-4 rounded-md bg-stone-200"></div>
+              <div class="w-2 h-2 rounded-full bg-stone-200"></div>
+              <div class="w-20 h-4 rounded-md bg-stone-100"></div>
+            </div>
+            <div class="w-20 h-6 rounded-full bg-stone-100 border border-stone-200"></div>
+          </div>
+
+          <!-- Row 2: Room Info shimmer -->
+          <div class="flex items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-3.5">
+            <div class="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
+              <div class="w-[116px] sm:w-[124px] h-[74px] sm:h-[78px] rounded-xl bg-stone-200 shrink-0"></div>
+              <div class="min-w-0 flex-1 space-y-2">
+                <div class="w-3/4 h-4 rounded-md bg-stone-200"></div>
+                <div class="w-1/3 h-3 rounded-md bg-stone-100"></div>
+                <div class="w-1/2 h-3 rounded-md bg-stone-100"></div>
+              </div>
+            </div>
+            <div class="w-12 h-5 rounded-md bg-stone-100"></div>
+          </div>
+
+          <!-- Row 3: Requester Strip shimmer -->
+          <div class="w-full h-8 rounded-xl bg-stone-100 mb-2"></div>
+
+          <!-- Stepper shimmer -->
+          <div class="relative w-full my-3.5 pt-0.5 pb-1">
+            <div class="absolute top-[10px] left-[8%] right-[8%] sm:left-[10%] sm:right-[10%] h-[2px] bg-stone-200 rounded-full"></div>
+            <div class="relative z-10 flex items-center justify-between w-full">
+              <div class="flex flex-col items-center space-y-2 flex-1">
+                <div class="w-5 h-5 rounded-full bg-stone-200"></div>
+                <div class="w-12 h-2.5 rounded bg-stone-100"></div>
+              </div>
+              <div class="flex flex-col items-center space-y-2 flex-1">
+                <div class="w-5 h-5 rounded-full bg-stone-200"></div>
+                <div class="w-12 h-2.5 rounded bg-stone-100"></div>
+              </div>
+              <div class="flex flex-col items-center space-y-2 flex-1">
+                <div class="w-5 h-5 rounded-full bg-stone-200"></div>
+                <div class="w-14 h-2.5 rounded bg-stone-100"></div>
+              </div>
+              <div class="flex flex-col items-center space-y-2 flex-1">
+                <div class="w-5 h-5 rounded-full bg-stone-200"></div>
+                <div class="w-12 h-2.5 rounded bg-stone-100"></div>
+              </div>
+              <div class="flex flex-col items-center space-y-2 flex-1">
+                <div class="w-5 h-5 rounded-full bg-stone-200"></div>
+                <div class="w-12 h-2.5 rounded bg-stone-100"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 5: Buttons shimmer -->
+          <div class="mt-3.5 flex items-center gap-2 sm:gap-2.5">
+            <div class="w-24 h-[36px] rounded-xl bg-stone-200"></div>
+            <div class="flex-1 h-[36px] rounded-xl bg-stone-100 border border-stone-200"></div>
+            <div class="w-9 h-9 rounded-xl bg-stone-50 border border-stone-200"></div>
+          </div>
+        </div>
+      `;
+    }
+    return skeletons;
+  }
+
+  _setupCardsInfiniteScrollObserver() {
+    this._disconnectCardsObserver();
+
+    const sentinel = document.getElementById('owner-cards-infinite-sentinel');
+    const scrollContainer = document.getElementById('owner-cards-scroll-container');
+    if (!sentinel || !scrollContainer) return;
+
+    if (typeof IntersectionObserver === 'undefined') return;
+
+    this._cardsIntersectionObserver = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      if (entry && entry.isIntersecting && !this.ownerIsLoadingMore && this.ownerAutoScrollEnabled) {
+        this.loadNextOwnerCardsBatch();
+      }
+    }, {
+      root: scrollContainer,
+      rootMargin: '120px',
+      threshold: 0.1
+    });
+
+    this._cardsIntersectionObserver.observe(sentinel);
+  }
+
+  _disconnectCardsObserver() {
+    if (this._cardsIntersectionObserver) {
+      this._cardsIntersectionObserver.disconnect();
+      this._cardsIntersectionObserver = null;
+    }
+  }
+
+  loadNextOwnerCardsBatch() {
+    if (this.ownerIsLoadingMore) return;
+
+    const filtered = this._getFilteredOwnerRequests();
+    const totalItems = filtered.length;
+    const currentDisplayed = this.ownerLoadedBatches * this.ownerBatchSize;
+
+    if (currentDisplayed >= totalItems) {
+      return;
+    }
+
+    this.ownerIsLoadingMore = true;
+
+    const skeletonSlot = document.getElementById('owner-cards-skeleton-slot');
+    const footerControls = document.getElementById('owner-cards-footer-controls');
+    const remainingAfter = totalItems - currentDisplayed;
+    const nextBatchSize = Math.min(this.ownerBatchSize, remainingAfter);
+
+    if (skeletonSlot) {
+      skeletonSlot.innerHTML = this._renderCardSkeleton(Math.min(2, nextBatchSize));
+      skeletonSlot.classList.remove('hidden');
+    }
+    if (footerControls) {
+      footerControls.innerHTML = this._renderCardsFooterControls(totalItems, currentDisplayed, true, remainingAfter);
+    }
+
+    // 400ms micro-latency for smooth skeleton experience
+    setTimeout(() => {
+      const nextBatchItems = filtered.slice(currentDisplayed, currentDisplayed + nextBatchSize);
+      this.ownerLoadedBatches++;
+
+      const grid = document.getElementById('owner-cards-grid');
+      if (grid && nextBatchItems.length > 0) {
+        const newCardsHtml = nextBatchItems.map(req => {
+          return this._renderSingleOwnerCard(req, true);
+        }).join('');
+        grid.insertAdjacentHTML('beforeend', newCardsHtml);
+      }
+
+      if (skeletonSlot) {
+        skeletonSlot.innerHTML = '';
+        skeletonSlot.classList.add('hidden');
+      }
+
+      const newDisplayed = this.ownerLoadedBatches * this.ownerBatchSize;
+      const newHasMore = newDisplayed < totalItems;
+      const newRemaining = Math.max(0, totalItems - newDisplayed);
+
+      this.ownerIsLoadingMore = false;
+
+      if (footerControls) {
+        footerControls.innerHTML = this._renderCardsFooterControls(totalItems, Math.min(totalItems, newDisplayed), newHasMore, newRemaining);
+      }
+
+      if (newHasMore) {
+        const sentinel = document.getElementById('owner-cards-infinite-sentinel');
+        if (sentinel && this._cardsIntersectionObserver) {
+          this._cardsIntersectionObserver.unobserve(sentinel);
+          this._cardsIntersectionObserver.observe(sentinel);
+        }
+      } else {
+        this._disconnectCardsObserver();
+      }
+    }, 400);
+  }
+
+  scrollOwnerQueueToTop() {
+    const scrollContainer = document.getElementById('owner-cards-scroll-container');
+    if (scrollContainer) {
+      scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  copyOwnerReferenceCode(code) {
+    if (!code) return;
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      navigator.clipboard.writeText(code).catch(() => {});
+    }
+  }
+
+  cleanup() {
+    this._disconnectCardsObserver();
+  }
+
+  _renderOption4Table(container, filtered) {
+    const pageSize = this.ownerTablePageSize || 6;
     const totalItems = filtered.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
     if (this.ownerCurrentPage >= totalPages) this.ownerCurrentPage = totalPages - 1;
@@ -1271,417 +1877,225 @@ class RoomOwnerQueueView {
     const paginatedItems = filtered.slice(startIdx, endIdx);
     this._currentPaginatedItems = paginatedItems;
 
-    // =========================================================================
-    // RENDER MODE A: REDESIGNED TABLE (Clean, Spacious, No Sub-Detail under Name, No Purpose)
-    // =========================================================================
-    if (this.ownerViewMode === 'table') {
-      const allVisibleSelected = paginatedItems.length > 0 && paginatedItems.every(r => this.selectedOwnerRequestIds.has(r.id));
-      const selectedCount = this.selectedOwnerRequestIds.size;
+    let tableRowsHtml = paginatedItems.map((req, idx) => {
+      const reqId = req.id || `REQ-2026-${String(idx + 1).padStart(3, '0')}`;
+      const submittedText = req.submittedText || (idx === 0 ? 'Submitted 10 mins ago' : (idx === 1 ? 'Submitted 1 hour ago' : `Submitted ${idx} hours ago`));
 
-      let tableRowsHtml = paginatedItems.map((req, idx) => {
-        const isSelected = this.selectedOwnerRequestIds.has(req.id);
-        const reqId = req.id || `REQ-2026-${String(idx + 1).padStart(3, '0')}`;
-        const submittedText = req.submittedText || (idx === 0 ? 'Submitted 10 mins ago' : (idx === 1 ? 'Submitted 1 hour ago' : `Submitted ${idx} hours ago`));
+      const requesterName = req.requester?.name || 'Jonathan Vance';
+      const initials = this.getInitials(requesterName);
 
-        // Row indicator strip on left border
-        let indicatorBorder = 'border-l-4 border-transparent';
-        let checkboxBorder = 'border-stone-300';
-        if (req.indicator === 'amber') {
-          indicatorBorder = 'border-l-4 border-amber-500';
-          checkboxBorder = 'border-amber-500';
-        } else if (req.indicator === 'red' || req.status === 'Time Conflict' || req.statusDisplay === 'Time Conflict') {
-          indicatorBorder = 'border-l-4 border-red-500';
-          checkboxBorder = 'border-red-500';
-        } else if (req.indicator === 'sky') {
-          indicatorBorder = 'border-l-4 border-sky-400';
-          checkboxBorder = 'border-stone-300';
-        }
+      const rawRoomName = req.room?.name || 'Executive Room A';
+      const roomShort = rawRoomName.split(' - ')[0];
+      const roomFloor = req.room?.floor ? req.room.floor.split('(')[0].trim() : (idx === 0 ? 'Level 5' : 'Level 18');
 
-        // Requester details: Clean name only, NO department or subtitle underneath
-        const requesterName = req.requester?.name || 'Jonathan Vance';
-        const initials = this.getInitials(requesterName);
+      const formattedDate = this.formatScheduleDate(req.date || '2026-09-11');
+      const timeRange = `${req.startTime || '11:00'} - ${req.endTime || '13:00'}`;
 
-        // Room details
-        const rawRoomName = req.room?.name || 'Executive Room A';
-        const roomShort = rawRoomName.split(' - ')[0];
-        const roomFloor = req.room?.floor ? req.room.floor.split('(')[0].trim() : (idx === 0 ? 'Level 5' : 'Level 18');
-
-        // Schedule details
-        const formattedDate = this.formatScheduleDate(req.date || '2026-09-11');
-        const timeRange = `${req.startTime || '11:00'} - ${req.endTime || '13:00'}`;
-
-        // Status pill badge
-        let statusHtml = '';
-        const isApproved = req.status && (req.status.includes('Approved') || req.statusDisplay === 'Approved');
-        const isRejected = req.status === 'Rejected' || req.statusDisplay === 'Rejected';
-        const isConflict = req.status === 'Time Conflict' || req.statusDisplay === 'Time Conflict';
-
-        if (isConflict) {
-          statusHtml = `
-            <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
-              <span class="iconify text-xs text-red-600 shrink-0" data-icon="lucide:alert-circle" data-stroke-width="2"></span>
-              <span>Time Conflict</span>
-            </div>
-          `;
-        } else if (isApproved) {
-          statusHtml = `
-            <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-              <span class="iconify text-xs text-emerald-600 shrink-0" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
-              <span>Approved</span>
-            </div>
-          `;
-        } else if (isRejected) {
-          statusHtml = `
-            <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-stone-100 text-stone-600 border border-stone-200">
-              <span class="iconify text-xs text-stone-500 shrink-0" data-icon="lucide:x-circle" data-stroke-width="2"></span>
-              <span>Rejected</span>
-            </div>
-          `;
-        } else {
-          statusHtml = `
-            <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-              <span class="iconify text-xs text-amber-600 shrink-0" data-icon="lucide:clock" data-stroke-width="2"></span>
-              <span>Pending Review</span>
-            </div>
-          `;
-        }
-
-        return `
-          <tr class="hover:bg-stone-50/70 transition-colors ${isSelected ? 'bg-amber-50/20' : ''}">
-            <!-- 1. Checkbox + Left Border Indicator -->
-            <td class="w-10 py-3.5 pl-4 pr-2 ${indicatorBorder}">
-              <input type="checkbox" onchange="app.toggleOwnerRequestSelect('${reqId}', this.checked)" ${isSelected ? 'checked' : ''} class="w-4 h-4 rounded ${checkboxBorder} text-[#991B1B] focus:ring-[#991B1B] cursor-pointer" />
-            </td>
-
-            <!-- 2. REQUEST -->
-            <td class="px-4 py-3.5 whitespace-nowrap">
-              <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${reqId}')" title="Open Review Workspace" class="font-bold text-xs text-stone-900 hover:text-[#991B1B] transition hover:underline cursor-pointer block leading-tight text-left">
-                ${reqId}
-              </button>
-              <span class="text-[11px] text-stone-400 block mt-1 leading-tight">${submittedText}</span>
-            </td>
-
-            <!-- 3. REQUESTER (Name only, clean & bold without department sub-detail) -->
-            <td class="px-4 py-3.5 whitespace-nowrap">
-              <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center shrink-0">
-                  ${initials}
-                </div>
-                <span class="font-bold text-xs text-stone-900 truncate leading-tight">${requesterName}</span>
-              </div>
-            </td>
-
-            <!-- 4. PRIVATE ROOM -->
-            <td class="px-4 py-3.5 whitespace-nowrap">
-              <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                  <span class="iconify text-base text-blue-600" data-icon="lucide:door-closed" data-stroke-width="2"></span>
-                </div>
-                <div class="min-w-0">
-                  <span class="font-bold text-xs text-stone-900 block truncate leading-tight">${roomShort}</span>
-                  <span class="text-[11px] text-stone-400 block truncate mt-1 leading-tight">${roomFloor}</span>
-                </div>
-              </div>
-            </td>
-
-            <!-- 5. SCHEDULE -->
-            <td class="px-4 py-3.5 whitespace-nowrap">
-              <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-lg bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
-                  <span class="iconify text-base text-[#991B1B]" data-icon="lucide:calendar" data-stroke-width="2"></span>
-                </div>
-                <div class="min-w-0">
-                  <span class="font-bold text-xs text-stone-900 block truncate leading-tight">${formattedDate}</span>
-                  <span class="text-[11px] text-stone-500 font-mono block mt-1 leading-tight">${timeRange}</span>
-                </div>
-              </div>
-            </td>
-
-            <!-- 6. STATUS -->
-            <td class="px-4 py-3.5 whitespace-nowrap">
-              ${statusHtml}
-            </td>
-
-            <!-- 7. ACTIONS -->
-            <td class="px-4 py-3.5 whitespace-nowrap text-right pr-6">
-              <div class="flex items-center justify-end space-x-2">
-                ${isApproved ? `
-                  <span class="inline-flex items-center space-x-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
-                    <span class="iconify text-xs text-emerald-600" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
-                    <span>Approved</span>
-                  </span>
-                ` : (isRejected ? `
-                  <span class="inline-flex items-center space-x-1 text-xs font-semibold text-stone-600 bg-stone-100 px-3 py-1.5 rounded-lg border border-stone-200">
-                    <span class="iconify text-xs text-stone-500" data-icon="lucide:x-circle" data-stroke-width="2"></span>
-                    <span>Rejected</span>
-                  </span>
-                ` : `
-                  <button type="button" onclick="app.quickOwnerApprove('${reqId}')" title="Approve reservation" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white flex items-center space-x-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
-                    <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
-                    <span>Approve</span>
-                  </button>
-                  <button type="button" onclick="app.quickOwnerReject('${reqId}')" title="Reject reservation" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white hover:bg-stone-50 active:bg-stone-100 text-stone-700 border border-stone-200 flex items-center space-x-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
-                    <span class="iconify text-xs text-stone-600" data-icon="lucide:x" data-stroke-width="2"></span>
-                    <span>Reject</span>
-                  </button>
-                `)}
-                <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${reqId}')" title="Open Review Workspace" class="w-8 h-8 rounded-lg bg-white hover:bg-stone-50 active:bg-stone-100 text-stone-600 border border-stone-200 flex items-center justify-center shadow-2xs transition active:scale-[0.98] cursor-pointer">
-                  <span class="iconify text-base text-stone-600" data-icon="lucide:more-horizontal" data-stroke-width="2"></span>
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
-
-      let tableHtml = `
-        <div class="bg-white rounded-2xl border border-[#E9E3DD] overflow-hidden shadow-2xs flex flex-col flex-1 min-h-0">
-          <div class="overflow-x-auto overflow-y-auto flex-1 hide-scrollbar">
-            <table class="w-full text-left border-collapse relative">
-              <thead class="bg-[#FAF7F5] border-b border-[#E9E3DD] sticky top-0 z-10 shadow-sm">
-                <tr>
-                  <th class="w-10 py-3.5 pl-4 pr-2">
-                    <input type="checkbox" id="owner-table-select-all" onchange="app.toggleSelectAllOwnerRequests(this.checked)" ${allVisibleSelected ? 'checked' : ''} class="w-4 h-4 rounded border-stone-300 text-[#991B1B] focus:ring-[#991B1B] cursor-pointer" />
-                  </th>
-                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortOwnerBy('id')">
-                    <div class="flex items-center space-x-1">
-                      <span>REQUEST</span>
-                      ${this._getSortIcon('id')}
-                    </div>
-                  </th>
-                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortOwnerBy('requester')">
-                    <div class="flex items-center space-x-1">
-                      <span>REQUESTER</span>
-                      ${this._getSortIcon('requester')}
-                    </div>
-                  </th>
-                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortOwnerBy('room')">
-                    <div class="flex items-center space-x-1">
-                      <span>PRIVATE ROOM</span>
-                      ${this._getSortIcon('room')}
-                    </div>
-                  </th>
-                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortOwnerBy('schedule')">
-                    <div class="flex items-center space-x-1">
-                      <span>SCHEDULE</span>
-                      ${this._getSortIcon('schedule')}
-                    </div>
-                  </th>
-                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortOwnerBy('status')">
-                    <div class="flex items-center space-x-1">
-                      <span>STATUS</span>
-                      ${this._getSortIcon('status')}
-                    </div>
-                  </th>
-                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 text-right pr-6">
-                    <span>ACTIONS</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-stone-100">
-                ${tableRowsHtml}
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Table Bottom Action & Pagination Bar (Exact Reference Match) -->
-          <div class="shrink-0 bg-white relative z-20">
-            ${this._renderTableActionFooter(totalPages, totalItems, startIdx, Math.min(endIdx, totalItems), paginatedItems)}
-          </div>
-        </div>
-      `;
-
-      container.innerHTML = tableHtml;
-      return;
-    }
-
-    // =========================================================================
-    // RENDER MODE B: CARD VIEW (Compact Executive 4-Slot Grid - No Scroll)
-    // =========================================================================
-    let cardsHtml = paginatedItems.map(req => {
-      const isOwnerPending = req.status === 'Pending Room Owner Approval' || req.statusDisplay === 'Pending Review' || req.status === 'Pending Review';
-      const isConfirmed = req.status === 'Approved - Confirmed' || req.statusDisplay === 'Approved';
-      const isSetup = req.status === 'Approved - Setup In Progress';
-      const isRejected = req.status === 'Rejected';
-      const isCancelled = req.status === 'Cancelled';
+      const isApproved = req.status && (req.status.includes('Approved') || req.statusDisplay === 'Approved');
+      const isRejected = req.status === 'Rejected' || req.statusDisplay === 'Rejected';
       const isConflict = req.status === 'Time Conflict' || req.statusDisplay === 'Time Conflict' || req.hasConflict;
 
-      let isPassed = false;
-      if (req.date) {
-        const endTimeStr = req.endTime || '23:59';
-        const meetingEnd = new Date(`${req.date}T${endTimeStr}:00`);
-        if (!isNaN(meetingEnd.getTime())) {
-          isPassed = meetingEnd < now;
-        }
-      }
-
-      let statusLabel = 'Waiting Owner';
-      let statusIcon = 'lucide:clock';
-      let statusColor = 'text-amber-600';
-
+      let statusHtml = '';
       if (isConflict) {
-        statusLabel = 'Time Conflict';
-        statusIcon = 'lucide:alert-circle';
-        statusColor = 'text-red-600';
-      } else if (isConfirmed) {
-        statusLabel = 'Approved & Ready';
-        statusIcon = 'lucide:check-circle-2';
-        statusColor = 'text-emerald-600';
-      } else if (isSetup) {
-        statusLabel = 'Setting Up';
-        statusIcon = 'lucide:settings';
-        statusColor = 'text-blue-600';
+        statusHtml = `
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+            <span class="iconify text-xs text-rose-600 shrink-0" data-icon="lucide:alert-circle" data-stroke-width="2"></span>
+            <span>Time Conflict</span>
+          </div>
+        `;
+      } else if (req.status === 'Approved - Setup In Progress' || req.statusDisplay === 'Setting Up') {
+        statusHtml = `
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+            <span class="iconify text-xs text-blue-600 shrink-0" data-icon="lucide:settings" data-stroke-width="2"></span>
+            <span>Setting Up</span>
+          </div>
+        `;
+      } else if (isApproved) {
+        statusHtml = `
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span class="iconify text-xs text-emerald-600 shrink-0" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
+            <span>Approved</span>
+          </div>
+        `;
       } else if (isRejected) {
-        statusLabel = 'Rejected';
-        statusIcon = 'lucide:x-circle';
-        statusColor = 'text-red-600';
-      } else if (isCancelled) {
-        statusLabel = 'Cancelled';
-        statusIcon = 'lucide:slash';
-        statusColor = 'text-stone-500';
+        statusHtml = `
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-stone-100 text-stone-600 border border-stone-200">
+            <span class="iconify text-xs text-stone-500 shrink-0" data-icon="lucide:x-circle" data-stroke-width="2"></span>
+            <span>Rejected</span>
+          </div>
+        `;
+      } else {
+        statusHtml = `
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+            <span class="iconify text-xs text-amber-600 shrink-0" data-icon="lucide:clock" data-stroke-width="2"></span>
+            <span>Pending Review</span>
+          </div>
+        `;
       }
 
-      const avatarUrl = req.requester?.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(req.requester?.name || 'Jonathan Vance') + '&background=f3e8ff&color=7e22ce';
-      const roomImgUrl = req.room?.image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80';
-      const roomShortName = (req.room?.name || 'Private Room').split(' - ')[0];
-      const floorShort = (req.room?.floor || 'Level 18').split('(')[0].trim();
+      const isPending = !isApproved && !isRejected && !isConflict;
 
       return `
-        <div class="bg-white rounded-xl border border-[#E9E3DD] p-3.5 sm:p-4 transition-all duration-150 hover:border-[#D8CFC7] hover:shadow-2xs flex flex-col justify-between ${isPassed ? 'opacity-60 hover:opacity-100' : ''}">
-          <!-- Row 1: Meeting ID + Requester + Clean Status -->
-          <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-stone-100">
-            <div class="flex items-center space-x-2 min-w-0">
-              <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" class="font-mono font-bold text-xs text-[#991B1B] hover:underline shrink-0 cursor-pointer" title="Open in Review Workspace">
-                ${req.id}
-              </button>
-              <span class="text-stone-300 shrink-0">•</span>
-              <div class="flex items-center space-x-2 min-w-0 truncate">
-                <img src="${avatarUrl}" class="w-6 h-6 rounded-full object-cover border border-[#E9E3DD] shrink-0" style="width: 24px; height: 24px; min-width: 24px;" alt="Avatar" />
-                <span class="text-xs text-stone-800 font-semibold truncate">${req.requester?.name || 'Jonathan Vance'}</span>
-              </div>
-            </div>
-            <div class="shrink-0 flex items-center space-x-1 text-xs font-bold ${statusColor}">
-              <span class="iconify text-xs" data-icon="${statusIcon}" data-stroke-width="2"></span>
-              <span class="whitespace-nowrap text-[11px]">${statusLabel}</span>
-            </div>
-          </div>
+        <tr class="hover:bg-stone-50/70 transition-colors">
+          <!-- 1. REQUEST ID -->
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${reqId}')" title="Open Review Workspace" class="font-bold text-xs text-stone-900 hover:text-[#991B1B] transition hover:underline cursor-pointer block leading-tight text-left">
+              ${reqId}
+            </button>
+            <span class="text-[11px] text-stone-400 block mt-1 leading-tight">${submittedText}</span>
+          </td>
 
-          <!-- Row 2: Room Thumbnail + Schedule + Services -->
-          <div class="flex items-center gap-3 py-3">
-            <img src="${roomImgUrl}" class="rounded-lg object-cover border border-[#E9E3DD] shrink-0" style="width: 88px; height: 68px; min-width: 88px; max-width: 88px;" alt="Room" />
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center justify-between gap-1">
-                <h4 class="font-heading font-bold text-xs sm:text-sm text-stone-900 truncate leading-tight" title="${req.room?.name || ''}">${roomShortName}</h4>
-                <div class="flex items-center space-x-1.5 shrink-0 text-[10px] font-bold">
-                  ${req.needsCatering ? `<span class="text-amber-600 flex items-center space-x-0.5" title="Food / Catering"><span class="iconify text-[11px]" data-icon="lucide:utensils" data-stroke-width="1.8"></span><span>Food</span></span>` : ''}
-                  ${req.needsIT ? `<span class="text-red-600 flex items-center space-x-0.5" title="IT Technician Setup"><span class="iconify text-[11px]" data-icon="lucide:headset" data-stroke-width="1.8"></span><span>IT</span></span>` : ''}
-                </div>
+          <!-- 2. REQUESTER (Clean, No Sub-detail, max-w with ellipsis) -->
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            <div class="flex items-center space-x-2.5 max-w-[200px]">
+              <div class="w-7 h-7 rounded-full bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center shrink-0">
+                ${initials}
               </div>
-              <div class="text-[11px] text-stone-500 truncate mt-0.5">${floorShort}</div>
-              <div class="flex items-center space-x-1.5 text-xs font-mono font-medium text-stone-700 pt-1">
-                <span class="inline-flex items-center space-x-1">
-                  <span class="iconify text-xs text-[#D97706]" data-icon="lucide:calendar" data-stroke-width="2"></span>
-                  <span>${req.date}</span>
-                </span>
-                <span class="text-stone-300">•</span>
-                <span class="inline-flex items-center space-x-1 font-semibold text-stone-900">
-                  <span class="iconify text-xs text-[#D97706]" data-icon="lucide:clock" data-stroke-width="2"></span>
-                  <span>${req.startTime}–${req.endTime}</span>
-                </span>
+              <span class="font-semibold text-xs text-stone-900 truncate leading-tight" title="${requesterName}">${requesterName}</span>
+            </div>
+          </td>
+
+          <!-- 3. PRIVATE ROOM -->
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            <div class="flex items-center space-x-2.5">
+              <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <span class="iconify text-sm text-blue-600" data-icon="lucide:door-closed" data-stroke-width="2"></span>
+              </div>
+              <div class="min-w-0">
+                <span class="font-semibold text-xs text-stone-900 block truncate leading-tight">${roomShort}</span>
+                <span class="text-[11px] text-stone-400 block truncate mt-0.5 leading-tight">${roomFloor}</span>
               </div>
             </div>
-          </div>
+          </td>
 
-          <!-- Row 3: Action Buttons -->
-          <div class="pt-2.5 border-t border-stone-100 flex items-center gap-2">
-            ${isOwnerPending && !isPassed ? `
-              <button type="button" onclick="app.quickOwnerApprove('${req.id}')" class="flex-1 min-h-[34px] h-[34px] px-3 rounded-lg text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all flex items-center justify-center space-x-1 cursor-pointer active:scale-[0.98]">
-                <span class="iconify text-xs text-emerald-700" data-icon="lucide:check" data-stroke-width="2"></span>
-                <span>Approve</span>
-              </button>
-              <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" class="flex-1 btn-primary min-h-[34px] h-[34px] px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-1 cursor-pointer active:scale-[0.98]">
-                <span class="iconify text-xs text-white" data-icon="lucide:shield-check" data-stroke-width="2"></span>
-                <span class="text-white">Review</span>
-              </button>
-            ` : `
-              <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" class="w-full ${isPassed ? 'btn-secondary text-stone-600' : 'btn-primary text-white'} min-h-[34px] h-[34px] px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-1 cursor-pointer active:scale-[0.98]">
-                <span class="iconify ${isPassed ? 'text-stone-500' : 'text-white'} text-xs" data-icon="lucide:eye" data-stroke-width="2"></span>
-                <span>${isPassed ? 'View Details' : 'View Decision'}</span>
-              </button>
-            `}
-          </div>
-        </div>
+          <!-- 4. SCHEDULE -->
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            <div class="flex items-center space-x-2.5">
+              <div class="w-7 h-7 rounded-lg bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
+                <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:calendar" data-stroke-width="2"></span>
+              </div>
+              <div class="min-w-0">
+                <span class="font-semibold text-xs text-stone-900 block truncate leading-tight">${formattedDate}</span>
+                <span class="text-[11px] text-stone-500 font-mono block mt-0.5 leading-tight">${timeRange}</span>
+              </div>
+            </div>
+          </td>
+
+          <!-- 5. SERVICES -->
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            <div class="flex items-center space-x-2 text-xs">
+              ${req.needsCatering ? `<span class="text-amber-600 flex items-center space-x-1" title="Catering / Food"><span class="iconify text-xs" data-icon="lucide:utensils" data-stroke-width="1.8"></span><span>Food</span></span>` : ''}
+              ${req.needsIT ? `<span class="text-[#991B1B] flex items-center space-x-1" title="IT Setup"><span class="iconify text-xs" data-icon="lucide:headset" data-stroke-width="1.8"></span><span>IT</span></span>` : ''}
+              ${!req.needsCatering && !req.needsIT ? `<span class="text-stone-400 text-[11px]">None</span>` : ''}
+            </div>
+          </td>
+
+          <!-- 6. STATUS -->
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            ${statusHtml}
+          </td>
+
+          <!-- 7. ACTIONS -->
+          <td class="px-4 py-3.5 whitespace-nowrap text-right pr-6">
+            <div class="flex items-center justify-end space-x-1.5">
+              ${isPending ? `
+                <button type="button" onclick="app.quickOwnerApprove('${reqId}')" title="Approve reservation" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white flex items-center space-x-1 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                  <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
+                  <span class="text-white">Approve</span>
+                </button>
+                <button type="button" onclick="app.quickOwnerReject('${reqId}')" title="Decline reservation" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-stone-50 active:bg-stone-100 text-stone-700 border border-stone-200 flex items-center space-x-1 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                  <span class="iconify text-xs text-stone-600" data-icon="lucide:x" data-stroke-width="2"></span>
+                  <span>Decline</span>
+                </button>
+                <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${reqId}')" title="Open Review Workspace" class="w-7 h-7 rounded-lg bg-white hover:bg-stone-50 active:bg-stone-100 text-stone-600 border border-stone-200 flex items-center justify-center shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                  <span class="iconify text-sm text-stone-600" data-icon="lucide:file-text" data-stroke-width="2"></span>
+                </button>
+              ` : (isConflict ? `
+                <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${reqId}')" title="Resolve Conflict" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 flex items-center space-x-1 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                  <span class="iconify text-xs text-amber-700" data-icon="lucide:alert-circle" data-stroke-width="2"></span>
+                  <span>Resolve</span>
+                </button>
+                <button type="button" onclick="app.quickOwnerReject('${reqId}')" title="Decline reservation" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-stone-50 active:bg-stone-100 text-stone-700 border border-stone-200 flex items-center space-x-1 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                  <span class="iconify text-xs text-stone-600" data-icon="lucide:x" data-stroke-width="2"></span>
+                  <span>Decline</span>
+                </button>
+                <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${reqId}')" title="Open Review Workspace" class="w-7 h-7 rounded-lg bg-white hover:bg-stone-50 active:bg-stone-100 text-stone-600 border border-stone-200 flex items-center justify-center shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                  <span class="iconify text-sm text-stone-600" data-icon="lucide:file-text" data-stroke-width="2"></span>
+                </button>
+              ` : `
+                <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${reqId}')" title="Open Review Workspace" class="h-7 px-2.5 rounded-lg bg-white hover:bg-stone-50 active:bg-stone-100 text-stone-700 border border-stone-200 text-xs font-semibold flex items-center space-x-1 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                  <span class="iconify text-xs text-stone-500" data-icon="lucide:file-text" data-stroke-width="1.8"></span>
+                  <span>View</span>
+                </button>
+              `)}
+            </div>
+          </td>
+        </tr>
       `;
     }).join('');
 
-    // Wrap 4 cards in a 2x2 grid (no vertical scroll)
-    let finalHtml = `
-      <div class="flex flex-col flex-1 min-h-0">
-        <div class="flex-1 overflow-y-auto hide-scrollbar pb-4 pr-1">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            ${cardsHtml}
-          </div>
-        </div>
-    `;
-
-    // Pagination Controls for Card View
-    if (totalItems > 0) {
-      finalHtml += `
-        <div class="shrink-0 mt-auto pt-2 relative z-20">
-          ${this._renderPaginationControls(totalPages, totalItems, startIdx, endIdx)}
-        </div>
-      `;
-    }
-
-    finalHtml += `</div>`;
-    container.innerHTML = finalHtml;
-  }
-
-  _renderTableActionFooter(totalPages, totalItems, startIdx, showingEnd, paginatedItems) {
-    const currentPage = this.ownerCurrentPage;
-    const selectedCount = this.selectedOwnerRequestIds.size;
-    const allVisibleSelected = paginatedItems.length > 0 && paginatedItems.every(r => this.selectedOwnerRequestIds.has(r.id));
-
-    let pageButtons = '';
-    for (let i = 0; i < totalPages; i++) {
-      const isActive = i === currentPage;
-      pageButtons += `
-        <button type="button" onclick="app.goToOwnerPage(${i})" class="w-7 h-7 rounded-lg text-xs font-bold ${isActive ? 'bg-[#991B1B] text-white shadow-2xs' : 'text-stone-700 hover:bg-stone-100 cursor-pointer'} flex items-center justify-center transition">
-          ${i + 1}
-        </button>
-      `;
-    }
-
-    return `
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 bg-white border-t border-[#E9E3DD]">
-        <!-- Left: Batch Selection Actions -->
-        <div class="flex items-center space-x-3">
-          <div class="flex items-center space-x-2">
-            <input type="checkbox" id="owner-batch-select-all" onchange="app.toggleSelectAllOwnerRequests(this.checked)" ${allVisibleSelected ? 'checked' : ''} class="w-4 h-4 rounded border-stone-300 text-[#991B1B] focus:ring-[#991B1B] cursor-pointer" />
-            <span class="text-xs font-semibold text-stone-700">${selectedCount} selected</span>
-          </div>
-          <button type="button" onclick="app.batchApproveOwnerSelected()" ${selectedCount === 0 ? 'disabled' : ''} class="px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition ${selectedCount > 0 ? 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-2xs active:scale-[0.98]' : 'bg-stone-100 text-stone-400 border border-stone-200 cursor-not-allowed'}">
-            <span class="iconify text-xs ${selectedCount > 0 ? 'text-white' : 'text-stone-400'}" data-icon="lucide:check" data-stroke-width="2.2"></span>
-            <span>Approve Selected</span>
-          </button>
-          <button type="button" onclick="app.batchRejectOwnerSelected()" ${selectedCount === 0 ? 'disabled' : ''} class="px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition ${selectedCount > 0 ? 'bg-stone-700 hover:bg-stone-800 text-white cursor-pointer shadow-2xs active:scale-[0.98]' : 'bg-stone-100 text-stone-400 border border-stone-200 cursor-not-allowed'}">
-            <span class="iconify text-xs ${selectedCount > 0 ? 'text-white' : 'text-stone-400'}" data-icon="lucide:x" data-stroke-width="2.2"></span>
-            <span>Reject Selected</span>
-          </button>
+    let tableHtml = `
+      <div class="bg-white rounded-2xl border border-[#E9E3DD] overflow-hidden shadow-2xs flex flex-col flex-1 min-h-0">
+        <div class="overflow-x-auto overflow-y-auto flex-1 hide-scrollbar">
+          <table class="w-full text-left border-collapse relative">
+            <thead class="bg-[#FAF7F5] border-b border-[#E9E3DD] sticky top-0 z-10 shadow-xs">
+              <tr>
+                <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortOwnerBy('id')">
+                  <div class="flex items-center space-x-1">
+                    <span>REQUEST</span>
+                    ${this._getSortIcon('id')}
+                  </div>
+                </th>
+                <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortOwnerBy('requester')">
+                  <div class="flex items-center space-x-1">
+                    <span>REQUESTER</span>
+                    ${this._getSortIcon('requester')}
+                  </div>
+                </th>
+                <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortOwnerBy('room')">
+                  <div class="flex items-center space-x-1">
+                    <span>PRIVATE ROOM</span>
+                    ${this._getSortIcon('room')}
+                  </div>
+                </th>
+                <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortOwnerBy('schedule')">
+                  <div class="flex items-center space-x-1">
+                    <span>SCHEDULE</span>
+                    ${this._getSortIcon('schedule')}
+                  </div>
+                </th>
+                <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500">
+                  <span>SERVICES</span>
+                </th>
+                <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortOwnerBy('status')">
+                  <div class="flex items-center space-x-1">
+                    <span>STATUS</span>
+                    ${this._getSortIcon('status')}
+                  </div>
+                </th>
+                <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 text-right pr-6">
+                  <span>ACTIONS</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100">
+              ${tableRowsHtml}
+            </tbody>
+          </table>
         </div>
 
-        <!-- Right: Counter & Pagination -->
-     <div class="sticky bottom-0 flex items-center justify-center space-x-4 bg-white p-4">
+        <!-- Table Pagination Footer -->
+        <div class="shrink-0 bg-white border-t border-[#E9E3DD] px-4 py-3 flex items-center justify-between">
           <span class="text-xs text-stone-500 font-medium">
-            Showing <strong class="text-stone-800 font-semibold">${startIdx + 1}–${showingEnd}</strong> of <strong class="text-stone-800 font-semibold">${totalItems}</strong> requests
+            Showing <strong class="text-stone-800 font-semibold">${startIdx + 1}–${Math.min(endIdx, totalItems)}</strong> of <strong class="text-stone-800 font-semibold">${totalItems}</strong> requests
           </span>
           <div class="flex items-center space-x-1.5">
-            <button type="button" onclick="app.goToOwnerPage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''} class="px-2 py-1 text-xs font-medium flex items-center space-x-1 ${currentPage === 0 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-700 hover:text-stone-900 cursor-pointer'}">
+            <button type="button" onclick="app.goToOwnerPage(${this.ownerCurrentPage - 1})" ${this.ownerCurrentPage === 0 ? 'disabled' : ''} class="px-2.5 py-1 text-xs font-semibold rounded-md border border-[#E9E3DD] flex items-center space-x-1 ${this.ownerCurrentPage === 0 ? 'text-stone-300 border-stone-200 cursor-not-allowed' : 'text-stone-700 hover:bg-stone-50 cursor-pointer'}">
               <span class="iconify text-xs" data-icon="lucide:chevron-left" data-stroke-width="2"></span>
               <span>Prev</span>
             </button>
-            ${pageButtons}
-            <button type="button" onclick="app.goToOwnerPage(${currentPage + 1})" ${currentPage >= totalPages - 1 ? 'disabled' : ''} class="px-2 py-1 text-xs font-semibold flex items-center space-x-1 ${currentPage >= totalPages - 1 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-800 hover:text-black cursor-pointer'}">
+            ${this._renderTablePageButtons(totalPages)}
+            <button type="button" onclick="app.goToOwnerPage(${this.ownerCurrentPage + 1})" ${this.ownerCurrentPage >= totalPages - 1 ? 'disabled' : ''} class="px-2.5 py-1 text-xs font-semibold rounded-md border border-[#E9E3DD] flex items-center space-x-1 ${this.ownerCurrentPage >= totalPages - 1 ? 'text-stone-300 border-stone-200 cursor-not-allowed' : 'text-stone-800 hover:bg-stone-50 cursor-pointer'}">
               <span>Next</span>
               <span class="iconify text-xs" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
             </button>
@@ -1689,34 +2103,21 @@ class RoomOwnerQueueView {
         </div>
       </div>
     `;
+
+    container.innerHTML = tableHtml;
   }
 
-  _renderPaginationControls(totalPages, totalItems, startIdx, endIdx) {
-    const currentPage = this.ownerCurrentPage;
-    const showingEnd = Math.min(endIdx, totalItems);
-
+  _renderTablePageButtons(totalPages) {
     let pageButtons = '';
     for (let i = 0; i < totalPages; i++) {
-      const isActive = i === currentPage;
-      pageButtons += `<button type="button" onclick="app.goToOwnerPage(${i})" class="min-w-[28px] h-7 px-2 rounded-md text-xs font-bold transition-all duration-150 flex items-center justify-center ${isActive ? 'btn-primary shadow-2xs text-white' : 'btn-secondary text-stone-700 shadow-2xs cursor-pointer active:scale-[0.98]'}">${i + 1}</button>`;
+      const isActive = i === this.ownerCurrentPage;
+      pageButtons += `
+        <button type="button" onclick="app.goToOwnerPage(${i})" class="w-7 h-7 rounded-lg text-xs font-bold ${isActive ? 'bg-[#991B1B] text-white shadow-2xs' : 'text-stone-700 hover:bg-stone-100 cursor-pointer'} flex items-center justify-center transition">
+          ${i + 1}
+        </button>
+      `;
     }
-
-    return `
-      <div class="flex items-center justify-between pt-2 mt-0.5">
-        <span class="text-[11px] text-stone-500 font-medium">Showing <strong class="text-stone-800 font-semibold">${startIdx + 1}–${showingEnd}</strong> of <strong class="text-stone-800 font-semibold">${totalItems}</strong> private requests</span>
-        <div class="flex items-center space-x-1.5">
-          <button type="button" onclick="app.goToOwnerPage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''} aria-label="Previous page" class="btn-secondary h-7 px-2.5 rounded-md text-xs font-medium transition-all duration-150 shadow-2xs flex items-center space-x-1 ${currentPage === 0 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}">
-            <span class="iconify text-xs" data-icon="lucide:chevron-left" data-stroke-width="2"></span>
-            <span>Prev</span>
-          </button>
-          ${pageButtons}
-          <button type="button" onclick="app.goToOwnerPage(${currentPage + 1})" ${currentPage >= totalPages - 1 ? 'disabled' : ''} aria-label="Next page" class="btn-secondary h-7 px-2.5 rounded-md text-xs font-medium transition-all duration-150 shadow-2xs flex items-center space-x-1 ${currentPage >= totalPages - 1 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}">
-            <span>Next</span>
-            <span class="iconify text-xs" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
-          </button>
-        </div>
-      </div>
-    `;
+    return pageButtons;
   }
 }
 

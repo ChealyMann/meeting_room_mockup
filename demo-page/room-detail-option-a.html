@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBC Room Details - Option A: Sticky Booking Command Deck</title>
+  
+  <!-- Fonts: Poppins, Kantumruy Pro, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN with NBC Cafe Design System Tokens -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            coffee: {
+              50: '#FDFCFA',
+              100: '#F9F7F5',
+              200: '#E9E3DD',
+              300: '#D8CFC7',
+              400: '#A8988B',
+              500: '#7D6857',
+              600: '#5D4432',
+              700: '#483425',
+              800: '#3E2B1E',
+              900: '#2A1C13'
+            },
+            brand: {
+              50: '#FEF2F2',
+              100: '#FEE2E2',
+              600: '#DC2626',
+              700: '#B91C1C',
+              800: '#991B1B',
+              900: '#7F1D1D',
+              950: '#450A0A'
+            },
+            sidebar: {
+              DEFAULT: '#260707',
+              surface: '#2A0808',
+              hover: '#380B0B',
+              active: '#4F0E0E',
+              border: '#3D0C0C',
+              edge: '#450A0A'
+            }
+          },
+          fontFamily: {
+            sans: ['Poppins', 'Kantumruy Pro', '-apple-system', 'sans-serif'],
+            heading: ['Poppins', 'Kantumruy Pro', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Iconify SVG Framework (Stroke-only Lucide icons) -->
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+  
+  <!-- Vue 3 CDN for live demo interactivity -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.38/dist/vue.global.prod.js"></script>
+
+  <style>
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #D6CCC2; border-radius: 9999px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Segmented Slot Chip */
+    .slot-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.625rem 0.875rem;
+      border-radius: 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      background-color: #FAF7F4;
+      border: 1px solid #E9E3DD;
+      color: #3E2B1E;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .slot-pill:hover:not(.disabled) {
+      background-color: #F4EFEA;
+      border-color: #D8CFC7;
+    }
+    .slot-pill.active {
+      background-color: #991B1B;
+      border-color: #991B1B;
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(153, 27, 27, 0.28);
+    }
+    .slot-pill.active span, .slot-pill.active .iconify {
+      color: #FFFFFF !important;
+    }
+    .slot-pill.disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      text-decoration: line-through;
+      background-color: #F5F2EE;
+    }
+  </style>
+</head>
+<body class="bg-[#F9F7F5] text-[#3E2B1E] min-h-screen antialiased flex flex-col">
+
+  <!-- Demo Switcher Top Bar -->
+  <header class="bg-[#260707] border-b border-[#3D0C0C] text-white px-4 py-2.5 sticky top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-lg bg-[#3D0C0C] border border-[#450A0A] flex items-center justify-center text-[#FACC15]">
+          <span class="iconify" data-icon="lucide:layout-panel-left" data-stroke-width="2"></span>
+        </span>
+        <div>
+          <span class="text-xs font-mono uppercase tracking-wider text-amber-300 font-semibold">Room Detail Demo Review</span>
+          <h1 class="text-sm font-bold text-white leading-tight">Option A: Sticky Booking Command Deck</h1>
+        </div>
+      </div>
+      
+      <!-- Option Switcher Links -->
+      <nav class="flex items-center gap-2">
+        <span class="text-xs text-stone-400 mr-1 hidden sm:inline">Details Mode:</span>
+        <a href="room-detail-option-a.html" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#991B1B] text-white border border-red-700/50 shadow-xs flex items-center gap-1.5">
+          <span class="iconify text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+          Option A
+        </a>
+        <a href="room-detail-option-b.html" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#2A0808] hover:bg-[#3D0C0C] text-stone-300 border border-[#3D0C0C] transition flex items-center gap-1.5">
+          Option B
+        </a>
+        <a href="room-detail-option-c.html" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#2A0808] hover:bg-[#3D0C0C] text-stone-300 border border-[#3D0C0C] transition flex items-center gap-1.5">
+          Option C
+        </a>
+        <a href="room-detail-option-d.html" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#2A0808] hover:bg-[#3D0C0C] text-stone-300 border border-[#3D0C0C] transition flex items-center gap-1.5">
+          Option 4 (Modern Studio)
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main View Area -->
+  <main id="app" class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+    <!-- Top Action Breadcrumb Bar (Clean, no multi-step wizard) -->
+    <div class="flex items-center justify-between pb-3 border-b border-[#E9E3DD]">
+      <div class="flex items-center gap-3">
+        <a href="hierarchy-option-a.html" class="h-9 px-3.5 rounded-xl bg-white hover:bg-[#FAF7F4] text-[#3E2B1E] border border-[#E9E3DD] text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs">
+          <span class="iconify text-[#7D6857] text-sm" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+          <span>Back to Catalog</span>
+        </a>
+        <div class="h-4 w-px bg-[#E9E3DD] hidden sm:block"></div>
+        <div class="hidden sm:flex items-center gap-2 text-xs font-medium text-[#6F5849]">
+          <span>Headquarters (Wat Phnom)</span>
+          <span class="text-stone-300">/</span>
+          <span class="text-[#3E2B1E] font-semibold">{{ room.floorShort }}</span>
+        </div>
+      </div>
+
+      <!-- Quick Door Code Reference with 1-Click Copy -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 bg-[#FAF7F4] border border-[#E9E3DD] px-3 py-1.5 rounded-xl">
+          <span class="text-[11px] font-semibold text-[#7D6857] uppercase tracking-wider">Door Access</span>
+          <span class="font-mono text-xs font-bold text-[#3E2B1E]">{{ room.doorCode }}</span>
+          <button @click="copyDoorCode" class="text-stone-400 hover:text-[#991B1B] transition ml-1" title="Copy door code" type="button">
+            <span class="iconify text-sm" :data-icon="copied ? 'lucide:check' : 'lucide:copy'" data-stroke-width="2"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2-COLUMN COMMAND GRID: 7 Cols Showcase + 5 Cols Booking Deck -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- LEFT COLUMN: VISUAL SHOWCASE & SPECS (7 Cols) -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- Photo Carousel Stage -->
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-3 space-y-3 shadow-xs">
+          <div class="relative h-72 sm:h-96 rounded-xl overflow-hidden bg-stone-900 group">
+            <img :src="activeImage" :alt="room.name" class="w-full h-full object-cover transition duration-300 group-hover:scale-[1.01]" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent pointer-events-none"></div>
+
+            <!-- Top Overlays: Photo Counter & Privacy Type -->
+            <div class="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium bg-[#260707]/90 text-white backdrop-blur-xs border border-white/20 flex items-center gap-1.5">
+                <span class="iconify text-xs" :data-icon="room.isPrivate ? 'lucide:lock' : 'lucide:globe'" data-stroke-width="2"></span>
+                <span>{{ room.isPrivate ? 'Private Room' : 'Shared Room' }}</span>
+              </span>
+
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium bg-black/60 text-white backdrop-blur-xs border border-white/20">
+                {{ currentImgIndex + 1 }} / {{ room.images.length }}
+              </span>
+            </div>
+
+            <!-- Carousel Nav Arrows -->
+            <button
+              v-if="room.images.length > 1"
+              @click="prevImage"
+              class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-xs transition border border-white/20 cursor-pointer"
+              type="button"
+            >
+              <span class="iconify text-base" data-icon="lucide:chevron-left" data-stroke-width="2"></span>
+            </button>
+            <button
+              v-if="room.images.length > 1"
+              @click="nextImage"
+              class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-xs transition border border-white/20 cursor-pointer"
+              type="button"
+            >
+              <span class="iconify text-base" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
+            </button>
+
+            <!-- Bottom Room Title overlay -->
+            <div class="absolute bottom-3.5 left-4 right-4 text-white pointer-events-none">
+              <h2 class="font-heading font-bold text-xl sm:text-2xl text-white leading-tight drop-shadow-sm">
+                {{ room.name }}
+              </h2>
+            </div>
+          </div>
+
+          <!-- Thumbnail Strip Glider -->
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+            <button
+              v-for="(img, idx) in room.images"
+              :key="idx"
+              @click="currentImgIndex = idx"
+              class="relative h-16 w-24 rounded-lg overflow-hidden shrink-0 border-2 transition cursor-pointer"
+              :class="idx === currentImgIndex ? 'border-[#991B1B] shadow-xs' : 'border-[#E9E3DD] opacity-60 hover:opacity-100'"
+              type="button"
+            >
+              <img :src="img" :alt="room.name" class="w-full h-full object-cover" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Room Specifications & 4-Metric Grid (Clean, NO BADGES) -->
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-5 space-y-4 shadow-xs">
+          <div>
+            <h3 class="font-heading font-bold text-base text-[#3E2B1E] tracking-tight">Room Specifications</h3>
+          </div>
+
+          <!-- 4-Stat Capsule Row -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="p-3 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD]">
+              <span class="text-[11px] font-semibold text-[#7D6857] block mb-1">Capacity</span>
+              <div class="flex items-center gap-1.5">
+                <span class="iconify text-[#7D6857] text-sm" data-icon="lucide:users" data-stroke-width="2"></span>
+                <strong class="font-mono text-sm font-bold text-[#3E2B1E]">{{ room.capacity }} Seats</strong>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD]">
+              <span class="text-[11px] font-semibold text-[#7D6857] block mb-1">Room Area</span>
+              <div class="flex items-center gap-1.5">
+                <span class="iconify text-[#7D6857] text-sm" data-icon="lucide:maximize-2" data-stroke-width="2"></span>
+                <strong class="font-mono text-sm font-bold text-[#3E2B1E]">{{ room.size }}</strong>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD]">
+              <span class="text-[11px] font-semibold text-[#7D6857] block mb-1">Floor Level</span>
+              <div class="flex items-center gap-1.5">
+                <span class="iconify text-[#7D6857] text-sm" data-icon="lucide:layers" data-stroke-width="2"></span>
+                <strong class="font-mono text-sm font-bold text-[#3E2B1E]">{{ room.floorShort }}</strong>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD]">
+              <span class="text-[11px] font-semibold text-[#7D6857] block mb-1">Door Access</span>
+              <div class="flex items-center gap-1.5">
+                <span class="iconify text-[#7D6857] text-sm" data-icon="lucide:key-round" data-stroke-width="2"></span>
+                <strong class="font-mono text-sm font-bold text-[#3E2B1E]">{{ room.doorCode }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="pt-2 text-xs sm:text-sm text-[#6F5849] leading-relaxed border-t border-[#E9E3DD]/60">
+            <p>{{ room.description }}</p>
+          </div>
+        </div>
+
+        <!-- Equipment & Amenities Section -->
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-5 space-y-4 shadow-xs">
+          <div class="flex items-center justify-between">
+            <h3 class="font-heading font-bold text-base text-[#3E2B1E] tracking-tight">Available Amenities</h3>
+            <span class="font-mono text-xs text-[#7D6857]">{{ room.features.length }} verified items</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div
+              v-for="item in room.features"
+              :key="item.name"
+              class="flex items-center gap-3 p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD]"
+            >
+              <span class="w-7 h-7 rounded-lg bg-white border border-[#E9E3DD] flex items-center justify-center text-[#991B1B] shrink-0">
+                <span class="iconify text-sm" :data-icon="item.icon" data-stroke-width="2"></span>
+              </span>
+              <span class="text-xs font-semibold text-[#3E2B1E]">{{ item.name }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: STICKY BOOKING COMMAND DECK (5 Cols) -->
+      <div class="lg:col-span-5 space-y-6 sticky top-16">
+
+        <!-- Booking Card -->
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-5 sm:p-6 shadow-sm space-y-5">
+          
+          <!-- Card Header with Real-Time Availability -->
+          <div class="flex items-center justify-between pb-3 border-b border-[#E9E3DD]">
+            <div>
+              <h3 class="font-heading font-bold text-lg text-[#3E2B1E] tracking-tight">Reserve Room</h3>
+            </div>
+            <!-- Clean text indicator, NO BADGE -->
+            <div class="flex items-center gap-1.5 text-xs font-mono font-semibold text-emerald-700">
+              <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+              <span>Available Today</span>
+            </div>
+          </div>
+
+          <!-- Date Quick-Select Pills -->
+          <div class="space-y-2">
+            <label class="block text-xs font-semibold text-[#6F5849]">Select Date</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button
+                @click="selectedDate = 'today'"
+                class="py-2 px-2 rounded-xl text-xs font-semibold border transition text-center cursor-pointer"
+                :class="selectedDate === 'today' ? 'bg-[#991B1B] border-[#991B1B] text-white shadow-xs' : 'bg-[#FAF7F4] border-[#E9E3DD] text-[#6F5849] hover:bg-[#F4EFEA]'"
+                type="button"
+              >
+                Today
+              </button>
+              <button
+                @click="selectedDate = 'tomorrow'"
+                class="py-2 px-2 rounded-xl text-xs font-semibold border transition text-center cursor-pointer"
+                :class="selectedDate === 'tomorrow' ? 'bg-[#991B1B] border-[#991B1B] text-white shadow-xs' : 'bg-[#FAF7F4] border-[#E9E3DD] text-[#6F5849] hover:bg-[#F4EFEA]'"
+                type="button"
+              >
+                Tomorrow
+              </button>
+              <button
+                @click="selectedDate = 'custom'"
+                class="py-2 px-2 rounded-xl text-xs font-semibold border transition text-center cursor-pointer"
+                :class="selectedDate === 'custom' ? 'bg-[#991B1B] border-[#991B1B] text-white shadow-xs' : 'bg-[#FAF7F4] border-[#E9E3DD] text-[#6F5849] hover:bg-[#F4EFEA]'"
+                type="button"
+              >
+                Pick Date
+              </button>
+            </div>
+          </div>
+
+          <!-- Available Time Slots -->
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-semibold text-[#6F5849]">Meeting Time Slot</label>
+              <span class="text-[11px] font-mono text-stone-400">4 open slots</span>
+            </div>
+
+            <div class="space-y-2">
+              <div
+                v-for="slot in timeSlots"
+                :key="slot.id"
+                @click="!slot.booked && (selectedSlot = slot.id)"
+                class="slot-pill"
+                :class="{ active: selectedSlot === slot.id, disabled: slot.booked }"
+              >
+                <div class="flex items-center gap-2">
+                  <span class="iconify text-sm" :data-icon="slot.booked ? 'lucide:lock' : 'lucide:clock'" data-stroke-width="2"></span>
+                  <span class="font-mono text-xs">{{ slot.time }}</span>
+                </div>
+                <span class="text-[11px] font-mono font-medium">
+                  {{ slot.booked ? 'Reserved' : slot.duration }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Primary Book Button with Stark White Icon -->
+          <div class="pt-2">
+            <button
+              @click="proceedToBooking"
+              class="w-full h-12 rounded-xl bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white font-semibold text-sm flex items-center justify-center gap-2 transition shadow-sm cursor-pointer"
+              type="button"
+            >
+              <span class="iconify text-white text-base" data-icon="lucide:calendar-clock" data-stroke-width="2"></span>
+              <span>{{ room.isPrivate ? 'Request Private Room Access' : 'Book Room for Selected Slot' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Integrated Building Location & Map Card (No 2-step wizard needed!) -->
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between pb-2.5 border-b border-[#E9E3DD]">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center">
+                <span class="iconify text-sm" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+              </span>
+              <h3 class="font-heading font-bold text-sm text-[#3E2B1E] tracking-tight">Facility Location</h3>
+            </div>
+            <button @click="showMapModal = true" class="text-xs font-semibold text-[#991B1B] hover:text-[#7F1D1D] flex items-center gap-1 cursor-pointer" type="button">
+              <span>View Map</span>
+              <span class="iconify text-xs" data-icon="lucide:external-link" data-stroke-width="2"></span>
+            </button>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div>
+              <span class="text-[11px] font-semibold text-[#7D6857] block">Building</span>
+              <strong class="text-[#3E2B1E] text-xs">{{ room.buildingName }}</strong>
+            </div>
+            <div>
+              <span class="text-[11px] font-semibold text-[#7D6857] block">Address</span>
+              <span class="text-[#6F5849]">{{ room.address }}</span>
+            </div>
+          </div>
+
+          <!-- Quick Map Preview Strip -->
+          <div
+            @click="showMapModal = true"
+            class="relative h-28 rounded-xl overflow-hidden border border-[#E9E3DD] bg-stone-100 cursor-pointer group"
+          >
+            <iframe
+              title="Google Map"
+              width="100%"
+              height="100%"
+              style="border:0; pointer-events: none;"
+              loading="lazy"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3908.770638148902!2d104.920556!3d11.573611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3107870560a6a445%3A0x6a0f7e4113e00b39!2sNational%20Bank%20of%20Cambodia!5e0!3m2!1sen!2skh!4v1700000000000"
+            ></iframe>
+            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition flex items-center justify-center">
+              <span class="px-3 py-1.5 rounded-lg bg-white/90 text-[#3E2B1E] text-xs font-semibold shadow-xs flex items-center gap-1.5 backdrop-blur-xs">
+                <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:maximize-2" data-stroke-width="2"></span>
+                <span>Open Full Map</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Google Map Modal -->
+    <div
+      v-if="showMapModal"
+      class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+      @click.self="showMapModal = false"
+    >
+      <div class="bg-white rounded-2xl border border-[#E9E3DD] max-w-2xl w-full p-5 shadow-2xl space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-[#E9E3DD]">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center">
+              <span class="iconify text-base" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+            </span>
+            <div>
+              <h4 class="font-heading font-bold text-base text-[#3E2B1E]">{{ room.buildingName }}</h4>
+            </div>
+          </div>
+          <button @click="showMapModal = false" class="w-8 h-8 rounded-lg bg-[#FAF7F4] border border-[#E9E3DD] flex items-center justify-center text-stone-500 hover:text-stone-800 cursor-pointer">
+            <span class="iconify text-base" data-icon="lucide:x" data-stroke-width="2"></span>
+          </button>
+        </div>
+
+        <div class="h-80 rounded-xl overflow-hidden border border-[#E9E3DD]">
+          <iframe
+            title="Google Map Modal"
+            width="100%"
+            height="100%"
+            style="border:0;"
+            loading="lazy"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3908.770638148902!2d104.920556!3d11.573611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3107870560a6a445%3A0x6a0f7e4113e00b39!2sNational%20Bank%20of%20Cambodia!5e0!3m2!1sen!2skh!4v1700000000000"
+          ></iframe>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <span class="text-xs text-[#6F5849]">{{ room.address }}</span>
+          <a
+            href="https://maps.google.com/?q=National+Bank+of+Cambodia"
+            target="_blank"
+            class="px-4 py-2 rounded-xl bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-xs"
+          >
+            <span class="iconify text-white text-xs" data-icon="lucide:navigation" data-stroke-width="2"></span>
+            <span>Get Directions</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const { createApp, ref, computed } = Vue;
+
+    createApp({
+      setup() {
+        const currentImgIndex = ref(0);
+        const selectedDate = ref('today');
+        const selectedSlot = ref('slot-1');
+        const showMapModal = ref(false);
+        const copied = ref(false);
+
+        const room = ref({
+          id: 'ROOM-101',
+          name: 'ទន្លេមេគង្គ - Mekong River Boardroom',
+          category: 'Executive Room',
+          isPrivate: true,
+          floorShort: 'Floor 18',
+          capacity: 28,
+          size: '95 m²',
+          doorCode: 'NBC-8801',
+          buildingName: 'National Bank of Cambodia - Headquarters (Wat Phnom)',
+          address: 'No. 22-24, Preah Norodom Blvd, Phnom Penh, Cambodia',
+          description: 'Grand executive boardroom designed for high-level central banking discussions, monetary policy summits, and international financial delegations with secure encrypted AV conferencing.',
+          images: [
+            '../assets/rooms/boardroom-alpha.jpg',
+            '../assets/rooms/focus-room.jpg',
+            '../assets/rooms/innovation-hub.jpg',
+            '../assets/rooms/summit-suite.jpg'
+          ],
+          features: [
+            { name: '4K Ultra HD Video Wall', icon: 'lucide:monitor' },
+            { name: 'Wireless Barco ClickShare', icon: 'lucide:cast' },
+            { name: 'Table Microphones & Bose Audio', icon: 'lucide:mic' },
+            { name: 'High-Speed Encrypted Wi-Fi 6E', icon: 'lucide:wifi' },
+            { name: 'Polycom 4K Video Conference', icon: 'lucide:video' },
+            { name: 'Executive Refreshment Bar', icon: 'lucide:coffee' }
+          ]
+        });
+
+        const timeSlots = ref([
+          { id: 'slot-1', time: '08:30 – 10:00', duration: '90 mins', booked: false },
+          { id: 'slot-2', time: '10:30 – 12:00', duration: '90 mins', booked: true },
+          { id: 'slot-3', time: '02:00 – 03:30', duration: '90 mins', booked: false },
+          { id: 'slot-4', time: '04:00 – 05:30', duration: '90 mins', booked: false }
+        ]);
+
+        const activeImage = computed(() => {
+          return room.value.images[currentImgIndex.value] || room.value.images[0];
+        });
+
+        const nextImage = () => {
+          currentImgIndex.value = (currentImgIndex.value + 1) % room.value.images.length;
+        };
+
+        const prevImage = () => {
+          currentImgIndex.value = (currentImgIndex.value - 1 + room.value.images.length) % room.value.images.length;
+        };
+
+        const copyDoorCode = () => {
+          navigator.clipboard.writeText(room.value.doorCode);
+          copied.value = true;
+          setTimeout(() => copied.value = false, 2000);
+        };
+
+        const proceedToBooking = () => {
+          alert(`Proceeding to book ${room.value.name} for slot: ${selectedSlot.value} on date: ${selectedDate.value}`);
+        };
+
+        return {
+          room,
+          currentImgIndex,
+          activeImage,
+          selectedDate,
+          selectedSlot,
+          timeSlots,
+          showMapModal,
+          copied,
+          nextImage,
+          prevImage,
+          copyDoorCode,
+          proceedToBooking
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

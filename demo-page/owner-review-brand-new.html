@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Room Owner Review - Signature Executive Style</title>
+  
+  <!-- Fonts: Poppins (Display/Body) & JetBrains Mono (Data/Time) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            coffee: {
+              50: '#FDFCFA',
+              100: '#F9F7F5',
+              200: '#E9E3DD',
+              300: '#D8CFC7',
+              500: '#7D6857',
+              700: '#483425',
+              800: '#3E2B1E'
+            },
+            brand: {
+              800: '#991B1B',
+              900: '#7F1D1D'
+            }
+          },
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+            heading: ['Poppins', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Iconify SVG Framework (Stroke-only Lucide) -->
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+
+  <style>
+    body {
+      background-color: #F9F7F5;
+      color: #3E2B1E;
+      font-family: 'Poppins', sans-serif;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .btn-primary {
+      background-color: #991B1B;
+      color: #FFFFFF;
+      transition: all 0.15s ease-in-out;
+    }
+    .btn-primary:hover {
+      background-color: #7F1D1D;
+    }
+    .btn-primary:active {
+      background-color: #691515;
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body class="bg-[#F9F7F5] min-h-screen antialiased flex flex-col h-screen overflow-hidden selection:bg-[#991B1B] selection:text-white">
+
+  <!-- Top Context Bar -->
+  <header class="bg-[#F9F7F5] border-b border-[#E9E3DD] px-6 py-3.5 shrink-0 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="../index.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-[#E9E3DD] text-xs font-semibold text-stone-700 hover:bg-[#FAF7F4] transition shadow-2xs">
+        <span class="iconify text-sm text-stone-600" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+        <span>Private Requests</span>
+      </a>
+      <div class="flex items-center gap-2 text-xs">
+        <span class="text-stone-300">/</span>
+        <span class="font-mono font-medium text-stone-500">REQ-2026-008</span>
+        <span class="text-stone-300">/</span>
+        <span class="font-semibold text-stone-900">Review Request</span>
+      </div>
+    </div>
+
+    <!-- Status Indicator (Strict Zero-Badges Mandate) -->
+    <div id="status-indicator" class="flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+      <span class="text-xs font-semibold text-amber-800">Waiting for Decision</span>
+    </div>
+  </header>
+
+  <!-- Main Viewport (Internal scroll only, strictly No Full-Page Vertical Scroll) -->
+  <main class="flex-1 overflow-y-auto hide-scrollbar p-6 max-w-[1440px] w-full mx-auto flex flex-col justify-center">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- LEFT CARD: Room Showcase & Dossier with Decorative Image (7 Cols) -->
+      <div class="lg:col-span-7 bg-white rounded-2xl border border-[#E9E3DD] overflow-hidden shadow-xs flex flex-col">
+        
+        <div>
+          <!-- Decorative Architectural Image Banner -->
+          <div class="relative h-44 w-full overflow-hidden bg-stone-900">
+            <img 
+              src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80" 
+              alt="Malis Executive Suite" 
+              class="w-full h-full object-cover opacity-90 transition duration-500 hover:scale-105"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-900/25 to-transparent"></div>
+            
+            <!-- Floating Decorative Room Tags on Image -->
+            <div class="absolute bottom-3.5 left-4 right-4 flex items-end justify-between text-white">
+              <div>
+                <div class="flex items-center gap-2 text-[11px] text-amber-400 font-mono">
+                  <span>EXEC-ROOM-01</span>
+                  <span class="text-stone-400">&bull;</span>
+                  <span class="text-stone-300 font-sans">Level 18 Executive Wing</span>
+                </div>
+                <h1 class="text-xl font-bold font-heading text-white tracking-tight mt-0.5">Malis Executive Suite</h1>
+              </div>
+
+              <div class="flex items-center gap-2 bg-stone-900/70 backdrop-blur-md px-3 py-1.5 rounded-xl border border-stone-700/50 text-xs">
+                <span class="iconify text-stone-300" data-icon="lucide:users" data-stroke-width="1.8"></span>
+                <span>16 Seats</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Content Padding Area -->
+          <div class="p-5 sm:p-6 space-y-4">
+            
+            <!-- Booker Identity Row -->
+            <div class="flex items-center justify-between pb-4 border-b border-[#E9E3DD]">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] flex items-center justify-center font-bold text-sm text-stone-800 font-heading shrink-0">
+                  JV
+                </div>
+                <div>
+                  <span class="text-sm font-bold text-stone-900 block leading-tight">Jonathan Vance</span>
+                  <span class="text-xs text-stone-500 block leading-tight mt-0.5">Board & Executive Office &bull; Ext. 4410</span>
+                </div>
+              </div>
+
+              <div class="text-right">
+                <span class="text-[11px] text-stone-400 block font-medium">Submitted</span>
+                <span class="text-xs font-mono text-stone-700 font-medium block mt-0.5">16 Sep 2026, 14:22</span>
+              </div>
+            </div>
+
+            <!-- Key Metrics Strip -->
+            <div class="grid grid-cols-3 gap-3 py-1">
+              <div class="p-2.5 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD]">
+                <span class="text-[10px] uppercase tracking-wider text-stone-400 font-semibold block">Date</span>
+                <span class="text-xs font-semibold text-stone-900 block mt-0.5">Thu, 18 Sep 2026</span>
+              </div>
+              <div class="p-2.5 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD]">
+                <span class="text-[10px] uppercase tracking-wider text-stone-400 font-semibold block">Time Window</span>
+                <span class="text-xs font-mono font-semibold text-stone-900 block mt-0.5">11:00 AM – 01:00 PM</span>
+              </div>
+              <div class="p-2.5 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD]">
+                <span class="text-[10px] uppercase tracking-wider text-stone-400 font-semibold block">Attendees</span>
+                <span class="text-xs font-semibold text-stone-900 block mt-0.5">10 Participants</span>
+              </div>
+            </div>
+
+            <!-- Meeting Purpose & Confidentiality Statement -->
+            <div class="space-y-2">
+              <h2 class="text-sm font-bold font-heading text-stone-900 tracking-tight">Confidential Board Monetary Policy Briefing</h2>
+              <div class="p-3.5 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD] text-xs text-stone-700 leading-relaxed italic">
+                "Quarterly macroeconomic forecasting models and interbank interest rate projections. Requires an isolated chamber without pedestrian visibility and secure Polycom video link."
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Manager Pitika Clearance + Requested Amenities Strip -->
+        <div class="px-5 sm:px-6 pb-5 pt-3 border-t border-[#E9E3DD] space-y-3 bg-[#FAF7F4]/50">
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2 text-emerald-800 font-medium">
+              <span class="iconify text-emerald-700 text-sm" data-icon="lucide:shield-check" data-stroke-width="2"></span>
+              <span>Pitika Cleared &bull; Public rooms fully booked today</span>
+            </div>
+            <span class="font-mono text-[11px] text-stone-400">Cleared: 16 Sep, 16:45</span>
+          </div>
+
+          <!-- Amenities Strip -->
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-[#E9E3DD] text-stone-700">
+              <span class="iconify text-[#991B1B] text-xs" data-icon="lucide:tv" data-stroke-width="1.8"></span>
+              <span>Polycom 4K</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-[#E9E3DD] text-stone-700">
+              <span class="iconify text-[#991B1B] text-xs" data-icon="lucide:lock" data-stroke-width="1.8"></span>
+              <span>Encrypted Line</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-[#E9E3DD] text-stone-700">
+              <span class="iconify text-[#991B1B] text-xs" data-icon="lucide:coffee" data-stroke-width="1.8"></span>
+              <span>Executive Tea</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-[#E9E3DD] text-stone-700">
+              <span class="iconify text-[#991B1B] text-xs" data-icon="lucide:wrench" data-stroke-width="1.8"></span>
+              <span>30m IT Setup</span>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- RIGHT CARD: Approval Decision Terminal (5 Cols) -->
+      <div class="lg:col-span-5 bg-white rounded-2xl border border-[#E9E3DD] p-5 sm:p-6 shadow-xs flex flex-col space-y-4">
+        
+        <!-- Governance Clearance Stepper -->
+        <div class="pb-4 border-b border-[#E9E3DD]">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-bold font-heading text-stone-900 tracking-tight">Approval Progress</h2>
+            <span id="stepper-stage-label" class="font-mono text-[11px] text-stone-500">Step 3 of 5</span>
+          </div>
+
+          <div class="relative flex items-center justify-between text-center" id="stepper-track">
+            <div class="absolute left-3 right-3 top-3.5 h-0.5 bg-[#E9E3DD] -z-0">
+              <div id="stepper-progress-fill" class="h-full bg-[#991B1B] w-1/2 transition-all duration-300"></div>
+            </div>
+
+            <!-- 1. Sent -->
+            <div class="relative z-10 flex flex-col items-center">
+              <div class="w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center text-xs shadow-2xs">
+                <span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
+              </div>
+              <span class="text-[10px] font-semibold text-stone-700 mt-1">Sent</span>
+            </div>
+
+            <!-- 2. Pitika -->
+            <div class="relative z-10 flex flex-col items-center">
+              <div class="w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center text-xs shadow-2xs">
+                <span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
+              </div>
+              <span class="text-[10px] font-semibold text-stone-700 mt-1">Pitika</span>
+            </div>
+
+            <!-- 3. Owner (Active initially) -->
+            <div class="relative z-10 flex flex-col items-center" id="step-node-owner">
+              <div id="step-circle-owner" class="w-7 h-7 rounded-full bg-white border-2 border-[#991B1B] text-[#991B1B] flex items-center justify-center text-xs ring-4 ring-[#991B1B]/10 shadow-2xs">
+                <span class="iconify text-[#991B1B] text-xs" data-icon="lucide:key" data-stroke-width="2"></span>
+              </div>
+              <span class="text-[10px] font-bold text-[#991B1B] mt-1" id="step-label-owner">Owner</span>
+            </div>
+
+            <!-- 4. Setup -->
+            <div class="relative z-10 flex flex-col items-center" id="step-node-setup">
+              <div id="step-circle-setup" class="w-7 h-7 rounded-full bg-[#FAF7F4] border border-[#E9E3DD] text-stone-400 flex items-center justify-center text-[10px] font-mono">
+                4
+              </div>
+              <span class="text-[10px] font-medium text-stone-400 mt-1" id="step-label-setup">Setup</span>
+            </div>
+
+            <!-- 5. Ready -->
+            <div class="relative z-10 flex flex-col items-center" id="step-node-ready">
+              <div id="step-circle-ready" class="w-7 h-7 rounded-full bg-[#FAF7F4] border border-[#E9E3DD] text-stone-400 flex items-center justify-center text-[10px] font-mono">
+                5
+              </div>
+              <span class="text-[10px] font-medium text-stone-400 mt-1" id="step-label-ready">Ready</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mini Schedule Bar (Decorative & Useful) -->
+        <div class="py-2.5 border-b border-[#E9E3DD] space-y-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-stone-500 font-medium">Room Timeline</span>
+            <span class="text-emerald-700 font-medium flex items-center gap-1">
+              <span class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2"></span>
+              <span>No Schedule Conflicts</span>
+            </span>
+          </div>
+          <div class="relative w-full h-7 bg-[#FAF7F4] rounded-lg border border-[#E9E3DD] flex items-center px-2.5 overflow-hidden text-xs">
+            <div class="flex justify-between w-full text-[10px] font-mono text-stone-400 select-none">
+              <span>08:00</span>
+              <span>11:00</span>
+              <span>13:00</span>
+              <span>17:00</span>
+            </div>
+            <div 
+              class="absolute top-1 bottom-1 left-[27%] right-[43%] bg-[#FEF2F2] border border-[#FCA5A5] rounded-md flex items-center justify-center font-mono text-[10px] font-semibold text-[#991B1B] shadow-2xs z-10"
+            >
+              11:00 - 13:00 (2h)
+            </div>
+          </div>
+        </div>
+
+        <!-- STATE A: Pending Decision (Approval Form Controls) -->
+        <div id="pending-controls-panel" class="space-y-4">
+          <!-- Meeting Hours Authorization -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold text-stone-900">Approve Meeting Hours</span>
+              <span id="calculated-duration" class="font-mono text-[#991B1B] font-bold">2h 00m</span>
+            </div>
+
+            <!-- Fast Time Chips -->
+            <div class="grid grid-cols-3 gap-2">
+              <button 
+                type="button" 
+                onclick="applyPreset('11:00', '13:00', this)" 
+                class="preset-chip py-1.5 px-2 rounded-lg border border-[#991B1B] bg-[#991B1B]/5 text-[#991B1B] text-[11px] font-semibold text-center transition cursor-pointer"
+              >
+                11:00 - 13:00
+              </button>
+              <button 
+                type="button" 
+                onclick="applyPreset('11:00', '12:30', this)" 
+                class="preset-chip py-1.5 px-2 rounded-lg border border-[#E9E3DD] bg-white hover:bg-[#FAF7F4] text-stone-700 text-[11px] font-medium text-center transition cursor-pointer"
+              >
+                1.5 Hours
+              </button>
+              <button 
+                type="button" 
+                onclick="applyPreset('11:30', '13:00', this)" 
+                class="preset-chip py-1.5 px-2 rounded-lg border border-[#E9E3DD] bg-white hover:bg-[#FAF7F4] text-stone-700 text-[11px] font-medium text-center transition cursor-pointer"
+              >
+                Start 11:30
+              </button>
+            </div>
+
+            <!-- Start & End Time Inputs -->
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="text-[10px] font-medium text-stone-500 block mb-1">Start Time</label>
+                <input 
+                  type="time" 
+                  id="input-start-time" 
+                  value="11:00" 
+                  onchange="recalculateDuration()"
+                  class="w-full bg-[#FAF7F4] border border-[#E9E3DD] rounded-lg px-2.5 py-1.5 text-xs font-mono font-semibold text-stone-800 focus:outline-none focus:ring-1 focus:ring-[#991B1B]"
+                />
+              </div>
+              <div>
+                <label class="text-[10px] font-medium text-stone-500 block mb-1">End Time</label>
+                <input 
+                  type="time" 
+                  id="input-end-time" 
+                  value="13:00" 
+                  onchange="recalculateDuration()"
+                  class="w-full bg-[#FAF7F4] border border-[#E9E3DD] rounded-lg px-2.5 py-1.5 text-xs font-mono font-semibold text-stone-800 focus:outline-none focus:ring-1 focus:ring-[#991B1B]"
+                />
+              </div>
+            </div>
+
+            <!-- Directives Input -->
+            <div>
+              <label class="text-[10px] font-medium text-stone-500 block mb-1">Directives for IT & Room Setup</label>
+              <input 
+                type="text" 
+                id="owner-directives" 
+                value="Approved. Ensure secure room protocols." 
+                class="w-full bg-[#FAF7F4] border border-[#E9E3DD] rounded-lg px-3 py-2 text-xs text-stone-800 focus:outline-none focus:ring-1 focus:ring-[#991B1B]"
+              />
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="pt-2 space-y-2 border-t border-[#E9E3DD]">
+            <button 
+              type="button" 
+              onclick="handleApproveAction()" 
+              class="w-full btn-primary min-h-[46px] rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+            >
+              <span class="iconify text-white text-sm" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
+              <span class="text-white">Approve & Dispatch to IT Setup</span>
+            </button>
+
+            <div class="text-center">
+              <button 
+                type="button" 
+                onclick="toggleRejectDrawer()" 
+                class="text-xs text-stone-500 hover:text-rose-700 inline-flex items-center gap-1 transition cursor-pointer"
+              >
+                <span class="iconify text-stone-400" data-icon="lucide:x-circle" data-stroke-width="1.8"></span>
+                <span>Decline Request</span>
+              </button>
+            </div>
+
+            <!-- Inline Decline Drawer -->
+            <div id="reject-drawer" class="hidden pt-2 space-y-2">
+              <select id="reject-reason" class="w-full bg-[#FAF7F4] border border-rose-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-800">
+                <option value="Schedule Conflict">Executive Schedule Conflict</option>
+                <option value="Public Room Available">Utilize public conference room</option>
+                <option value="Other">Other security protocol issue</option>
+              </select>
+              <button 
+                type="button" 
+                onclick="confirmRejectAction()" 
+                class="w-full py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1 transition cursor-pointer"
+              >
+                <span class="iconify text-white text-xs" data-icon="lucide:slash" data-stroke-width="2"></span>
+                <span class="text-white">Confirm Rejection</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATE B: Confirmed Clearance Dossier (Replaces the empty space when approved!) -->
+        <div id="confirmed-dossier-panel" class="hidden space-y-3.5">
+          <!-- Confirmed Hours Card -->
+          <div class="p-3 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD]">
+            <span class="text-[10px] uppercase font-bold text-stone-400 block tracking-wider">Approved Access Window</span>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-xs font-mono font-bold text-stone-900" id="confirmed-time-display">11:00 AM – 01:00 PM</span>
+              <span class="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+                <span class="iconify text-xs" data-icon="lucide:check-circle-2"></span>
+                <span>Confirmed (2h)</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Door Access Passcode Card -->
+          <div class="p-3.5 bg-emerald-50/60 rounded-xl border border-emerald-200 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-emerald-900 flex items-center gap-1.5">
+                <span class="iconify text-sm text-emerald-700" data-icon="lucide:key-round" data-stroke-width="2"></span>
+                <span>Door Access Passcode</span>
+              </span>
+              <button type="button" onclick="navigator.clipboard?.writeText('7729-EXEC'); alert('Copied passcode!')" class="text-[11px] text-emerald-800 hover:text-emerald-950 font-semibold flex items-center gap-1 cursor-pointer">
+                <span class="iconify text-xs" data-icon="lucide:copy"></span>
+                <span>Copy</span>
+              </button>
+            </div>
+            <div class="font-mono text-base font-bold text-emerald-950 tracking-wider">
+              7729-EXEC
+            </div>
+          </div>
+
+          <!-- Directives & Clearance Authority -->
+          <div class="p-3 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD] space-y-1.5">
+            <span class="text-[10px] uppercase tracking-wider font-bold text-stone-400 block">Owner Clearance Directive</span>
+            <p class="text-xs text-stone-800 italic" id="confirmed-directives-display">
+              "Approved. Please ensure secure room protocols and clean audio link."
+            </p>
+            <div class="text-[11px] text-stone-500 pt-1 border-t border-[#E9E3DD] flex items-center justify-between">
+              <span>Authority: <strong class="text-stone-700">H.E. Chea Serey Cabinet</strong></span>
+              <span class="text-emerald-700 font-mono font-medium">Cleared</span>
+            </div>
+          </div>
+
+          <!-- Receipt Action CTA -->
+          <div class="pt-2">
+            <button 
+              type="button" 
+              onclick="alert('Opening official booking receipt...')" 
+              class="w-full btn-primary min-h-[46px] rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+            >
+              <span class="iconify text-white text-sm" data-icon="lucide:receipt" data-stroke-width="2"></span>
+              <span class="text-white">View Official Booking Receipt</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    function applyPreset(start, end, btn) {
+      document.getElementById('input-start-time').value = start;
+      document.getElementById('input-end-time').value = end;
+      
+      document.querySelectorAll('.preset-chip').forEach(c => {
+        c.classList.remove('border-[#991B1B]', 'bg-[#991B1B]/5', 'text-[#991B1B]', 'font-semibold');
+        c.classList.add('border-[#E9E3DD]', 'bg-white', 'text-stone-700', 'font-medium');
+      });
+      btn.classList.add('border-[#991B1B]', 'bg-[#991B1B]/5', 'text-[#991B1B]', 'font-semibold');
+      btn.classList.remove('border-[#E9E3DD]', 'bg-white', 'text-stone-700', 'font-medium');
+
+      recalculateDuration();
+    }
+
+    function recalculateDuration() {
+      const s = document.getElementById('input-start-time').value.split(':').map(Number);
+      const e = document.getElementById('input-end-time').value.split(':').map(Number);
+      if (s.length === 2 && e.length === 2) {
+        const diff = (e[0] * 60 + e[1]) - (s[0] * 60 + s[1]);
+        if (diff > 0) {
+          const h = Math.floor(diff / 60);
+          const m = diff % 60;
+          document.getElementById('calculated-duration').innerText = `${h}h ${m < 10 ? '0' : ''}${m}m`;
+        }
+      }
+    }
+
+    function toggleRejectDrawer() {
+      const el = document.getElementById('reject-drawer');
+      el.classList.toggle('hidden');
+    }
+
+    function handleApproveAction() {
+      const s = document.getElementById('input-start-time').value;
+      const e = document.getElementById('input-end-time').value;
+      const directives = document.getElementById('owner-directives').value;
+
+      // Update Header Status
+      document.getElementById('status-indicator').innerHTML = `
+        <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+        <span class="text-xs font-semibold text-emerald-800">Booking Confirmed & Ready</span>
+      `;
+
+      // Update Stepper to Completed (Stage 5)
+      document.getElementById('stepper-stage-label').textContent = 'Step 5 of 5';
+      document.getElementById('stepper-progress-fill').style.width = '100%';
+
+      // Update Owner Node
+      document.getElementById('step-circle-owner').className = 'w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center text-xs shadow-2xs';
+      document.getElementById('step-circle-owner').innerHTML = '<span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>';
+      document.getElementById('step-label-owner').className = 'text-[10px] font-semibold text-stone-700 mt-1';
+
+      // Update Setup Node
+      document.getElementById('step-circle-setup').className = 'w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center text-xs shadow-2xs';
+      document.getElementById('step-circle-setup').innerHTML = '<span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>';
+      document.getElementById('step-label-setup').className = 'text-[10px] font-semibold text-stone-700 mt-1';
+
+      // Update Ready Node
+      document.getElementById('step-circle-ready').className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs shadow-2xs';
+      document.getElementById('step-circle-ready').innerHTML = '<span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>';
+      document.getElementById('step-label-ready').className = 'text-[10px] font-bold text-emerald-700 mt-1';
+
+      // Hide Pending Form & Reveal Confirmed Dossier (ELIMINATING THE EMPTY SPACE!)
+      document.getElementById('pending-controls-panel').classList.add('hidden');
+      document.getElementById('confirmed-dossier-panel').classList.remove('hidden');
+      document.getElementById('confirmed-time-display').textContent = `${s} – ${e}`;
+      if (directives) {
+        document.getElementById('confirmed-directives-display').textContent = `"${directives}"`;
+      }
+    }
+
+    function confirmRejectAction() {
+      document.getElementById('status-indicator').innerHTML = `
+        <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+        <span class="text-xs font-semibold text-rose-800">Rejected by Room Owner</span>
+      `;
+      alert('Request Rejected.');
+    }
+  </script>
+</body>
+</html>

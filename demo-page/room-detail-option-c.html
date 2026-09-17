@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBC Room Details - Option C: Executive Studio Deck</title>
+  
+  <!-- Fonts: Poppins, Kantumruy Pro, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN with NBC Cafe Design System Tokens -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            coffee: {
+              50: '#FDFCFA',
+              100: '#F9F7F5',
+              200: '#E9E3DD',
+              300: '#D8CFC7',
+              400: '#A8988B',
+              500: '#7D6857',
+              600: '#5D4432',
+              700: '#483425',
+              800: '#3E2B1E',
+              900: '#2A1C13'
+            },
+            brand: {
+              50: '#FEF2F2',
+              100: '#FEE2E2',
+              600: '#DC2626',
+              700: '#B91C1C',
+              800: '#991B1B',
+              900: '#7F1D1D',
+              950: '#450A0A'
+            },
+            sidebar: {
+              DEFAULT: '#260707',
+              surface: '#2A0808',
+              hover: '#380B0B',
+              active: '#4F0E0E',
+              border: '#3D0C0C',
+              edge: '#450A0A'
+            }
+          },
+          fontFamily: {
+            sans: ['Poppins', 'Kantumruy Pro', '-apple-system', 'sans-serif'],
+            heading: ['Poppins', 'Kantumruy Pro', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Iconify SVG Framework (Stroke-only Lucide icons) -->
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+  
+  <!-- Vue 3 CDN for live demo interactivity -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.38/dist/vue.global.prod.js"></script>
+
+  <style>
+    /* Strict No Full-Page Vertical Scrollbar rules */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #D6CCC2; border-radius: 9999px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Drawer Transition */
+    .drawer-enter-active,
+    .drawer-leave-active {
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+    .drawer-enter-from,
+    .drawer-leave-to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  </style>
+</head>
+<body class="bg-[#F9F7F5] text-[#3E2B1E] min-h-screen lg:h-screen lg:overflow-hidden antialiased flex flex-col">
+
+  <!-- Demo Switcher Top Bar -->
+  <header class="bg-[#260707] border-b border-[#3D0C0C] text-white px-4 py-2.5 sticky top-0 z-40 shadow-md shrink-0">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-lg bg-[#3D0C0C] border border-[#450A0A] flex items-center justify-center text-[#FACC15]">
+          <span class="iconify" data-icon="lucide:layout-panel-left" data-stroke-width="2"></span>
+        </span>
+        <div>
+          <span class="text-xs font-mono uppercase tracking-wider text-amber-300 font-semibold">Room Detail Demo Review</span>
+          <h1 class="text-sm font-bold text-white leading-tight">Option C: Executive Studio Deck</h1>
+        </div>
+      </div>
+      
+      <!-- Option Switcher Links -->
+      <nav class="flex items-center gap-2">
+        <span class="text-xs text-stone-400 mr-1 hidden sm:inline">Details Mode:</span>
+        <a href="room-detail-option-a.html" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#2A0808] hover:bg-[#3D0C0C] text-stone-300 border border-[#3D0C0C] transition flex items-center gap-1.5">
+          Option A
+        </a>
+        <a href="room-detail-option-b.html" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#2A0808] hover:bg-[#3D0C0C] text-stone-300 border border-[#3D0C0C] transition flex items-center gap-1.5">
+          Option B
+        </a>
+        <a href="room-detail-option-c.html" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#991B1B] text-white border border-red-700/50 shadow-xs flex items-center gap-1.5">
+          <span class="iconify text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+          Option C
+        </a>
+        <a href="room-detail-option-d.html" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#2A0808] hover:bg-[#3D0C0C] text-stone-300 border border-[#3D0C0C] transition flex items-center gap-1.5">
+          Option 4 (Modern Studio)
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Studio Viewport (Zero full-page scroll on desktop) -->
+  <main id="app" class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-5 flex flex-col gap-4 overflow-hidden">
+
+    <!-- Top Action Bar -->
+    <div class="flex items-center justify-between pb-2.5 border-b border-[#E9E3DD] shrink-0">
+      <div class="flex items-center gap-3">
+        <a href="hierarchy-option-a.html" class="h-8 px-3 rounded-lg bg-white hover:bg-[#FAF7F4] text-[#3E2B1E] border border-[#E9E3DD] text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs">
+          <span class="iconify text-[#7D6857] text-sm" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+          <span>Catalog</span>
+        </a>
+        <div class="h-4 w-px bg-[#E9E3DD]"></div>
+        <h2 class="font-heading font-bold text-base text-[#3E2B1E] truncate">{{ room.name }}</h2>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <!-- Open Slide-Over Map Drawer Button -->
+        <button
+          @click="showDrawer = true"
+          class="h-8 px-3 rounded-lg bg-white hover:bg-[#FAF7F4] text-[#3E2B1E] border border-[#E9E3DD] text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
+          type="button"
+        >
+          <span class="iconify text-[#991B1B] text-xs" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+          <span>Map & Location</span>
+        </button>
+
+        <button
+          @click="proceedToBooking"
+          class="h-8 px-4 rounded-lg bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-xs cursor-pointer"
+          type="button"
+        >
+          <span class="iconify text-white text-xs" data-icon="lucide:calendar-clock" data-stroke-width="2"></span>
+          <span>Book Now</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- UPPER HALF: Hero Visuals + Executive Specs (Compact Grid) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 shrink-0">
+      
+      <!-- Visual Stage (5 cols) -->
+      <div class="lg:col-span-5 bg-white rounded-2xl border border-[#E9E3DD] p-2.5 space-y-2 shadow-xs">
+        <div class="relative h-56 rounded-xl overflow-hidden bg-stone-900 group">
+          <img :src="activeImage" :alt="room.name" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none"></div>
+          
+          <div class="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between z-10">
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[#260707]/90 text-white backdrop-blur-xs border border-white/20">
+              {{ room.isPrivate ? 'Private Room' : 'Shared Room' }}
+            </span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-black/60 text-white backdrop-blur-xs">
+              {{ currentImgIndex + 1 }} / {{ room.images.length }}
+            </span>
+          </div>
+
+          <button
+            v-if="room.images.length > 1"
+            @click="prevImage"
+            class="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-xs transition cursor-pointer"
+            type="button"
+          >
+            <span class="iconify text-sm" data-icon="lucide:chevron-left" data-stroke-width="2"></span>
+          </button>
+          <button
+            v-if="room.images.length > 1"
+            @click="nextImage"
+            class="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-xs transition cursor-pointer"
+            type="button"
+          >
+            <span class="iconify text-sm" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          <button
+            v-for="(img, idx) in room.images"
+            :key="idx"
+            @click="currentImgIndex = idx"
+            class="relative h-12 w-16 rounded-md overflow-hidden shrink-0 border transition cursor-pointer"
+            :class="idx === currentImgIndex ? 'border-[#991B1B]' : 'border-[#E9E3DD] opacity-50 hover:opacity-100'"
+            type="button"
+          >
+            <img :src="img" :alt="room.name" class="w-full h-full object-cover" />
+          </button>
+        </div>
+      </div>
+
+      <!-- Executive Specs Deck (7 cols) -->
+      <div class="lg:col-span-7 bg-white rounded-2xl border border-[#E9E3DD] p-4 flex flex-col justify-between shadow-xs space-y-3">
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h3 class="font-heading font-bold text-sm text-[#3E2B1E] tracking-tight">Executive Summary</h3>
+            <div class="flex items-center gap-1.5 text-[11px] font-mono font-semibold text-emerald-700">
+              <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+              <span>Available Now</span>
+            </div>
+          </div>
+
+          <!-- 4-Stat Metric Row -->
+          <div class="grid grid-cols-4 gap-2">
+            <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-center">
+              <span class="text-[10px] font-semibold text-[#7D6857] block">Capacity</span>
+              <strong class="font-mono text-xs font-bold text-[#3E2B1E] mt-0.5 block">{{ room.capacity }} Seats</strong>
+            </div>
+            <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-center">
+              <span class="text-[10px] font-semibold text-[#7D6857] block">Size</span>
+              <strong class="font-mono text-xs font-bold text-[#3E2B1E] mt-0.5 block">{{ room.size }}</strong>
+            </div>
+            <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-center">
+              <span class="text-[10px] font-semibold text-[#7D6857] block">Floor</span>
+              <strong class="font-mono text-xs font-bold text-[#3E2B1E] mt-0.5 block">{{ room.floorShort }}</strong>
+            </div>
+            <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-center">
+              <span class="text-[10px] font-semibold text-[#7D6857] block">Door Code</span>
+              <strong class="font-mono text-xs font-bold text-[#3E2B1E] mt-0.5 block">{{ room.doorCode }}</strong>
+            </div>
+          </div>
+
+          <p class="text-xs text-[#6F5849] leading-relaxed line-clamp-3">
+            {{ room.description }}
+          </p>
+        </div>
+
+        <div class="pt-2 border-t border-[#E9E3DD]/70 flex items-center justify-between text-xs text-[#6F5849]">
+          <span class="flex items-center gap-1.5">
+            <span class="iconify text-[#991B1B] text-sm" data-icon="lucide:building-2"></span>
+            <span>{{ room.department }}</span>
+          </span>
+          <span class="font-mono text-[11px] text-stone-400">Wat Phnom Campus</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- LOWER HALF: Internal Scrolling Grid for Amenities & Schedule (Fit Viewport) -->
+    <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-0 overflow-hidden">
+      
+      <!-- Amenities Column (6 cols, internal scroll) -->
+      <div class="lg:col-span-6 bg-white rounded-2xl border border-[#E9E3DD] p-4 flex flex-col shadow-xs overflow-hidden">
+        <div class="flex items-center justify-between pb-2.5 border-b border-[#E9E3DD] shrink-0">
+          <h3 class="font-heading font-bold text-sm text-[#3E2B1E] tracking-tight">Installed Equipment</h3>
+          <span class="font-mono text-xs text-[#7D6857]">{{ room.features.length }} verified items</span>
+        </div>
+
+        <div class="flex-1 overflow-y-auto no-scrollbar pt-3 space-y-2">
+          <div
+            v-for="item in room.features"
+            :key="item.name"
+            class="flex items-center gap-2.5 p-2 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD]"
+          >
+            <span class="w-6 h-6 rounded-lg bg-white border border-[#E9E3DD] flex items-center justify-center text-[#991B1B] shrink-0">
+              <span class="iconify text-xs" :data-icon="item.icon" data-stroke-width="2"></span>
+            </span>
+            <span class="text-xs font-medium text-[#3E2B1E]">{{ item.name }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Schedule Column (6 cols, internal scroll) -->
+      <div class="lg:col-span-6 bg-white rounded-2xl border border-[#E9E3DD] p-4 flex flex-col shadow-xs overflow-hidden">
+        <div class="flex items-center justify-between pb-2.5 border-b border-[#E9E3DD] shrink-0">
+          <h3 class="font-heading font-bold text-sm text-[#3E2B1E] tracking-tight">Today's Schedule</h3>
+          <span class="text-xs font-mono text-emerald-700">3 open slots</span>
+        </div>
+
+        <div class="flex-1 overflow-y-auto no-scrollbar pt-3 space-y-2">
+          <div
+            v-for="slot in daySlots"
+            :key="slot.id"
+            class="flex items-center justify-between p-2.5 rounded-xl border transition"
+            :class="slot.booked ? 'bg-[#F4EFEA] border-[#E9E3DD] opacity-50' : 'bg-[#FAF7F4] border-[#E9E3DD] hover:border-stone-400'"
+          >
+            <div class="flex items-center gap-2.5">
+              <span class="iconify text-sm" :data-icon="slot.booked ? 'lucide:lock' : 'lucide:clock'" :class="slot.booked ? 'text-stone-400' : 'text-emerald-700'"></span>
+              <div>
+                <span class="font-mono text-xs font-bold text-[#3E2B1E] block">{{ slot.time }}</span>
+                <span class="text-[11px] text-[#7D6857] block">{{ slot.title }}</span>
+              </div>
+            </div>
+
+            <button
+              v-if="!slot.booked"
+              @click="bookDirectSlot(slot)"
+              class="h-7 px-3 rounded-lg text-xs font-semibold bg-[#991B1B] hover:bg-[#7F1D1D] text-white transition flex items-center gap-1 cursor-pointer"
+              type="button"
+            >
+              <span>Book</span>
+            </button>
+            <span v-else class="text-[11px] font-mono text-stone-400 mr-2">Reserved</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SLIDE-OVER DRAWER: MAP & CAMPUS LOCATION -->
+    <transition name="drawer">
+      <div
+        v-if="showDrawer"
+        class="fixed inset-0 z-50 overflow-hidden"
+      >
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity" @click="showDrawer = false"></div>
+
+        <div class="absolute inset-y-0 right-0 max-w-full flex pl-10">
+          <div class="w-screen max-w-md bg-white border-l border-[#E9E3DD] p-6 flex flex-col justify-between shadow-2xl space-y-5">
+            
+            <div class="space-y-4">
+              <div class="flex items-center justify-between pb-3 border-b border-[#E9E3DD]">
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-lg bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center">
+                    <span class="iconify text-base" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+                  </span>
+                  <h3 class="font-heading font-bold text-base text-[#3E2B1E]">Facility Location</h3>
+                </div>
+                <button @click="showDrawer = false" class="w-8 h-8 rounded-lg bg-[#FAF7F4] border border-[#E9E3DD] flex items-center justify-center text-stone-500 hover:text-stone-800 cursor-pointer">
+                  <span class="iconify text-base" data-icon="lucide:x" data-stroke-width="2"></span>
+                </button>
+              </div>
+
+              <div>
+                <strong class="font-heading font-bold text-sm text-[#3E2B1E] block">{{ room.buildingName }}</strong>
+                <span class="text-xs text-[#6F5849] mt-1 block leading-relaxed">{{ room.address }}</span>
+              </div>
+
+              <!-- Interactive Google Map Embed -->
+              <div class="h-64 rounded-xl overflow-hidden border border-[#E9E3DD] bg-stone-100">
+                <iframe
+                  title="Google Map Drawer"
+                  width="100%"
+                  height="100%"
+                  style="border:0;"
+                  loading="lazy"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3908.770638148902!2d104.920556!3d11.573611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3107870560a6a445%3A0x6a0f7e4113e00b39!2sNational%20Bank%20of%20Cambodia!5e0!3m2!1sen!2skh!4v1700000000000"
+                ></iframe>
+              </div>
+
+              <div class="p-3 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-xs space-y-1">
+                <span class="font-semibold text-[#3E2B1E] block">Arrival Instructions:</span>
+                <p class="text-[#6F5849] leading-relaxed">Present employee badge at the security gate on Norodom Blvd. Elevators directly access Floor 18 Executive Boardrooms.</p>
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-[#E9E3DD]">
+              <a
+                href="https://maps.google.com/?q=National+Bank+of+Cambodia"
+                target="_blank"
+                class="w-full h-11 rounded-xl bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-xs"
+              >
+                <span class="iconify text-white text-sm" data-icon="lucide:navigation" data-stroke-width="2"></span>
+                <span>Open in Google Maps</span>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </transition>
+
+  </main>
+
+  <script>
+    const { createApp, ref, computed } = Vue;
+
+    createApp({
+      setup() {
+        const currentImgIndex = ref(0);
+        const showDrawer = ref(false);
+
+        const room = ref({
+          id: 'ROOM-101',
+          name: 'ទន្លេមេគង្គ - Mekong River Boardroom',
+          category: 'Executive Room',
+          isPrivate: true,
+          floorShort: 'Floor 18',
+          department: 'Board of Directors & Cabinet',
+          capacity: 28,
+          size: '95 m²',
+          doorCode: 'NBC-8801',
+          buildingName: 'National Bank of Cambodia - Headquarters (Wat Phnom)',
+          address: 'No. 22-24, Preah Norodom Blvd, Phnom Penh, Cambodia',
+          description: 'Grand executive boardroom designed for high-level central banking discussions, monetary policy summits, and international financial delegations with secure encrypted AV conferencing.',
+          images: [
+            '../assets/rooms/boardroom-alpha.jpg',
+            '../assets/rooms/focus-room.jpg',
+            '../assets/rooms/innovation-hub.jpg',
+            '../assets/rooms/summit-suite.jpg'
+          ],
+          features: [
+            { name: '4K Ultra HD Video Wall', icon: 'lucide:monitor' },
+            { name: 'Wireless Barco ClickShare', icon: 'lucide:cast' },
+            { name: 'Table Microphones & Bose Audio', icon: 'lucide:mic' },
+            { name: 'High-Speed Encrypted Wi-Fi 6E', icon: 'lucide:wifi' },
+            { name: 'Polycom 4K Video Conference', icon: 'lucide:video' },
+            { name: 'Executive Refreshment Bar', icon: 'lucide:coffee' }
+          ]
+        });
+
+        const daySlots = ref([
+          { id: 'slot-1', time: '08:30 – 10:00', title: 'Open Slot', booked: false },
+          { id: 'slot-2', time: '10:30 – 12:00', title: 'Monetary Policy Committee', booked: true },
+          { id: 'slot-3', time: '02:00 – 03:30', title: 'Open Slot', booked: false },
+          { id: 'slot-4', time: '04:00 – 05:30', title: 'Open Slot', booked: false }
+        ]);
+
+        const activeImage = computed(() => {
+          return room.value.images[currentImgIndex.value] || room.value.images[0];
+        });
+
+        const nextImage = () => {
+          currentImgIndex.value = (currentImgIndex.value + 1) % room.value.images.length;
+        };
+
+        const prevImage = () => {
+          currentImgIndex.value = (currentImgIndex.value - 1 + room.value.images.length) % room.value.images.length;
+        };
+
+        const bookDirectSlot = (slot) => {
+          alert(`Selected slot: ${slot.time}`);
+        };
+
+        const proceedToBooking = () => {
+          alert(`Proceeding to book ${room.value.name}`);
+        };
+
+        return {
+          room,
+          currentImgIndex,
+          activeImage,
+          daySlots,
+          showDrawer,
+          nextImage,
+          prevImage,
+          bookDirectSlot,
+          proceedToBooking
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

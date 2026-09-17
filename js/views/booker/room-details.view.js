@@ -1,4 +1,5 @@
 // Room Details View Component (view-room-details)
+// Option 4: Modern Executive Studio Deck (NBC Crimson Heritage & Cafe Design System)
 window.NBC = window.NBC || {};
 window.NBC.views = window.NBC.views || {};
 
@@ -8,128 +9,160 @@ class RoomDetailsView {
     this.currentRoomDetailsId = 'ROOM-101';
     this.currentModalRoom = null;
     this.currentModalImageIndex = 0;
-    this.selectedTimelineDate = new Date().toISOString().split('T')[0];
-    this.currentStep = 1;
-    if (window.app) {
-      window.app.roomDetailsGoToStep = (step) => this.goToStep(step);
-    }
+    this.selectedDayIndex = 0; // 0: Today, 1: Tomorrow, 2: Day+2
+    this.selectedDate = this.getTodayDateString();
+    this.selectedSlotId = 'slot-1';
+    this.selectedSlot = null;
+    this.showDrawer = false;
+    this.copied = false;
+    this.days = [];
+    this.slots = [];
   }
 
-  goToStep(stepNumber) {
-    this.currentStep = stepNumber;
-    const step1El = document.getElementById('room-details-step-1');
-    const step2El = document.getElementById('room-details-step-2');
+  getTodayDateString() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  generateDays() {
+    const days = [];
+    const now = new Date();
     
-    if (step1El && step2El) {
-      if (stepNumber === 1) {
-        step1El.classList.remove('hidden');
-        step2El.classList.add('hidden');
+    for (let i = 0; i < 3; i++) {
+      const d = new Date(now.getTime() + i * 86400000);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const dayNum = String(d.getDate()).padStart(2, '0');
+      const dateStr = `${y}-${m}-${dayNum}`;
+      const monthShort = d.toLocaleString('en-US', { month: 'short' });
+      const weekdayShort = d.toLocaleString('en-US', { weekday: 'short' });
+
+      let label = '';
+      if (i === 0) {
+        label = `Today, ${d.getDate()} ${monthShort}`;
+      } else if (i === 1) {
+        label = `Tomorrow, ${d.getDate()} ${monthShort}`;
       } else {
-        step1El.classList.add('hidden');
-        step2El.classList.remove('hidden');
+        label = `${weekdayShort}, ${d.getDate()} ${monthShort}`;
       }
-    }
 
-    // Update wizard tracker tabs
-    const tab1 = document.getElementById('room-wizard-tab-1');
-    const tab2 = document.getElementById('room-wizard-tab-2');
-
-    if (tab1 && tab2) {
-      if (stepNumber === 1) {
-        tab1.className = 'room-wizard-step-tab active h-8 px-2.5 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-[#991B1B] font-semibold text-[13px] flex items-center space-x-1.5 transition cursor-pointer shadow-2xs shrink-0';
-        tab1.innerHTML = `<span class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center text-[11px] font-bold">1</span><span>Room Overview</span>`;
-        
-        tab2.className = 'room-wizard-step-tab h-8 px-2.5 rounded-lg bg-transparent border border-transparent text-[#78716C] hover:text-[#1C1917] hover:bg-[#F4EFEA] font-medium text-[13px] flex items-center space-x-1.5 transition cursor-pointer shrink-0';
-        tab2.innerHTML = `<span class="w-5 h-5 rounded-full bg-[#E9E3DD] text-[#78716C] flex items-center justify-center text-[11px] font-bold">2</span><span>Building & Map</span>`;
-      } else {
-        tab1.className = 'room-wizard-step-tab completed h-8 px-2.5 rounded-lg bg-transparent border border-transparent text-[#78716C] hover:text-[#1C1917] hover:bg-[#F4EFEA] font-medium text-[13px] flex items-center space-x-1.5 transition cursor-pointer shrink-0';
-        tab1.innerHTML = `<span class="w-5 h-5 rounded-full bg-[#E9E3DD] text-[#1C1917] flex items-center justify-center text-[11px] font-bold"><span class="iconify" data-icon="lucide:check"></span></span><span>Room Overview</span>`;
-        
-        tab2.className = 'room-wizard-step-tab active h-8 px-2.5 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-[#991B1B] font-semibold text-[13px] flex items-center space-x-1.5 transition cursor-pointer shadow-2xs shrink-0';
-        tab2.innerHTML = `<span class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center text-[11px] font-bold">2</span><span>Building & Map</span>`;
-      }
+      days.push({
+        id: `day-${i}`,
+        index: i,
+        date: dateStr,
+        label: label
+      });
     }
-
-    const container = document.getElementById('view-room-details');
-    if (container) {
-      container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    return days;
   }
 
-  setTimelineDate(dateString) {
-    if (!dateString) return;
-    const today = new Date();
-    const todayYear = today.getFullYear();
-    const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
-    const todayDay = String(today.getDate()).padStart(2, '0');
-    const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
+  generateSlots(roomId, dateString) {
+    const baseSlots = [
+      { id: 'slot-1', startTime: '08:00', endTime: '09:00', duration: '60 mins', title: 'Early Morning Sync' },
+      { id: 'slot-2', startTime: '09:00', endTime: '10:00', duration: '60 mins', title: 'Department Session' },
+      { id: 'slot-3', startTime: '10:00', endTime: '11:00', duration: '60 mins', title: 'Mid-Morning Review' },
+      { id: 'slot-4', startTime: '11:00', endTime: '12:00', duration: '60 mins', title: 'Executive Discussion' },
+      { id: 'slot-5', startTime: '13:00', endTime: '14:00', duration: '60 mins', title: 'Early Afternoon Briefing' },
+      { id: 'slot-6', startTime: '14:00', endTime: '15:00', duration: '60 mins', title: 'Afternoon Committee' },
+      { id: 'slot-7', startTime: '15:00', endTime: '16:00', duration: '60 mins', title: 'Strategy Planning' },
+      { id: 'slot-8', startTime: '16:00', endTime: '17:00', duration: '60 mins', title: 'Late Wrap-Up Session' }
+    ];
 
-    if (dateString < todayStr) {
-      this.showToast("Past Date", "Cannot book in the past. Showing today's schedule.", "warning");
-      dateString = todayStr;
-    }
+    const todayStr = this.getTodayDateString();
+    const now = new Date();
+    const nowMins = now.getHours() * 60 + now.getMinutes();
 
-    this.selectedTimelineDate = dateString;
-    if (this.currentModalRoom) {
-      this.renderRoomDetailsPage(this.currentModalRoom.id);
-    }
-  }
+    return baseSlots.map(slot => {
+      const timeStr = `${slot.startTime} – ${slot.endTime}`;
+      let isBooked = false;
+      let meetingInfo = null;
 
-  handleBookSlotClick(roomId, date, startTime, endTime) {
-    const today = new Date();
-    const todayYear = today.getFullYear();
-    const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
-    const todayDay = String(today.getDate()).padStart(2, '0');
-    const todayStr = `${todayYear}-${todayMonth}-${todayDay}`;
-    const nowMins = today.getHours() * 60 + today.getMinutes();
-
-    if (date < todayStr) {
-      this.showToast("Time Has Passed", "You cannot book meetings in the past. Please select today or a future date.", "warning");
-      return;
-    }
-
-    const startMins = bookingStore.timeToMinutes(startTime);
-    const endMins = bookingStore.timeToMinutes(endTime);
-
-    if (date === todayStr) {
-      if (endMins <= nowMins) {
-        this.showToast("Time Has Passed", "This slot has already elapsed today. Please select an upcoming slot.", "warning");
-        return;
-      }
-
-      // If slot began in the past, adjust start time forward to the next rounded 15-min mark
-      if (startMins < nowMins) {
-        const roundedNextStart = Math.min(endMins - 15, Math.ceil((nowMins + 5) / 15) * 15);
-        if (roundedNextStart < endMins) {
-          startTime = bookingStore.minutesToTime(roundedNextStart);
-        } else {
-          this.showToast("Slot Elapsed", "Not enough remaining time in this slot.", "warning");
-          return;
+      // Check conflict with bookingStore
+      if (typeof bookingStore !== 'undefined' && bookingStore.checkBookingConflict) {
+        const conflict = bookingStore.checkBookingConflict(roomId, dateString, slot.startTime, slot.endTime);
+        if (conflict.hasConflict) {
+          isBooked = true;
+          // Find the matching booking to display title
+          if (bookingStore.requests) {
+            const req = bookingStore.requests.find(r => {
+              const rRoomId = r.room?.id || r.roomId;
+              if (rRoomId !== roomId) return false;
+              const st = (r.status || '').toLowerCase();
+              if (st.includes('reject') || st.includes('cancel')) return false;
+              
+              if (r.date === dateString) {
+                return (r.startTime < slot.endTime && r.endTime > slot.startTime);
+              }
+              if (r.sessions && Array.isArray(r.sessions)) {
+                return r.sessions.some(s => s.date === dateString && s.startTime < slot.endTime && s.endTime > slot.startTime);
+              }
+              return false;
+            });
+            if (req) {
+              const isPriv = !!req.isPrivateRequest || !!req.room?.isPrivate;
+              meetingInfo = {
+                title: isPriv ? 'Reserved (Private Session)' : (req.meetingTitle || 'Executive Session'),
+                organizer: req.requester?.name || 'NBC Staff',
+                dept: req.requester?.department || 'Operations',
+                ref: req.referenceCode || 'NBC-RESERVED'
+              };
+            }
+          }
         }
       }
-    }
 
-    if (window.app && window.app.navigateTo) {
-      window.app.navigateTo('request-form', {
-        roomId,
-        date,
-        startTime,
-        endTime,
-        fromView: 'room-details'
-      });
+      // Check if past today
+      if (dateString === todayStr) {
+        const [sH, sM] = slot.startTime.split(':').map(Number);
+        if (sH * 60 + sM < nowMins) {
+          isBooked = true;
+          if (!meetingInfo) {
+            meetingInfo = {
+              title: 'Time Slot Elapsed',
+              organizer: 'NBC Operations',
+              dept: 'Daily Schedule',
+              ref: 'PASSED'
+            };
+          }
+        }
+      }
+
+      return {
+        ...slot,
+        time: timeStr,
+        booked: isBooked,
+        meetingInfo: meetingInfo
+      };
+    });
+  }
+
+  openFullSchedule() {
+    if (!this.currentModalRoom) return;
+    const roomId = this.currentModalRoom.id;
+    const selectedDate = this.selectedDate;
+    if (window.app && window.app.selectRoomAndProceed) {
+      window.app.selectRoomAndProceed(roomId, 'room-details', selectedDate);
+    } else if (window.NBC.views['request-form'] && window.NBC.views['request-form'].selectRoomAndProceed) {
+      window.NBC.views['request-form'].selectRoomAndProceed(roomId, 'room-details', selectedDate);
+    } else {
+      this.navigateTo('request-form', { roomId, date: selectedDate, fromView: 'room-details' });
     }
   }
 
   getAmenityIcon(name) {
     const n = (name || '').toLowerCase();
-    if (n.includes('tv') || n.includes('screen') || n.includes('display')) return 'lucide:tv';
-    if (n.includes('video') || n.includes('camera') || n.includes('zoom')) return 'lucide:video';
-    if (n.includes('wifi') || n.includes('wi-fi') || n.includes('internet') || n.includes('network')) return 'lucide:wifi';
+    if (n.includes('tv') || n.includes('screen') || n.includes('display') || n.includes('wall') || n.includes('matrix')) return 'lucide:monitor';
+    if (n.includes('video') || n.includes('camera') || n.includes('polycom') || n.includes('rig')) return 'lucide:video';
+    if (n.includes('wifi') || n.includes('wi-fi') || n.includes('network') || n.includes('lan')) return 'lucide:wifi';
     if (n.includes('chair') || n.includes('seat') || n.includes('furniture')) return 'lucide:armchair';
-    if (n.includes('coffee') || n.includes('tea') || n.includes('drink') || n.includes('beverage')) return 'lucide:coffee';
+    if (n.includes('coffee') || n.includes('refreshment') || n.includes('tea') || n.includes('bar')) return 'lucide:coffee';
     if (n.includes('whiteboard') || n.includes('board') || n.includes('marker')) return 'lucide:presentation';
     if (n.includes('projector')) return 'lucide:projector';
-    if (n.includes('mic') || n.includes('audio') || n.includes('speaker') || n.includes('sound')) return 'lucide:mic';
+    if (n.includes('mic') || n.includes('audio') || n.includes('bose') || n.includes('speaker') || n.includes('sound')) return 'lucide:mic';
+    if (n.includes('share') || n.includes('cast') || n.includes('clickshare')) return 'lucide:cast';
     if (n.includes('air') || n.includes('ac') || n.includes('cooling')) return 'lucide:wind';
     return 'lucide:check-circle-2';
   }
@@ -148,407 +181,621 @@ class RoomDetailsView {
     }
   }
 
+  init(params = {}) {
+    if (params.roomId) this.currentRoomDetailsId = params.roomId;
+    if (params.initialIndex !== undefined) this.currentModalImageIndex = params.initialIndex;
+    if (params.date) {
+      this.selectedDate = params.date;
+    } else {
+      this.selectedDate = this.getTodayDateString();
+    }
+  }
+
   render(container, params = {}) {
     if (!container) return;
     const roomId = params.roomId || this.currentRoomDetailsId || 'ROOM-101';
     this.currentRoomDetailsId = roomId;
-    const initialIndex = params.initialIndex !== undefined ? params.initialIndex : 0;
-    this.currentStep = params.step || 1;
+    this.currentModalImageIndex = params.initialIndex !== undefined ? params.initialIndex : 0;
+    
     container.innerHTML = `
-      <div id="view-room-details" class="w-full space-y-4"></div>
+      <div id="view-room-details" class="w-full"></div>
     `;
-    this.renderRoomDetailsPage(roomId, initialIndex);
-  }
-
-  init(params = {}) {
-    if (params.roomId) this.currentRoomDetailsId = params.roomId;
-    if (params.initialIndex !== undefined) this.currentModalImageIndex = params.initialIndex;
-    if (params.step !== undefined) this.currentStep = params.step;
+    this.renderRoomDetailsPage(roomId);
   }
 
   openRoomDetailsPage(roomId, initialIndex = 0) {
     this.currentRoomDetailsId = roomId;
     this.currentModalImageIndex = initialIndex;
-    this.currentStep = 1;
     this.navigateTo('room-details', { roomId });
   }
 
-  // Backward compatibility alias
-
   navigateModalRoomImage(delta) {
     if (!this.currentModalRoom) return;
-    const images = this.currentModalRoom.images || [this.currentModalRoom.image];
+    const initRoom = typeof INITIAL_ROOMS_DATA !== 'undefined' ? INITIAL_ROOMS_DATA.find(ir => ir.id === this.currentModalRoom.id) : null;
+    const images = initRoom?.images || this.currentModalRoom.images || [this.currentModalRoom.image];
     this.currentModalImageIndex = (this.currentModalImageIndex + delta + images.length) % images.length;
-    this.renderRoomDetailsPage(this.currentModalRoom.id);
+    this.updateImageGalleryUI(images);
+  }
+
+  setModalRoomImage(index) {
+    if (!this.currentModalRoom) return;
+    const initRoom = typeof INITIAL_ROOMS_DATA !== 'undefined' ? INITIAL_ROOMS_DATA.find(ir => ir.id === this.currentModalRoom.id) : null;
+    const images = initRoom?.images || this.currentModalRoom.images || [this.currentModalRoom.image];
+    this.currentModalImageIndex = index;
+    this.updateImageGalleryUI(images);
+  }
+
+  updateImageGalleryUI(images) {
+    const mainImgEl = document.getElementById('modal-active-room-img');
+    const counterEl = document.getElementById('room-photo-counter');
+    const currentIndex = Math.min(this.currentModalImageIndex || 0, images.length - 1);
+    
+    if (mainImgEl) {
+      mainImgEl.src = images[currentIndex] || images[0];
+    }
+    if (counterEl) {
+      counterEl.innerText = `${currentIndex + 1} / ${images.length}`;
+    }
+
+    // Update thumbnail border rings
+    const thumbs = document.querySelectorAll('.room-thumb-btn');
+    thumbs.forEach((thumb, idx) => {
+      if (idx === currentIndex) {
+        thumb.className = 'room-thumb-btn relative h-14 w-20 rounded-lg overflow-hidden shrink-0 border-2 border-[#991B1B] shadow-xs opacity-100 cursor-pointer transition';
+      } else {
+        thumb.className = 'room-thumb-btn relative h-14 w-20 rounded-lg overflow-hidden shrink-0 border-2 border-[#E9E3DD] opacity-50 hover:opacity-90 cursor-pointer transition';
+      }
+    });
   }
 
 
-  setModalRoomImage(index) {
-    this.currentModalImageIndex = index;
-    if (this.currentModalRoom) {
-      this.renderRoomDetailsPage(this.currentModalRoom.id);
+  selectDay(dayIndex) {
+    if (!this.days[dayIndex]) return;
+    this.selectedDayIndex = dayIndex;
+    this.selectedDate = this.days[dayIndex].date;
+    
+    // Refresh slots for new date
+    this.slots = this.generateSlots(this.currentModalRoom.id, this.selectedDate);
+    
+    // Default to first available slot on this date
+    const firstAvail = this.slots.find(s => !s.booked);
+    if (firstAvail) {
+      this.selectedSlotId = firstAvail.id;
+      this.selectedSlot = firstAvail;
+    } else {
+      this.selectedSlotId = this.slots[0].id;
+      this.selectedSlot = this.slots[0];
+    }
+
+    this.renderSlotsUI();
+    this.updateDayPillsUI();
+  }
+
+  selectSlot(slotId) {
+    const slot = this.slots.find(s => s.id === slotId);
+    if (!slot) return;
+
+    if (slot.booked) {
+      if (slot.meetingInfo) {
+        this.openMeetingModal({
+          displayTitle: slot.meetingInfo.title,
+          meetingTitle: slot.meetingInfo.title,
+          referenceCode: slot.meetingInfo.ref,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          date: this.selectedDate,
+          requesterName: slot.meetingInfo.organizer,
+          requesterDept: slot.meetingInfo.dept,
+          purpose: "Reserved meeting on official department calendar.",
+          attendees: 12
+        });
+      } else {
+        this.showToast("Slot Occupied", `This slot (${slot.time}) is already reserved. Please select another slot.`, "warning");
+      }
+      return;
+    }
+
+    this.selectedSlotId = slotId;
+    this.selectedSlot = slot;
+    this.renderSlotsUI();
+  }
+
+  proceedToBooking() {
+    if (!this.currentModalRoom) return;
+    const roomId = this.currentModalRoom.id;
+    const selectedDate = this.selectedDate;
+    const slot = this.selectedSlot;
+
+    if (slot && !slot.booked) {
+      const { startTime, endTime } = slot;
+      if (window.app && window.app.selectRoomAndProceed) {
+        window.app.selectRoomAndProceed(roomId, 'room-details', selectedDate, startTime, endTime);
+      } else if (window.NBC.views['request-form'] && window.NBC.views['request-form'].selectRoomAndProceed) {
+        window.NBC.views['request-form'].selectRoomAndProceed(roomId, 'room-details', selectedDate, startTime, endTime);
+      } else {
+        this.navigateTo('request-form', { roomId, date: selectedDate, startTime, endTime, fromView: 'room-details' });
+      }
+    } else {
+      if (window.app && window.app.selectRoomAndProceed) {
+        window.app.selectRoomAndProceed(roomId, 'room-details', selectedDate);
+      } else if (window.NBC.views['request-form'] && window.NBC.views['request-form'].selectRoomAndProceed) {
+        window.NBC.views['request-form'].selectRoomAndProceed(roomId, 'room-details', selectedDate);
+      } else {
+        this.navigateTo('request-form', { roomId, date: selectedDate, fromView: 'room-details' });
+      }
     }
   }
 
+  toggleDrawer(show) {
+    this.showDrawer = show;
+    const drawerEl = document.getElementById('room-location-drawer');
+    const backdropEl = document.getElementById('room-drawer-backdrop');
+    const panelEl = document.getElementById('room-drawer-panel');
+    if (!drawerEl || !backdropEl || !panelEl) return;
+
+    if (show) {
+      drawerEl.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        backdropEl.classList.remove('opacity-0');
+        backdropEl.classList.add('opacity-100');
+        panelEl.classList.remove('translate-x-full');
+        panelEl.classList.add('translate-x-0');
+      });
+    } else {
+      backdropEl.classList.remove('opacity-100');
+      backdropEl.classList.add('opacity-0');
+      panelEl.classList.remove('translate-x-0');
+      panelEl.classList.add('translate-x-full');
+      setTimeout(() => {
+        drawerEl.classList.add('hidden');
+      }, 250);
+    }
+  }
+
+  updateDayPillsUI() {
+    const track = document.getElementById('room-day-glider-track');
+    if (!track) return;
+    const buttons = track.querySelectorAll('.day-pill-btn');
+    buttons.forEach((btn, idx) => {
+      if (idx === this.selectedDayIndex) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  renderSlotsUI() {
+    const container = document.getElementById('room-time-slots-container');
+    const summaryTime = document.getElementById('room-selected-slot-time');
+    const summaryDur = document.getElementById('room-selected-slot-duration');
+    
+    if (this.selectedSlot) {
+      if (summaryTime) summaryTime.innerText = this.selectedSlot.time;
+      if (summaryDur) summaryDur.innerText = `(${this.selectedSlot.duration})`;
+    }
+
+    if (!container) return;
+
+    container.innerHTML = this.slots.map(slot => {
+      const isSelected = (this.selectedSlotId === slot.id && !slot.booked);
+      const isOccupied = slot.booked;
+
+      return `
+        <div
+          onclick="window.NBC.views['room-details'].selectSlot('${slot.id}')"
+          class="time-slot-card flex items-center justify-between transition ${isSelected ? 'selected' : ''} ${isOccupied ? 'occupied' : ''}"
+          role="button"
+          tabindex="0"
+          title="${isOccupied ? (slot.meetingInfo ? slot.meetingInfo.title : 'Slot Reserved') : 'Click to select this slot'}"
+        >
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span
+              class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isOccupied ? 'bg-stone-200 text-stone-500' : (isSelected ? 'bg-[#991B1B] text-white' : 'bg-[#FAF7F4] border border-[#E9E3DD] text-[#7D6857]')}"
+            >
+              <span class="iconify text-sm" data-icon="${isOccupied ? 'lucide:lock' : 'lucide:clock'}" data-stroke-width="2"></span>
+            </span>
+            <div class="min-w-0">
+              <span class="font-mono text-xs font-bold text-[#3E2B1E] block leading-tight">${slot.time}</span>
+              <span class="text-[11px] text-[#7D6857] truncate block mt-0.5">${isOccupied ? (slot.meetingInfo ? slot.meetingInfo.title : 'Reserved') : slot.title}</span>
+            </div>
+          </div>
+
+          <div class="shrink-0 ml-2">
+            ${!isOccupied ? `
+              <span
+                class="w-5 h-5 rounded-full border flex items-center justify-center transition ${isSelected ? 'bg-[#991B1B] border-[#991B1B] text-white' : 'border-[#D8CFC7] bg-white'}"
+              >
+                ${isSelected ? '<span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>' : ''}
+              </span>
+            ` : `
+              <span class="text-[11px] font-mono text-stone-400">Occupied</span>
+            `}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
 
   renderRoomDetailsPage(roomId) {
     const container = document.getElementById('view-room-details');
     if (!container) return;
-    const room = bookingStore.getRoomById(roomId) || bookingStore.getRooms()[0];
+    const room = (typeof bookingStore !== 'undefined') 
+      ? (bookingStore.getRoomById(roomId) || bookingStore.getRooms()[0])
+      : null;
     if (!room) return;
 
     this.currentModalRoom = room;
-    this.currentStep = this.currentStep || 1;
-    const activeStep = this.currentStep;
-    const isMyRoom = !!room.isPrivate && (room.id === 'ROOM-107' || room.roomOwner?.name === 'Jonathan Vance' || room.roomOwner?.id === 'OWNER-VANCE');
-    const isOtherPrivate = !!room.isPrivate && !isMyRoom;
-    const mapInfo = bookingStore.getRoomMapDetails(room);
+    this.days = this.generateDays();
+    if (!this.selectedDate || this.selectedDate < this.days[0].date) {
+      this.selectedDate = this.days[0].date;
+      this.selectedDayIndex = 0;
+    }
+    this.slots = this.generateSlots(room.id, this.selectedDate);
+
+    // Ensure an initial slot is selected
+    const firstAvail = this.slots.find(s => !s.booked);
+    if (firstAvail) {
+      this.selectedSlotId = firstAvail.id;
+      this.selectedSlot = firstAvail;
+    } else {
+      this.selectedSlotId = this.slots[0].id;
+      this.selectedSlot = this.slots[0];
+    }
 
     const initRoom = typeof INITIAL_ROOMS_DATA !== 'undefined' ? INITIAL_ROOMS_DATA.find(ir => ir.id === room.id) : null;
     const images = initRoom?.images || room.images || [room.image];
     const currentIndex = Math.min(this.currentModalImageIndex || 0, images.length - 1);
     const currentImg = images[currentIndex] || images[0];
 
+    const mapInfo = (typeof bookingStore !== 'undefined') ? bookingStore.getRoomMapDetails(room) : {
+      building: 'National Bank of Cambodia - Headquarters',
+      address: 'No. 22-24, Preah Norodom Blvd, Phnom Penh, Cambodia',
+      embedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3908.770638148902!2d104.920556!3d11.573611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3107870560a6a445%3A0x6a0f7e4113e00b39!2sNational%20Bank%20of%20Cambodia!5e0!3m2!1sen!2skh!4v1700000000000',
+      directionsUrl: 'https://maps.google.com/?q=National+Bank+of+Cambodia',
+      externalUrl: 'https://maps.google.com/?q=National+Bank+of+Cambodia'
+    };
+
+    const floorShort = room.floor.split('-')[0].trim();
+
     container.innerHTML = `
-      <!-- Top Action Breadcrumb Bar with 2-Step Wizard Tracker -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-[#E9E3DD]">
-        <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
-          <button onclick="app.navigateTo('book-room')" aria-label="Back to all rooms" class="h-8 px-3 rounded-md bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 text-[13px] font-medium flex items-center space-x-1.5 transition shadow-2xs shrink-0 cursor-pointer">
-            <span class="iconify text-stone-400 text-sm" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
-            <span>All Rooms</span>
-          </button>
-          <div class="hidden sm:flex items-center space-x-1.5 text-xs text-stone-400">
-            <span>Facilities</span>
-            <span>/</span>
-            <span class="text-stone-700 font-medium">${room.name}</span>
-          </div>
-          ${room.isPrivate && room.roomOwner ? `
-            <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200/70 text-xs text-stone-600 shrink-0">
-              <img src="${room.roomOwner.avatar || room.image}" alt="${room.roomOwner.name}" class="w-4 h-4 rounded-full object-cover shrink-0" />
-              <span>Owner: <strong class="text-stone-900">${room.roomOwner.name}</strong>${isMyRoom ? ' <span class="text-[10px] font-bold text-amber-700">(You)</span>' : ''}</span>
+      <!-- Main Studio Viewport (Strictly No Full-Page Vertical Scroll on Desktop) -->
+      <div class="flex flex-col gap-4 lg:h-[calc(100vh-140px)] lg:max-h-[calc(100vh-140px)] lg:overflow-hidden select-none">
+        
+        <!-- Top Action Bar: Clean, Confident, Modern -->
+        <div class="flex items-center justify-between pb-3 border-b border-[#E9E3DD] shrink-0">
+          <div class="flex items-center gap-3">
+            <button
+              onclick="app.navigateTo('book-room')"
+              class="h-9 px-3 rounded-xl bg-white hover:bg-[#FAF7F4] text-[#3E2B1E] border border-[#E9E3DD] text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
+              type="button"
+            >
+              <span class="iconify text-[#7D6857] text-sm" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+              <span>Catalog</span>
+            </button>
+            <div class="h-4 w-px bg-[#E9E3DD]"></div>
+            <div>
+              <h2 class="font-heading font-bold text-base sm:text-lg text-[#3E2B1E] leading-tight flex items-center gap-2">
+                <span>${room.name}</span>
+              </h2>
             </div>
-          ` : ''}
+          </div>
+
+          <!-- Quick Action Controls -->
+          <div class="flex items-center gap-2.5">
+            <!-- Slide-Over Map Drawer Button -->
+            <button
+              onclick="window.NBC.views['room-details'].toggleDrawer(true)"
+              class="h-9 px-3.5 rounded-xl bg-white hover:bg-[#FAF7F4] text-[#3E2B1E] border border-[#E9E3DD] text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
+              type="button"
+            >
+              <span class="iconify text-[#991B1B] text-sm" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+              <span>Location</span>
+            </button>
+          </div>
         </div>
 
-        <!-- Wizard Step Navigation Tracker (2 Steps) -->
-        <div class="flex items-center space-x-1 text-xs shrink-0">
-          <button type="button" onclick="window.NBC.views['room-details'].goToStep(1)" id="room-wizard-tab-1" class="room-wizard-step-tab ${activeStep === 1 ? 'active bg-[#FEF2F2] border-[#FECACA] text-[#991B1B] shadow-2xs font-semibold' : 'bg-transparent border-transparent text-[#78716C] hover:text-[#1C1917] hover:bg-[#F4EFEA] font-medium'} h-8 px-2.5 rounded-lg border text-[13px] flex items-center space-x-1.5 transition cursor-pointer shrink-0">
-            <span class="w-5 h-5 rounded-full ${activeStep === 1 ? 'bg-[#991B1B] text-white' : 'bg-[#E9E3DD] text-[#78716C]'} flex items-center justify-center text-[11px] font-bold">1</span>
-            <span>Room Overview</span>
-          </button>
-          <span class="iconify text-[#78716C] text-[10px] shrink-0 mx-0.5" data-icon="lucide:chevron-right"></span>
-          <button type="button" onclick="window.NBC.views['room-details'].goToStep(2)" id="room-wizard-tab-2" class="room-wizard-step-tab ${activeStep === 2 ? 'active bg-[#FEF2F2] border-[#FECACA] text-[#991B1B] shadow-2xs font-semibold' : 'bg-transparent border-transparent text-[#78716C] hover:text-[#1C1917] hover:bg-[#F4EFEA] font-medium'} h-8 px-2.5 rounded-lg border text-[13px] flex items-center space-x-1.5 transition cursor-pointer shrink-0">
-            <span class="w-5 h-5 rounded-full ${activeStep === 2 ? 'bg-[#991B1B] text-white' : 'bg-[#E9E3DD] text-[#78716C]'} flex items-center justify-center text-[11px] font-bold">2</span>
-            <span>Building & Map</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- ==================== STEP 1: ROOM OVERVIEW & AMENITIES ==================== -->
-      <div id="room-details-step-1" class="${activeStep === 1 ? '' : 'hidden'} space-y-4 animate-fade-in">
-        <!-- Main Room Showcase Card (2-Column Layout) -->
-        <div class="bg-white rounded-2xl border border-[#E9E3DD] overflow-hidden shadow-xs p-4 sm:p-6 lg:p-7">
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        <!-- MAIN STUDIO GRID: 5 Cols Showcase & Specs + 7 Cols Interactive Workspace -->
+        <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-5 min-h-0 overflow-hidden">
           
-          <!-- LEFT COLUMN: PHOTO GALLERY (lg:col-span-6) -->
-          <div class="lg:col-span-6 space-y-3">
-            
-            <!-- Multi-Image Hero Stage -->
-            <div class="relative h-72 sm:h-96 lg:h-[420px] rounded-2xl bg-stone-950 overflow-hidden group select-none shadow-xs border border-stone-200">
-              <img id="modal-active-room-img" src="${currentImg}" alt="${room.name}" class="w-full h-full object-cover transition-all duration-300 group-hover:scale-[1.01]" />
-              
-              <!-- Subtle Contrast Vignette -->
-              <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/30 pointer-events-none"></div>
+          <!-- =============================================================== -->
+          <!-- LEFT COLUMN: CINEMATIC SHOWCASE & SPECS (5 Cols)                -->
+          <!-- =============================================================== -->
+          <div class="lg:col-span-5 flex flex-col gap-4 overflow-hidden">
 
-              <!-- Top Floating Controls -->
-              <div class="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between z-10">
-                <div class="flex items-center space-x-2">
-                  <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-black/60 text-white backdrop-blur-md border border-white/20 shadow-xs flex items-center space-x-1.5">
-                    <span class="iconify text-white text-xs" data-icon="lucide:camera" data-stroke-width="2"></span>
-                    <span>Photo ${currentIndex + 1} of ${images.length}</span>
+            <!-- Visual Stage Card -->
+            <div class="bg-white rounded-2xl border border-[#E9E3DD] p-3 space-y-2.5 shadow-xs shrink-0">
+              <div class="relative h-60 sm:h-64 rounded-xl overflow-hidden bg-stone-900 group select-none">
+                <img id="modal-active-room-img" src="${currentImg}" alt="${room.name}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.01]" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none"></div>
+
+                <!-- Top Floating Clean Pill Tags (Strictly No Badges) -->
+                <div class="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
+                  <span class="px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium bg-[#260707]/90 text-white backdrop-blur-xs border border-white/20 flex items-center gap-1.5">
+                    <span class="iconify text-xs" data-icon="${room.isPrivate ? 'lucide:lock' : 'lucide:globe'}" data-stroke-width="2"></span>
+                    <span>${room.isPrivate ? 'Private Room' : 'Shared Room'}</span>
                   </span>
-                  <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold ${(room.status || 'Available').toLowerCase() === 'available' ? 'bg-emerald-700 text-white' : 'bg-[#991B1B] text-white'} shadow-xs flex items-center space-x-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full ${(room.status || 'Available').toLowerCase() === 'available' ? 'bg-emerald-200' : 'bg-red-200'}"></span>
-                    <span>${room.status || 'Available'}</span>
+
+                  <span id="room-photo-counter" class="px-2.5 py-1 rounded-lg text-[11px] font-mono font-medium bg-black/60 text-white backdrop-blur-xs border border-white/20">
+                    ${currentIndex + 1} / ${images.length}
                   </span>
                 </div>
 
-                <div class="flex items-center space-x-1.5">
-                  <button onclick="window.NBC.views['room-details'].toggleAddPhotoDrawer()" aria-label="Add new photo" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/90 hover:bg-white text-stone-900 backdrop-blur-md border border-white/40 shadow-xs flex items-center space-x-1 transition hover:scale-105 cursor-pointer">
-                    <span class="iconify text-xs text-red-900" data-icon="lucide:image-plus" data-stroke-width="2"></span>
-                    <span>Add Photo</span>
+                <!-- Left / Right Carousel Controls -->
+                ${images.length > 1 ? `
+                  <button
+                    onclick="window.NBC.views['room-details'].navigateModalRoomImage(-1)"
+                    class="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-xs transition border border-white/20 cursor-pointer"
+                    type="button"
+                    title="Previous photo"
+                  >
+                    <span class="iconify text-sm" data-icon="lucide:chevron-left" data-stroke-width="2.5"></span>
                   </button>
-                </div>
-              </div>
+                  <button
+                    onclick="window.NBC.views['room-details'].navigateModalRoomImage(1)"
+                    class="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-xs transition border border-white/20 cursor-pointer"
+                    type="button"
+                    title="Next photo"
+                  >
+                    <span class="iconify text-sm" data-icon="lucide:chevron-right" data-stroke-width="2.5"></span>
+                  </button>
+                ` : ''}
 
-              <!-- Carousel Nav Buttons -->
-              ${images.length > 1 ? `
-                <button onclick="app.navigateModalRoomImage(-1)" aria-label="Previous image" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md border border-white/25 flex items-center justify-center transition shadow-lg hover:scale-105 cursor-pointer">
-                  <span class="iconify text-base" data-icon="lucide:chevron-left" data-stroke-width="2.5"></span>
-                </button>
-                <button onclick="app.navigateModalRoomImage(1)" aria-label="Next image" class="absolute right-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md border border-white/25 flex items-center justify-center transition shadow-lg hover:scale-105 cursor-pointer">
-                  <span class="iconify text-base" data-icon="lucide:chevron-right" data-stroke-width="2.5"></span>
-                </button>
-              ` : ''}
-            </div>
-
-            <!-- Expandable Photo Adder Tray (Hidden by default) -->
-            <div id="modal-add-photo-tray" class="hidden p-3 rounded-xl bg-stone-900 text-white space-y-2.5 border border-stone-700 animate-fade-in">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-bold flex items-center space-x-1.5">
-                  <span class="iconify text-white" data-icon="lucide:link"></span>
-                  <span>Add Photo from URL or File</span>
-                </span>
-                <label class="text-[11px] text-amber-300 hover:text-amber-200 underline cursor-pointer">
-                  Upload file
-                  <input type="file" accept="image/*" onchange="app.handlePhotoFileUpload(event)" class="hidden" />
-                </label>
-              </div>
-              <div class="flex gap-2">
-                <input type="url" id="modal-new-photo-url" placeholder="https://..." class="bank-input text-xs bg-stone-800 text-white border-stone-700 flex-1" />
-                <button onclick="app.handleAddPhotoSubmit()" class="btn-primary px-3 py-2 rounded-lg text-xs font-bold shrink-0">
-                  Save Photo
-                </button>
-              </div>
-            </div>
-
-            <!-- Thumbnail Strip: Clean, Light, Integrated -->
-            <div class="flex items-center gap-2 overflow-x-auto py-1 scrollbar-thin">
-              ${images.map((img, idx) => `
-                <button onclick="app.setModalRoomImage(${idx})" aria-label="View photo ${idx + 1}" class="relative h-14 w-20 rounded-xl overflow-hidden shrink-0 transition-all duration-200 border cursor-pointer ${idx === currentIndex ? 'ring-2 ring-red-900 ring-offset-2 ring-offset-white border-transparent scale-102 opacity-100 shadow-sm' : 'border-stone-200 opacity-50 hover:opacity-90'}">
-                  <img src="${img}" alt="Thumbnail ${idx + 1}" class="w-full h-full object-cover" />
-                </button>
-              `).join('')}
-            </div>
-
-          </div>
-
-          <!-- RIGHT COLUMN: ROOM INFO & AMENITIES (lg:col-span-6) -->
-          <div class="lg:col-span-6 flex flex-col justify-between space-y-5">
-            
-            <div class="space-y-4">
-              <!-- Room Header: Title, Category, and Department -->
-              <div class="space-y-2 pb-3 border-b border-stone-100">
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${room.isPrivate ? 'bg-amber-100 text-amber-900 border border-amber-200' : 'bg-stone-100 text-stone-700 border border-stone-200'}">
-                    ${room.category || 'Meeting Room'}
+                <!-- Bottom Location Path Overlay -->
+                <div class="absolute bottom-3 left-3.5 right-3.5 text-white pointer-events-none">
+                  <span class="text-xs font-medium text-stone-300 drop-shadow-xs flex items-center gap-1.5">
+                    <span class="iconify text-sm text-[#FACC15]" data-icon="lucide:landmark" data-stroke-width="2"></span>
+                    <span>${room.location ? room.location.split('-')[0].trim() : 'Headquarters'} • ${floorShort}</span>
                   </span>
-                  ${room.isPrivate ? `
-                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-red-100 text-red-900 border border-red-200 flex items-center space-x-1">
-                      <span class="iconify text-[11px]" data-icon="lucide:lock"></span>
-                      <span>Private Room</span>
-                    </span>
-                  ` : `
-                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-900 border border-emerald-200 flex items-center space-x-1">
-                      <span class="iconify text-[11px]" data-icon="lucide:check-circle"></span>
-                      <span>Shared Room</span>
-                    </span>
-                  `}
                 </div>
-                
-                <h1 class="text-2xl sm:text-3xl font-heading font-black text-stone-900 tracking-tight leading-tight">${room.name}</h1>
-                
-                <p class="text-xs text-stone-500 font-medium flex items-center space-x-1.5 flex-wrap">
-                  <span class="iconify text-stone-400 shrink-0 text-sm" data-icon="lucide:building-2"></span>
-                  <span class="text-stone-700 font-semibold">${room.department}</span>
-                  <span class="text-stone-300">&bull;</span>
-                  <span class="text-stone-800 font-bold">${room.floor.split('(')[0].trim()}</span>
+              </div>
+
+              <!-- Thumbnail Strip Glider -->
+              <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+                ${images.map((img, idx) => `
+                  <button
+                    onclick="window.NBC.views['room-details'].setModalRoomImage(${idx})"
+                    class="room-thumb-btn relative h-14 w-20 rounded-lg overflow-hidden shrink-0 border-2 transition cursor-pointer ${idx === currentIndex ? 'border-[#991B1B] shadow-xs' : 'border-[#E9E3DD] opacity-50 hover:opacity-90'}"
+                    type="button"
+                    title="Photo ${idx + 1}"
+                  >
+                    <img src="${img}" alt="${room.name}" class="w-full h-full object-cover" />
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Room Specifications & 4-Metric Grid -->
+            <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 flex-1 flex flex-col justify-between shadow-xs overflow-hidden">
+              <div class="space-y-3">
+                <h3 class="font-heading font-bold text-sm text-[#3E2B1E] tracking-tight">Key Room Metrics</h3>
+
+                <!-- 3-Stat Metric Row -->
+                <div class="grid grid-cols-3 gap-2">
+                  <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-center">
+                    <span class="text-[10px] font-semibold text-[#7D6857] block">Capacity</span>
+                    <strong class="font-mono text-xs font-bold text-[#3E2B1E] mt-0.5 block">${room.capacity} Seats</strong>
+                  </div>
+                  <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-center">
+                    <span class="text-[10px] font-semibold text-[#7D6857] block">Room Area</span>
+                    <strong class="font-mono text-xs font-bold text-[#3E2B1E] mt-0.5 block">${room.size}</strong>
+                  </div>
+                  <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-center">
+                    <span class="text-[10px] font-semibold text-[#7D6857] block">Floor</span>
+                    <strong class="font-mono text-xs font-bold text-[#3E2B1E] mt-0.5 block">${floorShort}</strong>
+                  </div>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs text-[#6F5849] leading-relaxed line-clamp-3">
+                  ${room.description}
                 </p>
               </div>
 
-              <!-- Editorial Room Description -->
-              <p class="text-stone-600 text-sm leading-relaxed">${room.description}</p>
-
-              <!-- Sleek Metric Strip (Single Unified 3-Col Card with Dividers) -->
-              <div class="grid grid-cols-3 py-3 px-3 sm:px-4 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] divide-x divide-stone-200/80">
-                <div class="pr-2 sm:pr-3 text-center">
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">Capacity</span>
-                  <div class="flex items-center justify-center space-x-1 mt-1 text-stone-900">
-                    <span class="iconify text-stone-400 text-sm" data-icon="lucide:users"></span>
-                    <strong class="text-base sm:text-lg font-heading font-bold">${room.capacity}</strong>
-                    <span class="text-xs text-stone-500 font-medium">Seats</span>
-                  </div>
-                </div>
-
-                <div class="px-2 sm:px-3 text-center">
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">Room Size</span>
-                  <div class="flex items-center justify-center space-x-1 mt-1 text-stone-900">
-                    <span class="iconify text-stone-400 text-sm" data-icon="lucide:maximize-2"></span>
-                    <strong class="text-base sm:text-lg font-heading font-bold">${room.size}</strong>
-                  </div>
-                </div>
-
-                <div class="pl-2 sm:pl-3 text-center">
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-stone-400 block">Door Code</span>
-                  <div class="flex items-center justify-center space-x-1 mt-1 text-stone-900">
-                    <span class="iconify text-stone-400 text-sm" data-icon="lucide:key-round"></span>
-                    <strong class="text-xs sm:text-sm font-heading font-bold text-stone-800 truncate max-w-[110px]" title="${room.doorNumber || 'Main Entry'}">${room.doorNumber || 'Main Entry'}</strong>
-                  </div>
-                </div>
+              <!-- Bottom Footer Details -->
+              <div class="pt-2.5 border-t border-[#E9E3DD] flex items-center justify-between text-xs text-[#6F5849]">
+                <span class="flex items-center gap-1.5 truncate">
+                  <span class="iconify text-[#991B1B] text-sm shrink-0" data-icon="lucide:shield-check"></span>
+                  <span class="truncate">${room.department}</span>
+                </span>
+                <span class="font-mono text-[11px] text-[#16A34A] font-semibold shrink-0 ml-2">Available Now</span>
               </div>
+            </div>
 
-              <!-- Equipment & Facilities (Fluid Chips with Custom Semantic Icons) -->
-              <div class="space-y-2 pt-1">
-                <div class="flex items-center justify-between">
-                  <span class="text-[11px] font-bold uppercase tracking-wider text-stone-500 flex items-center space-x-1.5">
-                    <span class="iconify text-red-900 text-xs" data-icon="lucide:layout-grid"></span>
-                    <span>Equipment & Facilities</span>
-                  </span>
-                  <span class="text-[11px] text-stone-400 font-medium">${room.features.length} available</span>
+          </div>
+
+          <!-- =============================================================== -->
+          <!-- RIGHT COLUMN: INTERACTIVE WORKSPACE (7 Cols)                    -->
+          <!-- =============================================================== -->
+          <div class="lg:col-span-7 flex flex-col gap-4 overflow-hidden">
+            
+            <!-- Interactive Day Planner & Time Slot Engine -->
+            <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-5 shadow-xs flex flex-col shrink-0 space-y-3.5">
+              
+              <!-- Section Header: Clean Bold Title + Day Glider Track -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-[#E9E3DD]">
+                <div>
+                  <h3 class="font-heading font-bold text-sm sm:text-base text-[#3E2B1E] tracking-tight">Today's Schedule & Slot Picker</h3>
                 </div>
 
-                <div class="flex flex-wrap gap-2">
-                  ${room.features.map(f => `
-                    <span class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#FAF7F4] hover:bg-[#F2ECE4] border border-[#E9E3DD] text-xs font-medium text-stone-700 transition shadow-2xs">
-                      <span class="iconify text-red-900/80 text-sm" data-icon="${this.getAmenityIcon(f)}"></span>
-                      <span>${f}</span>
-                    </span>
+                <!-- Day Selector Pills -->
+                <div id="room-day-glider-track" class="day-glider-track">
+                  ${this.days.map((d, idx) => `
+                    <button
+                      onclick="window.NBC.views['room-details'].selectDay(${idx})"
+                      class="day-pill-btn ${idx === this.selectedDayIndex ? 'active' : ''}"
+                      type="button"
+                    >
+                      <span>${d.label}</span>
+                    </button>
                   `).join('')}
                 </div>
               </div>
-            </div>
 
-            <!-- Primary Booking CTA & Next Step Navigation -->
-            <div class="pt-3 border-t border-stone-100 space-y-2.5">
-              <div class="flex flex-col sm:flex-row items-center gap-2.5">
-                <button type="button" onclick="window.NBC.views['room-details'].goToStep(2)" class="w-full sm:w-auto h-11 px-5 rounded-xl bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 text-[13px] font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer shadow-2xs shrink-0">
-                  <span>View Building & Map</span>
-                  <span class="iconify text-sm text-stone-400" data-icon="lucide:arrow-right"></span>
+              <!-- Time Slots 2-Column Grid (Internally scrollable for full 8 working hours) -->
+              <div id="room-time-slots-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[160px] sm:max-h-[185px] overflow-y-auto no-scrollbar content-start pr-0.5">
+                <!-- Rendered dynamically by renderSlotsUI -->
+              </div>
+
+              <!-- Booking Summary & Instant CTA Row -->
+              <div class="pt-2.5 border-t border-[#E9E3DD]/70 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 text-xs text-[#6F5849] min-w-0">
+                  <div class="flex items-center gap-1.5 truncate">
+                    <span class="iconify text-[#16A34A] text-sm shrink-0" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
+                    <span class="truncate">Selected: <strong id="room-selected-slot-time" class="text-[#3E2B1E] font-mono">${this.selectedSlot ? this.selectedSlot.time : '08:00 – 09:00'}</strong> <span id="room-selected-slot-duration">(${this.selectedSlot ? this.selectedSlot.duration : '60 mins'})</span></span>
+                  </div>
+                  <span class="hidden sm:inline text-stone-300">&bull;</span>
+                  <button
+                    onclick="window.NBC.views['room-details'].openFullSchedule()"
+                    class="text-[11px] font-semibold text-[#991B1B] hover:text-[#7F1D1D] flex items-center gap-1 cursor-pointer transition shrink-0"
+                    type="button"
+                    title="Open full weekly schedule and timeline"
+                  >
+                    <span>Custom Time / Full Week</span>
+                    <span class="iconify text-xs" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
+                  </button>
+                </div>
+
+                <button
+                  onclick="window.NBC.views['room-details'].proceedToBooking()"
+                  class="w-full sm:w-auto h-10 px-5 rounded-xl bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white text-xs font-semibold flex items-center justify-center gap-2 transition shadow-xs cursor-pointer shrink-0"
+                  type="button"
+                >
+                  <span class="iconify text-white text-sm" data-icon="lucide:calendar-clock" data-stroke-width="2"></span>
+                  <span>Confirm & Book This Slot</span>
                 </button>
-
-                ${isMyRoom ? `
-                  <button onclick="app.selectRoomAndProceed('${room.id}', 'room-details')" class="flex-1 w-full min-h-[44px] py-2.5 px-6 rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg flex items-center justify-center space-x-2 transition hover:scale-[1.005] bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 hover:from-amber-700 hover:to-amber-900 border border-amber-500 text-white cursor-pointer">
-                    <span class="iconify text-base text-white" data-icon="lucide:calendar-clock" data-stroke-width="2"></span>
-                    <span>Book This Room</span>
-                  </button>
-                ` : isOtherPrivate ? `
-                  <button onclick="app.selectRoomAndProceed('${room.id}', 'room-details')" class="flex-1 w-full min-h-[44px] py-2.5 px-6 rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg flex items-center justify-center space-x-2 transition hover:scale-[1.005] bg-gradient-to-r from-stone-800 via-stone-900 to-stone-950 hover:from-stone-700 hover:to-stone-900 border border-stone-700 text-white cursor-pointer">
-                    <span class="iconify text-base text-white" data-icon="lucide:calendar-clock" data-stroke-width="2"></span>
-                    <span>Request Private Room Access &rarr;</span>
-                  </button>
-                ` : `
-                  <button onclick="app.selectRoomAndProceed('${room.id}', 'room-details')" class="btn-primary flex-1 w-full min-h-[44px] py-2.5 px-6 rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg flex items-center justify-center space-x-2 transition hover:scale-[1.005] cursor-pointer">
-                    <span class="iconify text-base text-white" data-icon="lucide:calendar-clock" data-stroke-width="2"></span>
-                    <span>Book This Room</span>
-                  </button>
-                `}
               </div>
-             
+            </div>
+
+            <!-- Equipment & Installed Capabilities Deck -->
+            <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-5 shadow-xs flex-1 flex flex-col overflow-hidden">
+              <div class="flex items-center justify-between pb-2.5 border-b border-[#E9E3DD] shrink-0">
+                <h3 class="font-heading font-bold text-sm text-[#3E2B1E] tracking-tight">Installed Equipment & Capabilities</h3>
+                <span class="font-mono text-xs text-[#7D6857]">${room.features.length} verified items</span>
+              </div>
+
+              <!-- Internal Scrollable Equipment Grid -->
+              <div class="flex-1 overflow-y-auto no-scrollbar pt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5 content-start">
+                ${room.features.map(item => `
+                  <div class="flex items-center gap-3 p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] hover:border-stone-300 transition">
+                    <span class="w-7 h-7 rounded-lg bg-white border border-[#E9E3DD] flex items-center justify-center text-[#991B1B] shrink-0">
+                      <span class="iconify text-sm" data-icon="${this.getAmenityIcon(item)}" data-stroke-width="2"></span>
+                    </span>
+                    <div class="min-w-0">
+                      <span class="text-xs font-semibold text-[#3E2B1E] block truncate">${item}</span>
+                      <span class="text-[10px] text-stone-400 block truncate">NBC Certified Hardware</span>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Location Quick Strip -->
+              <div class="pt-3 border-t border-[#E9E3DD] flex items-center justify-between shrink-0 text-xs">
+                <div class="flex items-center gap-2 text-[#6F5849] truncate">
+                  <span class="iconify text-[#991B1B] text-sm shrink-0" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+                  <span class="truncate">${mapInfo.building}</span>
+                </div>
+                <button
+                  onclick="window.NBC.views['room-details'].toggleDrawer(true)"
+                  class="text-xs font-semibold text-[#991B1B] hover:text-[#7F1D1D] flex items-center gap-1 shrink-0 cursor-pointer"
+                  type="button"
+                >
+                  <span>Map & Directions</span>
+                  <span class="iconify text-xs" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
+                </button>
+              </div>
             </div>
 
           </div>
 
         </div>
-      </div>
+
       </div>
 
-      <!-- ==================== STEP 2: BUILDING LOCATION & MAP ==================== -->
-      <div id="room-details-step-2" class="${activeStep === 2 ? '' : 'hidden'} space-y-4 animate-fade-in">
-        <div class="bg-white rounded-2xl border border-[#E9E3DD] overflow-hidden shadow-xs p-4 sm:p-6 lg:p-7 space-y-5">
-          <div class="flex items-center justify-between pb-3 border-b border-stone-100">
-            <div class="flex items-center space-x-3">
-              <div class="w-9 h-9 rounded-xl bg-red-100/70 text-red-900 flex items-center justify-center border border-red-200 shadow-2xs shrink-0">
-                <span class="iconify text-xl" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+      <!-- =============================================================== -->
+      <!-- SLIDE-OVER DRAWER: FACILITY MAP & CAMPUS LOCATION               -->
+      <!-- =============================================================== -->
+      <div id="room-location-drawer" class="fixed inset-0 z-50 overflow-hidden hidden">
+        <div id="room-drawer-backdrop" class="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity opacity-0" onclick="window.NBC.views['room-details'].toggleDrawer(false)"></div>
+
+        <div class="absolute inset-y-0 right-0 max-w-full flex pl-10">
+          <div id="room-drawer-panel" class="w-screen max-w-md bg-white border-l border-[#E9E3DD] p-6 flex flex-col justify-between shadow-2xl space-y-5 transition-transform duration-300 translate-x-full">
+            
+            <div class="space-y-4">
+              <div class="flex items-center justify-between pb-3 border-b border-[#E9E3DD]">
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-lg bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center">
+                    <span class="iconify text-base" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+                  </span>
+                  <h3 class="font-heading font-bold text-base text-[#3E2B1E]">Facility Location & Access</h3>
+                </div>
+                <button
+                  onclick="window.NBC.views['room-details'].toggleDrawer(false)"
+                  class="w-8 h-8 rounded-lg bg-[#FAF7F4] border border-[#E9E3DD] flex items-center justify-center text-stone-500 hover:text-stone-800 cursor-pointer"
+                  type="button"
+                >
+                  <span class="iconify text-base" data-icon="lucide:x" data-stroke-width="2"></span>
+                </button>
               </div>
+
               <div>
-                <h3 class="font-heading font-bold text-sm text-stone-900 leading-tight">Room & Building Map Location</h3>
-                <p class="text-xs text-stone-500 mt-0.5">Find your way to this NBC facility</p>
-              </div>
-            </div>
-            <span class="text-[11px] text-stone-400 font-medium uppercase tracking-wider">Step 2 of 2</span>
-          </div>
-
-          <!-- 2-Column Grid: Map on Left (7 cols), Location & Actions on Right (5 cols) -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-            
-            <!-- LEFT: Embedded Google Map (7 cols) -->
-            <div class="lg:col-span-7 h-72 sm:h-80 md:h-[340px] rounded-xl overflow-hidden border border-[#E9E3DD] bg-stone-100 shadow-inner">
-              <iframe
-                title="Google Maps Location for ${mapInfo.building}"
-                width="100%"
-                height="100%"
-                style="border:0;"
-                loading="lazy"
-                allowfullscreen
-                referrerpolicy="no-referrer-when-downgrade"
-                src="${mapInfo.embedUrl}">
-              </iframe>
-            </div>
-
-            <!-- RIGHT: Location Details & Directions (5 cols) -->
-            <div class="lg:col-span-5 flex flex-col justify-between p-4 sm:p-5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] space-y-4">
-              <div class="space-y-3.5">
-                <div>
-                  <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Official Location</span>
-                  <h4 class="font-heading font-bold text-base text-stone-900 mt-0.5">${mapInfo.building}</h4>
-                  <p class="text-xs text-stone-600 mt-1.5 flex items-start space-x-1.5 leading-relaxed">
-                    <span class="iconify text-red-800 text-xs mt-0.5 shrink-0" data-icon="lucide:map-pin"></span>
-                    <span>${mapInfo.address}</span>
-                  </p>
-                </div>
-
-                <div class="pt-3 border-t border-stone-200/70 grid grid-cols-2 gap-2 text-xs">
-                  <div class="p-2.5 rounded-lg bg-white border border-[#E9E3DD]">
-                    <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">City / Province</span>
-                    <strong class="text-stone-900 text-xs block mt-0.5">${room.province || 'Phnom Penh'}</strong>
-                  </div>
-                  <div class="p-2.5 rounded-lg bg-white border border-[#E9E3DD]">
-                    <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Floor</span>
-                    <strong class="text-stone-900 text-xs block mt-0.5 truncate" title="${room.floor}">${room.floor.split('-')[0].trim()}</strong>
-                  </div>
-                </div>
+                <strong class="font-heading font-bold text-sm text-[#3E2B1E] block">${mapInfo.building}</strong>
+                <span class="text-xs text-[#6F5849] mt-1 block leading-relaxed">${mapInfo.address}</span>
               </div>
 
-              <!-- Action Buttons -->
-              <div class="pt-3 border-t border-stone-200/70 flex flex-col sm:flex-row gap-2">
-                <a href="${mapInfo.directionsUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 min-h-[40px] px-3 py-2 rounded-lg bg-white hover:bg-stone-50 text-stone-800 border border-[#E9E3DD] text-xs font-semibold flex items-center justify-center space-x-1.5 transition shadow-2xs cursor-pointer text-center">
-                  <span class="iconify text-xs text-stone-600" data-icon="lucide:navigation"></span>
-                  <span>Get Directions</span>
-                </a>
-                <a href="${mapInfo.externalUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 min-h-[40px] px-3 py-2 rounded-lg bg-red-900 hover:bg-red-950 text-white text-xs font-bold flex items-center justify-center space-x-1.5 transition shadow-2xs cursor-pointer text-center">
-                  <span class="iconify text-xs text-white" data-icon="lucide:external-link"></span>
-                  <span>Google Maps</span>
-                </a>
+              <!-- Interactive Google Map Embed -->
+              <div class="h-64 rounded-xl overflow-hidden border border-[#E9E3DD] bg-stone-100 shadow-inner">
+                <iframe
+                  title="Google Map Drawer"
+                  width="100%"
+                  height="100%"
+                  style="border:0;"
+                  loading="lazy"
+                  src="${mapInfo.embedUrl}"
+                ></iframe>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-xs space-y-1.5">
+                <span class="font-semibold text-[#3E2B1E] flex items-center gap-1.5">
+                  <span class="iconify text-amber-700 text-sm" data-icon="lucide:info" data-stroke-width="2"></span>
+                  <span>Arrival & Security Protocol:</span>
+                </span>
+                <p class="text-[#6F5849] leading-relaxed">Present official NBC staff badge or visitor pass at the main security reception on Norodom Blvd. Elevators provide direct access to ${floorShort}.</p>
               </div>
             </div>
 
-          </div>
+            <div class="pt-3 border-t border-[#E9E3DD] flex gap-2">
+              <a
+                href="${mapInfo.directionsUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex-1 h-11 rounded-xl bg-white hover:bg-stone-50 text-[#3E2B1E] border border-[#E9E3DD] text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-2xs text-center"
+              >
+                <span class="iconify text-stone-600 text-sm" data-icon="lucide:navigation" data-stroke-width="2"></span>
+                <span>Get Directions</span>
+              </a>
+              <a
+                href="${mapInfo.externalUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex-1 h-11 rounded-xl bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-xs text-center"
+              >
+                <span class="iconify text-white text-sm" data-icon="lucide:external-link" data-stroke-width="2"></span>
+                <span>Google Maps</span>
+              </a>
+            </div>
 
-          <!-- Bottom Navigation Bar for Step 2 -->
-          <div class="flex flex-col sm:flex-row items-center justify-between pt-4 border-t border-stone-100 gap-3">
-            <button type="button" onclick="window.NBC.views['room-details'].goToStep(1)" class="w-full sm:w-auto h-10 px-4 rounded-xl bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer shadow-2xs">
-              <span class="iconify text-sm" data-icon="lucide:arrow-left"></span>
-              <span>Back to Room Overview</span>
-            </button>
-            
-            ${isMyRoom ? `
-              <button onclick="app.selectRoomAndProceed('${room.id}', 'room-details')" class="w-full sm:w-auto h-10 px-6 rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg flex items-center justify-center space-x-2 transition bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 hover:from-amber-700 hover:to-amber-900 border border-amber-500 text-white cursor-pointer">
-                <span class="iconify text-base text-white" data-icon="lucide:calendar-clock"></span>
-                <span>Book This Room</span>
-              </button>
-            ` : isOtherPrivate ? `
-              <button onclick="app.selectRoomAndProceed('${room.id}', 'room-details')" class="w-full sm:w-auto h-10 px-6 rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg flex items-center justify-center space-x-2 transition bg-gradient-to-r from-stone-800 via-stone-900 to-stone-950 hover:from-stone-700 hover:to-stone-900 border border-stone-700 text-white cursor-pointer">
-                <span class="iconify text-base text-white" data-icon="lucide:calendar-clock"></span>
-                <span>Request Private Room Access &rarr;</span>
-              </button>
-            ` : `
-              <button onclick="app.selectRoomAndProceed('${room.id}', 'room-details')" class="btn-primary w-full sm:w-auto h-10 px-6 rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg flex items-center justify-center space-x-2 transition cursor-pointer">
-                <span class="iconify text-base text-white" data-icon="lucide:calendar-clock"></span>
-                <span>Book This Room</span>
-              </button>
-            `}
           </div>
-
         </div>
       </div>
 
-      <!-- Meeting Details Modal (For Booked Slot Clicks) -->
-      <div id="meeting-details-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 animate-fade-in" onclick="if(event.target === this) window.NBC.views['room-details'].closeMeetingModal()">
-        <div class="bg-white rounded-2xl border border-[#E9E3DD] max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4 animate-scale-up" onclick="event.stopPropagation()">
+      <!-- Meeting Details Modal (For Occupied Slot Clicks) -->
+      <div id="room-meeting-details-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4" onclick="if(event.target === this) window.NBC.views['room-details'].closeMeetingModal()">
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] max-w-md w-full p-5 sm:p-6 shadow-2xl space-y-4" onclick="event.stopPropagation()">
           <div class="flex items-start justify-between gap-3 pb-3 border-b border-stone-100">
             <div class="space-y-1">
-              <span id="modal-meeting-ref" class="text-[10px] font-mono font-bold text-red-900 bg-red-50 px-2 py-0.5 rounded border border-red-200">#NBC-88219</span>
-              <h3 id="modal-meeting-title" class="font-heading font-bold text-base text-stone-900 leading-tight">Meeting Title</h3>
+              <span id="room-modal-meeting-ref" class="text-[10px] font-mono font-bold text-red-900 bg-red-50 px-2 py-0.5 rounded border border-red-200">#NBC-RESERVED</span>
+              <h3 id="room-modal-meeting-title" class="font-heading font-bold text-base text-stone-900 leading-tight">Meeting Title</h3>
             </div>
             <button onclick="window.NBC.views['room-details'].closeMeetingModal()" aria-label="Close" class="w-8 h-8 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition cursor-pointer">
               <span class="iconify text-base" data-icon="lucide:x"></span>
@@ -558,23 +805,23 @@ class RoomDetailsView {
           <div class="grid grid-cols-2 gap-2.5 text-xs">
             <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD]">
               <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Time & Date</span>
-              <strong id="modal-meeting-time" class="text-stone-900 text-xs block mt-0.5 font-bold">09:30 – 11:30</strong>
-              <span id="modal-meeting-date" class="text-[10px] text-stone-500 block">2026-09-07</span>
+              <strong id="room-modal-meeting-time" class="text-stone-900 text-xs block mt-0.5 font-bold">08:30 – 10:00</strong>
+              <span id="room-modal-meeting-date" class="text-[10px] text-stone-500 block">2026-09-17</span>
             </div>
             <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD]">
               <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Organizer</span>
-              <strong id="modal-meeting-organizer" class="text-stone-900 text-xs block mt-0.5 truncate font-bold">Jonathan Vance</strong>
-              <span id="modal-meeting-dept" class="text-[10px] text-stone-500 block truncate">Finance</span>
+              <strong id="room-modal-meeting-organizer" class="text-stone-900 text-xs block mt-0.5 truncate font-bold">NBC Staff</strong>
+              <span id="room-modal-meeting-dept" class="text-[10px] text-stone-500 block truncate">Operations</span>
             </div>
           </div>
 
           <div>
             <span class="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">Meeting Details / Purpose</span>
-            <p id="modal-meeting-purpose" class="text-xs text-stone-700 bg-stone-50 p-2.5 rounded-lg border border-stone-200 leading-relaxed"></p>
+            <p id="room-modal-meeting-purpose" class="text-xs text-stone-700 bg-stone-50 p-2.5 rounded-lg border border-stone-200 leading-relaxed">Official department session.</p>
           </div>
 
           <div class="flex items-center justify-between pt-2 border-t border-stone-100 text-xs">
-            <span id="modal-meeting-attendees" class="text-stone-500 font-medium">12 Attendees</span>
+            <span id="room-modal-meeting-attendees" class="text-stone-500 font-medium">12 Attendees</span>
             <button onclick="window.NBC.views['room-details'].closeMeetingModal()" class="btn-primary px-4 py-1.5 rounded-lg text-xs font-bold shadow-2xs">
               Close
             </button>
@@ -582,173 +829,24 @@ class RoomDetailsView {
         </div>
       </div>
     `;
-  }
 
-  mountFullCalendar(roomId, dateString) {
-    const calendarEl = document.getElementById('room-fullcalendar');
-    if (!calendarEl) return;
-
-    if (typeof FullCalendar === 'undefined') {
-      calendarEl.innerHTML = `
-        <div class="p-6 text-center text-xs text-stone-500 space-y-2">
-          <span class="iconify text-2xl text-stone-400 mx-auto block animate-spin" data-icon="lucide:loader-2"></span>
-          <p>Loading schedule timeline engine...</p>
-        </div>
-      `;
-      // Retry in 200ms if script is still downloading
-      setTimeout(() => this.mountFullCalendar(roomId, dateString), 200);
-      return;
-    }
-
-    if (this.calendar) {
-      try {
-        this.calendar.destroy();
-      } catch (e) {}
-      this.calendar = null;
-    }
-
-    const events = bookingStore.getRoomFullCalendarEvents(roomId);
-    const isMobile = window.innerWidth < 768;
-    const defaultView = isMobile ? 'timeGridDay' : 'timeGridWeek';
-
-    this.calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: defaultView,
-      initialDate: dateString,
-      headerToolbar: false,
-      firstDay: 1, // Monday start
-      navLinks: true,
-      navLinkDayClick: (date) => {
-        if (this.calendar) this.calendar.changeView('timeGridDay', date);
-      },
-      dayHeaderFormat: { weekday: 'short', month: 'numeric', day: 'numeric', omitCommas: true },
-      allDaySlot: false,
-      slotMinTime: '07:00:00',
-      slotMaxTime: '18:00:00',
-      slotDuration: '00:30:00',
-      slotLabelInterval: '01:00',
-      slotLabelFormat: {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      },
-      expandRows: true,
-      nowIndicator: true,
-      slotEventOverlap: false,
-      eventOverlap: false,
-      height: 480,
-      selectable: true,
-      selectMirror: true,
-      selectLongPressDelay: 100,
-      selectAllow: (selectInfo) => {
-        // Disallow selecting past time slots
-        return selectInfo.start >= new Date();
-      },
-      events: events,
-      eventContent: (arg) => {
-        if (arg.event.display === 'background') return null;
-        const props = arg.event.extendedProps || {};
-        const isPrivate = !!props.isPrivate;
-        const timeText = (props.startTime && props.endTime) 
-          ? `${props.startTime} – ${props.endTime}` 
-          : arg.timeText;
-        const title = arg.event.title || 'Reserved Meeting';
-        const organizer = props.requesterName;
-        const dept = props.requesterDept;
-
-        // Determine slot duration in minutes to handle 30-minute compact display
-        const durationMins = (arg.event.start && arg.event.end)
-          ? Math.round((arg.event.end.getTime() - arg.event.start.getTime()) / 60000)
-          : 30;
-        const isShortSlot = durationMins <= 45;
-
-        // Compact horizontal layout for 30-minute slots
-        if (isShortSlot) {
-          return {
-            html: `
-              <div class="h-full w-full flex items-center justify-between px-2 sm:px-2.5 py-0.5 select-none overflow-hidden font-sans text-white leading-tight">
-                <div class="flex items-center space-x-2 min-w-0 flex-1 mr-2">
-                  <span class="inline-flex items-center space-x-1 font-mono text-[11px] font-bold ${isPrivate ? 'text-amber-200' : 'text-amber-300'} shrink-0">
-                    <span class="iconify text-xs shrink-0" data-icon="${isPrivate ? 'lucide:lock' : 'lucide:clock'}"></span>
-                    <span>${timeText}</span>
-                  </span>
-                  <span class="text-stone-400 shrink-0 text-[10px]">&bull;</span>
-                  <span class="font-heading font-bold text-xs text-white truncate drop-shadow-xs">
-                    ${title}
-                  </span>
-                  ${organizer ? `
-                    <span class="hidden md:inline text-stone-400 shrink-0 text-[10px]">&bull;</span>
-                    <span class="hidden md:inline text-[10px] text-stone-300 truncate">${organizer}</span>
-                  ` : ''}
-                </div>
-                <span class="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${isPrivate ? 'bg-amber-400/25 text-amber-200 border border-amber-400/40' : 'bg-black/30 text-amber-200 border border-amber-400/30'} shrink-0">
-                  ${isPrivate ? 'Private' : 'Booked'}
-                </span>
-              </div>
-            `
-          };
-        }
-
-        return {
-          html: `
-            <div class="h-full w-full flex flex-col justify-between p-2 sm:p-2.5 select-none overflow-hidden leading-tight font-sans text-white">
-              <div class="space-y-1">
-                <div class="flex items-center justify-between gap-1.5">
-                  <span class="inline-flex items-center space-x-1 font-mono text-[11px] font-bold ${isPrivate ? 'text-amber-200' : 'text-amber-300'}">
-                    <span class="iconify text-xs shrink-0" data-icon="${isPrivate ? 'lucide:lock' : 'lucide:clock'}"></span>
-                    <span>${timeText}</span>
-                  </span>
-                  <span class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${isPrivate ? 'bg-amber-400/25 text-amber-200 border border-amber-400/40' : 'bg-black/30 text-amber-200 border border-amber-400/30'}">
-                    ${isPrivate ? 'Private' : 'Booked'}
-                  </span>
-                </div>
-                <div class="font-heading font-bold text-xs sm:text-sm text-white line-clamp-2 leading-snug drop-shadow-xs tracking-tight">
-                  ${title}
-                </div>
-              </div>
-              ${organizer ? `
-                <div class="flex items-center space-x-1.5 text-[10px] text-stone-200 pt-1.5 mt-auto border-t ${isPrivate ? 'border-amber-700/50' : 'border-red-800/60'} truncate">
-                  <span class="iconify text-xs shrink-0 text-white" data-icon="lucide:user"></span>
-                  <span class="truncate font-semibold text-white">${organizer}</span>
-                  ${dept ? `<span class="text-stone-400">&bull;</span><span class="truncate text-stone-300">${dept.split('&bull;')[0].trim()}</span>` : ''}
-                </div>
-              ` : ''}
-            </div>
-          `
-        };
-      },
-      select: (info) => {
-        if (info.start < new Date()) {
-          this.showToast("Time Has Passed", "You cannot select or book time slots that have already passed.", "warning");
-          if (this.calendar) this.calendar.unselect();
-          return;
-        }
-        const dateStr = info.startStr.substring(0, 10);
-        const startTime = info.startStr.substring(11, 16);
-        const endTime = info.endStr.substring(11, 16);
-        this.handleBookSlotClick(roomId, dateStr, startTime, endTime);
-      },
-      eventClick: (info) => {
-        if (info.event.display === 'background') return;
-        this.openMeetingModal(info.event.extendedProps);
-      }
-    });
-
-    this.calendar.render();
+    // Render slots initially
+    this.renderSlotsUI();
   }
 
   openMeetingModal(meeting) {
     if (!meeting) return;
-    const modalEl = document.getElementById('meeting-details-modal');
+    const modalEl = document.getElementById('room-meeting-details-modal');
     if (!modalEl) return;
 
-    const titleEl = document.getElementById('modal-meeting-title');
-    const refEl = document.getElementById('modal-meeting-ref');
-    const timeEl = document.getElementById('modal-meeting-time');
-    const dateEl = document.getElementById('modal-meeting-date');
-    const orgEl = document.getElementById('modal-meeting-organizer');
-    const deptEl = document.getElementById('modal-meeting-dept');
-    const attEl = document.getElementById('modal-meeting-attendees');
-    const purpEl = document.getElementById('modal-meeting-purpose');
+    const titleEl = document.getElementById('room-modal-meeting-title');
+    const refEl = document.getElementById('room-modal-meeting-ref');
+    const timeEl = document.getElementById('room-modal-meeting-time');
+    const dateEl = document.getElementById('room-modal-meeting-date');
+    const orgEl = document.getElementById('room-modal-meeting-organizer');
+    const deptEl = document.getElementById('room-modal-meeting-dept');
+    const attEl = document.getElementById('room-modal-meeting-attendees');
+    const purpEl = document.getElementById('room-modal-meeting-purpose');
 
     if (titleEl) titleEl.innerText = meeting.displayTitle || meeting.meetingTitle || 'Scheduled Meeting';
     if (refEl) refEl.innerText = meeting.referenceCode ? `#${meeting.referenceCode}` : '#NBC-RESERVED';
@@ -759,111 +857,20 @@ class RoomDetailsView {
     if (attEl) attEl.innerText = `${meeting.attendees || 1} Attendees`;
 
     if (purpEl) {
-      if (meeting.isPrivate) {
-        purpEl.innerText = "Confidential Executive Session. Agenda and notes are protected under NBC privacy standards.";
-        purpEl.className = "text-xs text-amber-900 bg-amber-50 p-2.5 rounded-lg border border-amber-200 italic leading-relaxed";
-      } else {
-        purpEl.innerText = meeting.purpose || "Official department meeting and team discussion.";
-        purpEl.className = "text-xs text-stone-700 bg-stone-50 p-2.5 rounded-lg border border-stone-200 leading-relaxed";
-      }
+      purpEl.innerText = meeting.purpose || "Official department meeting and team discussion.";
     }
 
     modalEl.classList.remove('hidden');
     modalEl.classList.add('flex');
   }
 
-  openMeetingModalById(requestId) {
-    const req = bookingStore.getRequestById(requestId);
-    if (!req) return;
-    const isPrivate = !!req.isPrivateRequest || !!req.room?.isPrivate;
-    this.openMeetingModal({
-      referenceCode: req.referenceCode,
-      meetingTitle: req.meetingTitle,
-      displayTitle: isPrivate ? "Reserved (Private Session)" : req.meetingTitle,
-      requesterName: req.requester?.name,
-      requesterDept: req.requester?.department,
-      attendees: req.attendees,
-      purpose: req.meetingPurpose,
-      isPrivate: isPrivate,
-      startTime: req.startTime,
-      endTime: req.endTime,
-      date: req.date
-    });
-  }
-
   closeMeetingModal() {
-    const modalEl = document.getElementById('meeting-details-modal');
+    const modalEl = document.getElementById('room-meeting-details-modal');
     if (modalEl) {
       modalEl.classList.add('hidden');
       modalEl.classList.remove('flex');
     }
   }
-
-  handleBookSlotClick(roomId, dateStr, startTime, endTime) {
-    if (window.app && window.app.startFromTimelineSelection) {
-      window.app.startFromTimelineSelection({ roomId, date: dateStr, startTime, endTime });
-    } else if (window.app && window.app.selectRoomAndProceed) {
-      window.app.selectRoomAndProceed(roomId, 'room-details', dateStr, startTime, endTime);
-    }
-  }
-
-
-  toggleAddPhotoDrawer() {
-    const tray = document.getElementById('modal-add-photo-tray');
-    if (tray) {
-      tray.classList.toggle('hidden');
-      if (!tray.classList.contains('hidden')) {
-        document.getElementById('modal-new-photo-url')?.focus();
-      }
-    }
-  }
-
-
-  handleAddPhotoSubmit() {
-    const input = document.getElementById('modal-new-photo-url');
-    const url = input?.value.trim();
-    if (!url) {
-      alert("Please enter a valid image URL.");
-      return;
-    }
-
-    if (this.currentModalRoom) {
-      bookingStore.addRoomPhoto(this.currentModalRoom.id, url);
-      this.currentModalRoom = bookingStore.getRoomById(this.currentModalRoom.id);
-      this.currentModalImageIndex = this.currentModalRoom.images.length - 1;
-      this.renderRoomDetailsPage(this.currentModalRoom.id);
-    }
-  }
-
-
-  handlePhotoFileUpload(event) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target.result;
-      if (this.currentModalRoom && dataUrl) {
-        bookingStore.addRoomPhoto(this.currentModalRoom.id, dataUrl);
-        this.currentModalRoom = bookingStore.getRoomById(this.currentModalRoom.id);
-        this.currentModalImageIndex = this.currentModalRoom.images.length - 1;
-        this.renderRoomDetailsPage(this.currentModalRoom.id);
-      }
-    };
-    reader.readAsDataURL(file);
-  }
-
-
-  addPresetPhoto(url) {
-    if (this.currentModalRoom) {
-      bookingStore.addRoomPhoto(this.currentModalRoom.id, url);
-      this.currentModalRoom = bookingStore.getRoomById(this.currentModalRoom.id);
-      this.currentModalImageIndex = this.currentModalRoom.images.length - 1;
-      this.renderRoomDetailsPage(this.currentModalRoom.id);
-    }
-  }
-
-  // Backward compatibility alias
 }
 
 window.NBC.views['room-details'] = new RoomDetailsView();

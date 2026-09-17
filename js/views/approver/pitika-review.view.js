@@ -93,30 +93,25 @@ class PitikaReviewView {
       }
     }
 
-    let statusBadgeClass = 'badge-pending';
     let statusLabel = 'Waiting for Pitika';
     let statusIcon = 'lucide:clock';
     if (isConfirmed) {
-      statusBadgeClass = 'badge-approved';
       statusLabel = 'Booking Confirmed';
       statusIcon = 'lucide:check-circle-2';
     } else if (isRejected) {
-      statusBadgeClass = 'badge-rejected';
       statusLabel = isOwnerRejected ? 'Rejected by Owner' : 'Rejected by Pitika';
       statusIcon = 'lucide:alert-circle';
     } else if (isCancelled) {
-      statusBadgeClass = 'badge-cancelled';
       statusLabel = 'Cancelled by Booker';
       statusIcon = 'lucide:x-circle';
     } else if (isOwnerPending) {
-      statusBadgeClass = 'badge-owner-pending';
       statusLabel = 'Sent to Room Owner';
       statusIcon = 'lucide:key';
     } else if (isSetup) {
-      statusBadgeClass = 'badge-setup';
       statusLabel = 'Setting Up';
       statusIcon = 'lucide:settings';
     }
+    const statusToneClass = isConfirmed ? 'text-emerald-700' : (isRejected || isCancelled ? 'text-red-700' : (isSetup ? 'text-blue-700' : 'text-amber-700'));
 
     // Compute Stepper Progress
     let progressPercent = '0%';
@@ -137,22 +132,19 @@ class PitikaReviewView {
       <!-- Top Navigation & Breadcrumb Bar -->
       <div class="flex items-center justify-between pb-3 border-b border-[#E9E3DD] gap-3">
         <div class="flex items-center space-x-2.5">
-          <button onclick="app.navigateTo('pitika-queue')" class="px-2.5 py-1.5 rounded-md bg-white border border-[#E9E3DD] text-stone-800 hover:bg-stone-100 text-xs font-semibold flex items-center space-x-1.5 shadow-2xs transition">
+          <button onclick="app.navigateTo('pitika-queue')" class="page-back-button px-2.5 py-1.5 rounded-md bg-white border border-[#E9E3DD] text-stone-800 hover:bg-stone-100 text-xs font-semibold flex items-center space-x-1.5 shadow-2xs transition">
             <span class="iconify text-xs" data-icon="lucide:arrow-left" data-stroke-width="1.8"></span>
             <span>Back to Queue</span>
           </button>
-          <div class="h-4 w-px bg-stone-300"></div>
-          <div>
-            <div class="flex items-center space-x-2">
-              <span class="font-mono text-[11px] font-bold text-red-950 bg-red-50 px-1.5 py-0.2 rounded border border-red-200">${req.id}</span>
-              ${req.isPrivateRequest ? `<span class="badge-private-room text-[9px] font-bold px-1.5 py-0.2 rounded">Private Room Request</span>` : ''}
-              <span class="text-[11px] text-stone-500 font-medium">Code: <strong class="font-mono text-stone-900">${req.referenceCode}</strong></span>
-            </div>
+          <div class="page-breadcrumb flex items-center space-x-2 truncate">
+              <span class="font-mono text-[11px] text-stone-500">${req.id}</span>
+              <span class="breadcrumb-separator">/</span>
+              <span class="breadcrumb-current text-[13px]">Code: <strong class="font-mono text-stone-800">${req.referenceCode}</strong></span>
           </div>
         </div>
 
         <div class="flex items-center space-x-2">
-          <span class="px-2.5 py-0.5 rounded text-[11px] font-bold flex items-center space-x-1 ${statusBadgeClass}">
+          <span class="${statusToneClass} text-[13px] font-semibold flex items-center space-x-1 whitespace-nowrap">
             <span class="iconify text-xs" data-icon="${statusIcon}" data-stroke-width="1.8"></span>
             <span>${statusLabel}</span>
           </span>

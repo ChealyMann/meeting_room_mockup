@@ -157,6 +157,31 @@ class BankBookingStore {
     return this.requests.find(r => r.id === id);
   }
 
+  _createDoorPasscode(seed = '') {
+    let hash = 0;
+    String(seed).split('').forEach(char => {
+      hash = ((hash << 5) - hash) + char.charCodeAt(0);
+      hash |= 0;
+    });
+    return `NBC-${String(10000 + (Math.abs(hash) % 90000)).padStart(5, '0')}`;
+  }
+
+  getDoorAccessState(req) {
+    if (!req) return { code: null, expiresAt: null, isExpired: true };
+
+    // Keep the access credential separate from the booking reference.
+    if (!req.doorPasscode) {
+      req.doorPasscode = this._createDoorPasscode(`${req.id}:door`);
+    }
+    if (!req.doorPassExpiresAt && req.date && req.endTime) {
+      req.doorPassExpiresAt = `${req.date}T${req.endTime}:00`;
+    }
+
+    const expiresAt = req.doorPassExpiresAt || null;
+    const isExpired = !!expiresAt && !Number.isNaN(new Date(expiresAt).getTime()) && new Date(expiresAt) < new Date();
+    return { code: req.doorPasscode, expiresAt, isExpired };
+  }
+
   getPendingPitikaRequests() {
     return this.requests.filter(r => 
       r.status === "Pending Review" || 
@@ -470,6 +495,43 @@ class BankBookingStore {
     }).sort((a, b) => {
       return this.timeToMinutes(a.startTime) - this.timeToMinutes(b.startTime);
     });
+  }
+
+  // Return whether a room has no active booking on every day in an inclusive date range.
+  // A range filter is intentionally day-based because the booker has not chosen times yet.
+  getRoomAvailabilityForDateRange(roomId, startDate, endDate) {
+    if (!roomId || !startDate || !endDate) {
+      return { available: true, conflictDate: null, conflictingRequest: null };
+    }
+
+    const start = new Date(`${startDate}T12:00:00`);
+    const end = new Date(`${endDate}T12:00:00`);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start > end) {
+      return { available: false, invalidRange: true, conflictDate: null, conflictingRequest: null };
+    }
+
+    const activeRequests = this.requests.filter(req => {
+      const reqRoomId = req.room?.id || req.roomId;
+      if (reqRoomId !== roomId) return false;
+      const status = (req.status || '').toLowerCase();
+      return !status.includes('reject') && !status.includes('cancel');
+    });
+
+    const dayMs = 24 * 60 * 60 * 1000;
+    for (let cursor = start.getTime(); cursor <= end.getTime(); cursor += dayMs) {
+      const date = new Date(cursor);
+      const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const conflictingRequest = activeRequests.find(req => {
+        if (req.date === dateString) return true;
+        return Array.isArray(req.sessions) && req.sessions.some(session => session?.date === dateString);
+      });
+
+      if (conflictingRequest) {
+        return { available: false, invalidRange: false, conflictDate: dateString, conflictingRequest };
+      }
+    }
+
+    return { available: true, invalidRange: false, conflictDate: null, conflictingRequest: null };
   }
 
   checkBookingConflict(roomId, dateString, startTime, endTime, excludeRequestId = null) {
@@ -1067,6 +1129,11 @@ class BankBookingStore {
     const isMyRoom = isPrivate && (room.id === 'ROOM-107' || room.roomOwner?.name === 'Jonathan Vance' || room.roomOwner?.id === 'OWNER-VANCE');
     const newId = `REQ-2026-${String(this.requests.length + 1).padStart(3, '0')}`;
     const refCode = `NBC-${Math.floor(10000 + Math.random() * 90000)}`;
+    const doorPasscode = this._createDoorPasscode(`${newId}:${Date.now()}`);
+    const lastSession = sessions[sessions.length - 1] || sessions[0];
+    const doorPassExpiresAt = lastSession?.date && lastSession?.endTime
+      ? `${lastSession.date}T${lastSession.endTime}:00`
+      : null;
 
     // Pricing Model Calculation
     const cateringPackages = {
@@ -1114,6 +1181,8 @@ class BankBookingStore {
     const newRequest = {
       id: newId,
       referenceCode: refCode,
+      doorPasscode,
+      doorPassExpiresAt,
       meetingTitle: data.meetingTitle || (isPrivate ? (isMyRoom ? `Executive Session (${room.name})` : "Private Executive Session") : "General Team Meeting"),
       requester: {
         name: data.requesterName || "Jonathan Vance",
@@ -1249,7 +1318,7 @@ class BankBookingStore {
       this.notifications.unshift({
         id: `NOTIF-${Date.now()}`,
         title: "Private Room Confirmed!",
-        message: `Your booking for ${newRequest.room.name} is confirmed immediately. Door passcode: NBC-${refCode}.`,
+        message: `Your booking for ${newRequest.room.name} is confirmed immediately. Door passcode: ${newRequest.doorPasscode}.`,
         timestamp: "Just now",
         read: false,
         recipientRole: "Requester"
@@ -1258,7 +1327,7 @@ class BankBookingStore {
       this.saveState();
       this.emitToast(
         "Room Confirmed!",
-        `${newRequest.room.name} booked successfully. Door passcode ready: NBC-${refCode}`,
+        `${newRequest.room.name} booked successfully. Door passcode ready: ${newRequest.doorPasscode}`,
         "success"
       );
     } else if (isMyRoom) {

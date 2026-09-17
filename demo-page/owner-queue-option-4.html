@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBC Private Room Approvals - Option 4: Refined Minimal Ledger</title>
+  
+  <!-- Fonts: Poppins, Kantumruy Pro, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cafe: {
+              canvas: '#F9F7F5',
+              surface: '#FFFFFF',
+              border: '#E9E3DD',
+              subtle: '#FAF7F4',
+              ink: '#3E2B1E',
+              coffee: '#6F5849',
+              latte: '#7D6857'
+            },
+            crimson: {
+              DEFAULT: '#991B1B',
+              hover: '#7F1D1D',
+              active: '#691515',
+              subtle: '#FEF2F2'
+            },
+            sidebar: {
+              DEFAULT: '#260707',
+              surface: '#2A0808',
+              border: '#3D0C0C',
+              edge: '#450A0A'
+            }
+          },
+          fontFamily: {
+            sans: ['Poppins', 'Kantumruy Pro', '-apple-system', 'sans-serif'],
+            heading: ['Poppins', 'Kantumruy Pro', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Iconify SVG Framework (Stroke-only Lucide icons) -->
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+
+  <!-- Vue 3 for reactive state -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.38/dist/vue.global.prod.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', 'Kantumruy Pro', sans-serif;
+      background-color: #F9F7F5;
+      color: #3E2B1E;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="h-screen flex flex-col antialiased selection:bg-[#991B1B] selection:text-white">
+
+  <div id="app" class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Top Option Switcher Bar -->
+    <header class="bg-[#260707] text-white px-4 py-2 flex items-center justify-between border-b border-[#450A0A] shrink-0 z-30">
+      <div class="flex items-center gap-3">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#FACC15]"></span>
+        <span class="font-mono text-xs tracking-wider text-[#FACC15] uppercase font-bold">NBC UI LAB</span>
+        <span class="text-stone-500">•</span>
+        <span class="text-xs font-medium text-stone-200">Table Format Exploration for Private Room Approvals</span>
+      </div>
+
+      <!-- Options Switcher Tabs -->
+      <div class="flex items-center gap-1 bg-[#2A0808] p-1 rounded-xl border border-[#3D0C0C]">
+        <a href="owner-queue-option-a.html" class="px-3 py-1 rounded-lg text-xs font-medium text-stone-300 hover:text-white hover:bg-white/5 flex items-center gap-1.5 transition">
+          <span class="iconify text-xs" data-icon="lucide:table" data-stroke-width="2"></span>
+          <span>Option 1 (A): Ledger</span>
+        </a>
+        <a href="owner-queue-option-b.html" class="px-3 py-1 rounded-lg text-xs font-medium text-stone-300 hover:text-white hover:bg-white/5 flex items-center gap-1.5 transition">
+          <span class="iconify text-xs" data-icon="lucide:layers" data-stroke-width="2"></span>
+          <span>Option 2 (B): Cards</span>
+        </a>
+        <a href="owner-queue-option-c.html" class="px-3 py-1 rounded-lg text-xs font-medium text-stone-300 hover:text-white hover:bg-white/5 flex items-center gap-1.5 transition">
+          <span class="iconify text-xs" data-icon="lucide:layout-list" data-stroke-width="2"></span>
+          <span>Option 3 (C): Drawer</span>
+        </a>
+        <a href="owner-queue-option-4.html" class="px-3 py-1 rounded-lg text-xs font-semibold bg-[#991B1B] text-white shadow-xs flex items-center gap-1.5 transition">
+          <span class="iconify text-xs" data-icon="lucide:sparkles" data-stroke-width="2"></span>
+          <span>Option 4: Refined</span>
+        </a>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../index.html" class="text-xs text-stone-300 hover:text-white flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-white/5 transition">
+          <span class="iconify text-xs" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+          <span>Back to App</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="flex-1 flex flex-col p-6 max-w-7xl w-full mx-auto overflow-hidden gap-4">
+
+      <!-- Header Row: Title & Top Clean KPIs (Strictly No Subtitles / Fluff) -->
+      <div class="flex items-center justify-between gap-4 shrink-0">
+        <div>
+          <h1 class="text-xl font-bold text-[#3E2B1E] tracking-tight">Private Room Approvals</h1>
+        </div>
+
+        <!-- Clean Metric Indicators (Strictly No Pill Badges - Typographic Cards) -->
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#E9E3DD] shadow-2xs">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span class="text-xs text-[#6F5849] font-medium">Pending Review</span>
+            <strong class="font-mono text-xs font-bold text-[#3E2B1E]">{{ countPending }}</strong>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#E9E3DD] shadow-2xs">
+            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+            <span class="text-xs text-[#6F5849] font-medium">Time Conflict</span>
+            <strong class="font-mono text-xs font-bold text-[#3E2B1E]">{{ countConflict }}</strong>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#E9E3DD] shadow-2xs">
+            <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+            <span class="text-xs text-[#6F5849] font-medium">Approved</span>
+            <strong class="font-mono text-xs font-bold text-[#3E2B1E]">{{ countApproved }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Search & Clean Filters (Bulk Selection Completely Removed) -->
+      <div class="bg-white rounded-xl border border-[#E9E3DD] p-2.5 shadow-2xs flex flex-wrap items-center justify-between gap-3 shrink-0">
+        <div class="flex items-center gap-2.5 flex-1 min-w-[280px]">
+          <div class="relative flex-1 max-w-sm">
+            <span class="iconify absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-sm" data-icon="lucide:search" data-stroke-width="2"></span>
+            <input 
+              v-model="searchTerm" 
+              type="text" 
+              placeholder="Search by ID, meeting title, organizer..."
+              class="w-full h-9 pl-9 pr-3 rounded-lg bg-[#FAF7F4] hover:bg-[#F5F2EE] focus:bg-white text-xs text-[#3E2B1E] border border-[#E9E3DD] focus:border-[#991B1B] outline-none transition"
+            />
+          </div>
+
+          <!-- Room Filter -->
+          <div class="relative">
+            <select v-model="selectedRoom" class="h-9 px-3 rounded-lg bg-[#FAF7F4] text-xs font-medium text-[#3E2B1E] border border-[#E9E3DD] outline-none cursor-pointer">
+              <option value="all">All Private Rooms</option>
+              <option value="ROOM-101">ទន្លេមេគង្គ - Mekong River (Level 18)</option>
+              <option value="ROOM-103">ទន្លេបាសាក់ - Bassac River (Level 15)</option>
+              <option value="ROOM-105">ទន្លេសេកុង - Sekong River (Level 18)</option>
+            </select>
+          </div>
+
+          <!-- Status Filter -->
+          <div class="flex items-center gap-1 bg-[#FAF7F4] p-0.5 rounded-lg border border-[#E9E3DD]">
+            <button 
+              v-for="st in ['all', 'pending', 'conflict', 'approved', 'rejected']" 
+              :key="st"
+              @click="statusFilter = st"
+              :class="['px-2.5 py-1 rounded-md text-[11px] font-medium transition capitalize cursor-pointer', statusFilter === st ? 'bg-white font-semibold text-[#991B1B] shadow-2xs border border-[#E9E3DD]' : 'text-[#6F5849] hover:text-[#3E2B1E]']"
+            >
+              {{ st }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Clean Controls: Layout Density Toggle & Reset -->
+        <div class="flex items-center gap-2">
+          <!-- Toggle Layout Mode (Standard 7-col vs Compact 6-col) -->
+          <div class="flex items-center gap-1 bg-[#FAF7F4] p-0.5 rounded-lg border border-[#E9E3DD]">
+            <button 
+              @click="columnMode = 'standard'" 
+              :class="['px-2.5 py-1 rounded-md text-[11px] font-medium transition flex items-center gap-1 cursor-pointer', columnMode === 'standard' ? 'bg-white font-semibold text-[#991B1B] shadow-2xs border border-[#E9E3DD]' : 'text-[#7D6857] hover:text-[#3E2B1E]']"
+              title="Standard view: Reference in its own dedicated column"
+            >
+              <span class="iconify text-xs" data-icon="lucide:columns-3" data-stroke-width="2"></span>
+              <span>Standard (7-Col)</span>
+            </button>
+            <button 
+              @click="columnMode = 'compact'" 
+              :class="['px-2.5 py-1 rounded-md text-[11px] font-medium transition flex items-center gap-1 cursor-pointer', columnMode === 'compact' ? 'bg-white font-semibold text-[#991B1B] shadow-2xs border border-[#E9E3DD]' : 'text-[#7D6857] hover:text-[#3E2B1E]']"
+              title="Compact view: Reference nested cleanly beneath Meeting Title"
+            >
+              <span class="iconify text-xs" data-icon="lucide:minimize-2" data-stroke-width="2"></span>
+              <span>Compact (6-Col)</span>
+            </button>
+          </div>
+
+          <button @click="resetFilters" class="h-9 px-3 rounded-lg bg-[#FAF7F4] hover:bg-white text-xs font-medium text-[#7D6857] hover:text-[#3E2B1E] border border-[#E9E3DD] flex items-center gap-1 transition cursor-pointer" title="Reset Filters">
+            <span class="iconify text-xs" data-icon="lucide:rotate-ccw" data-stroke-width="2"></span>
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- MAIN TABLE CARD: OPTION 4 (Refined Minimal Ledger) -->
+      <div class="bg-white rounded-2xl border border-[#E9E3DD] shadow-xs flex flex-col flex-1 min-h-0 overflow-hidden">
+        
+        <!-- Internal Scroll Area with Sticky Header (No Full-Page Vertical Scroll) -->
+        <div class="flex-1 overflow-x-auto overflow-y-auto no-scrollbar">
+          <table class="w-full text-left border-collapse min-w-[920px]">
+            
+            <!-- Sleek Minimal Header -->
+            <thead class="bg-[#FAF7F5] border-b border-[#E9E3DD] sticky top-0 z-10 select-none">
+              <tr>
+                <!-- Optional Dedicated Reference Column (Standard Mode) -->
+                <th v-if="columnMode === 'standard'" class="px-5 py-3.5 text-[11px] font-semibold text-[#7D6857] uppercase tracking-wider w-32">
+                  Reference
+                </th>
+
+                <!-- Meeting Column -->
+                <th class="px-5 py-3.5 text-[11px] font-semibold text-[#7D6857] uppercase tracking-wider">
+                  {{ columnMode === 'compact' ? 'Meeting & Reference' : 'Meeting Title' }}
+                </th>
+
+                <!-- Dedicated Requester Column (Fixes the "Requester name is too long" issue) -->
+                <th class="px-4 py-3.5 text-[11px] font-semibold text-[#7D6857] uppercase tracking-wider w-48">
+                  Requester
+                </th>
+
+                <!-- Private Room -->
+                <th class="px-4 py-3.5 text-[11px] font-semibold text-[#7D6857] uppercase tracking-wider w-56">
+                  Private Room
+                </th>
+
+                <!-- Schedule -->
+                <th class="px-4 py-3.5 text-[11px] font-semibold text-[#7D6857] uppercase tracking-wider w-48">
+                  Schedule
+                </th>
+
+                <!-- Status (Strictly No Badges - Typography & Indicator Dot) -->
+                <th class="px-4 py-3.5 text-[11px] font-semibold text-[#7D6857] uppercase tracking-wider w-36">
+                  Status
+                </th>
+
+                <!-- Action Controls -->
+                <th class="px-5 py-3.5 text-[11px] font-semibold text-[#7D6857] uppercase tracking-wider text-right pr-6 w-44">
+                  Action
+                </th>
+              </tr>
+            </thead>
+
+            <!-- Table Rows with Soft Hairline Borders & High-Contrast Scannability -->
+            <tbody class="divide-y divide-[#E9E3DD]/60 text-xs">
+              <tr 
+                v-for="req in filteredRequests" 
+                :key="req.id"
+                class="transition hover:bg-[#FAF7F4] group"
+              >
+                <!-- Standard Mode: Dedicated Reference ID & Age -->
+                <td v-if="columnMode === 'standard'" class="px-5 py-3.5 whitespace-nowrap">
+                  <div class="flex flex-col">
+                    <span class="font-mono text-xs font-bold text-[#3E2B1E] group-hover:text-[#991B1B] transition">
+                      #{{ req.id }}
+                    </span>
+                    <span class="text-[11px] text-[#7D6857] mt-0.5">{{ req.submittedAgo }}</span>
+                  </div>
+                </td>
+
+                <!-- Meeting Title (With Compact Reference if Compact Mode) -->
+                <td class="px-5 py-3.5">
+                  <div class="flex flex-col min-w-0 pr-3">
+                    <strong class="text-xs font-semibold text-[#3E2B1E] leading-snug group-hover:text-[#991B1B] transition">
+                      {{ req.title }}
+                    </strong>
+                    
+                    <!-- Compact Mode: Reference & Age tucked underneath meeting title -->
+                    <div v-if="columnMode === 'compact'" class="flex items-center gap-2 mt-0.5">
+                      <span class="font-mono text-[11px] text-[#6F5849] font-medium">#{{ req.id }}</span>
+                      <span class="text-[10px] text-stone-400">•</span>
+                      <span class="text-[11px] text-[#7D6857]">{{ req.submittedAgo }}</span>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Clean Dedicated Requester Column (Separated from meeting, no 45-character long strings) -->
+                <td class="px-4 py-3.5 whitespace-nowrap">
+                  <div class="flex items-center gap-2.5">
+                    <img :src="req.avatar" :alt="req.requester" class="w-7 h-7 rounded-full object-cover border border-[#E9E3DD] shrink-0" />
+                    <div class="min-w-0 flex flex-col">
+                      <!-- Requester Name (Clean, prominent, no redundant concatenation) -->
+                      <span class="text-xs font-semibold text-[#3E2B1E] truncate leading-tight">{{ req.requester }}</span>
+                      <!-- Department (Clean, secondary, concise) -->
+                      <span class="text-[11px] text-[#7D6857] truncate mt-0.5">{{ req.deptShort || req.dept }}</span>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Private Room -->
+                <td class="px-4 py-3.5 whitespace-nowrap">
+                  <div class="flex flex-col">
+                    <span class="font-medium text-[#3E2B1E] leading-tight">{{ req.roomName }}</span>
+                    <span class="text-[11px] text-[#7D6857] mt-0.5">{{ req.floor }} • {{ req.attendees }}/{{ req.capacity }} seats</span>
+                  </div>
+                </td>
+
+                <!-- Schedule -->
+                <td class="px-4 py-3.5 whitespace-nowrap">
+                  <div class="flex flex-col">
+                    <span class="font-medium text-[#3E2B1E] leading-tight">{{ req.date }}</span>
+                    <span class="font-mono text-[11px] text-[#6F5849] mt-0.5">{{ req.time }} ({{ req.duration }})</span>
+                  </div>
+                </td>
+
+                <!-- Status (Strictly No Badges - Typography & Indicator Dot) -->
+                <td class="px-4 py-3.5 whitespace-nowrap">
+                  <div class="flex items-center gap-2 font-medium">
+                    <span :class="['w-2 h-2 rounded-full shrink-0', req.statusColor]"></span>
+                    <span :class="['text-xs font-semibold', req.statusTextColor]">{{ req.statusLabel }}</span>
+                  </div>
+                </td>
+
+                <!-- Action Controls (NBC Crimson Red with stark white checkmark icon) -->
+                <td class="px-5 py-3.5 whitespace-nowrap text-right pr-6">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <template v-if="req.status === 'pending'">
+                      <button 
+                        @click="quickApprove(req)" 
+                        class="h-8 px-3 rounded-lg bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
+                        title="Authorize Booking"
+                      >
+                        <span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
+                        <span>Approve</span>
+                      </button>
+                      <button 
+                        @click="quickReject(req)" 
+                        class="h-8 px-2.5 rounded-lg bg-white hover:bg-[#FAF7F4] text-[#6F5849] border border-[#E9E3DD] text-xs font-medium transition cursor-pointer"
+                        title="Decline"
+                      >
+                        <span class="iconify text-xs" data-icon="lucide:x" data-stroke-width="2"></span>
+                      </button>
+                    </template>
+                    <template v-else-if="req.status === 'conflict'">
+                      <button 
+                        @click="openConflictModal(req)" 
+                        class="h-8 px-3 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                        title="Resolve Schedule Overlap"
+                      >
+                        <span class="iconify text-xs text-amber-700" data-icon="lucide:alert-triangle" data-stroke-width="2"></span>
+                        <span>Resolve Conflict</span>
+                      </button>
+                    </template>
+                    <template v-else>
+                      <span class="text-[11px] text-[#7D6857] italic">Processed</span>
+                    </template>
+
+                    <!-- Open Full Review Workspace Button -->
+                    <button 
+                      @click="openDetail(req)" 
+                      class="h-8 w-8 rounded-lg bg-white hover:bg-[#FAF7F4] text-[#7D6857] hover:text-[#3E2B1E] border border-[#E9E3DD] flex items-center justify-center transition cursor-pointer"
+                      title="Open Review Workspace"
+                    >
+                      <span class="iconify text-sm" data-icon="lucide:external-link" data-stroke-width="2"></span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Clean Ledger Footer (Pagination & Item Count) -->
+        <div class="px-5 py-3 bg-[#FAF7F5] border-t border-[#E9E3DD] flex items-center justify-between text-xs text-[#6F5849] shrink-0">
+          <div class="flex items-center gap-2">
+            <span>Showing <strong class="font-mono text-[#3E2B1E]">{{ filteredRequests.length }}</strong> requests under your management</span>
+          </div>
+
+          <!-- Pagination -->
+          <div class="flex items-center gap-1">
+            <button class="w-8 h-8 rounded-lg bg-white border border-[#E9E3DD] flex items-center justify-center text-stone-400 cursor-not-allowed">
+              <span class="iconify text-sm" data-icon="lucide:chevron-left" data-stroke-width="2"></span>
+            </button>
+            <span class="px-2.5 py-1 text-xs font-mono font-semibold text-[#3E2B1E]">Page 1 of 1</span>
+            <button class="w-8 h-8 rounded-lg bg-white border border-[#E9E3DD] flex items-center justify-center text-stone-400 cursor-not-allowed">
+              <span class="iconify text-sm" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- Detail Review Modal (Triggered by External Link Icon) -->
+    <div v-if="activeModalReq" class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-2xl border border-[#E9E3DD] shadow-xl max-w-lg w-full overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+        <div class="px-6 py-4 bg-[#FAF7F5] border-b border-[#E9E3DD] flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-xs font-bold text-[#991B1B]">#{{ activeModalReq.id }}</span>
+            <span class="text-stone-300">•</span>
+            <span class="text-xs font-semibold text-[#3E2B1E]">Review Request</span>
+          </div>
+          <button @click="activeModalReq = null" class="w-7 h-7 rounded-lg hover:bg-stone-200/60 flex items-center justify-center text-stone-500 cursor-pointer">
+            <span class="iconify text-sm" data-icon="lucide:x" data-stroke-width="2"></span>
+          </button>
+        </div>
+
+        <div class="p-6 space-y-4 text-xs text-[#3E2B1E]">
+          <div>
+            <span class="text-[11px] font-semibold uppercase text-[#7D6857] block mb-1">Meeting Title</span>
+            <p class="text-sm font-bold text-[#3E2B1E]">{{ activeModalReq.title }}</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 py-3 border-y border-[#E9E3DD]/60">
+            <div>
+              <span class="text-[11px] font-semibold uppercase text-[#7D6857] block mb-1">Requester</span>
+              <div class="flex items-center gap-2">
+                <img :src="activeModalReq.avatar" class="w-6 h-6 rounded-full object-cover border border-[#E9E3DD]" />
+                <span class="font-medium">{{ activeModalReq.requester }}</span>
+              </div>
+              <span class="text-[11px] text-[#7D6857] block mt-0.5">{{ activeModalReq.dept }}</span>
+            </div>
+            <div>
+              <span class="text-[11px] font-semibold uppercase text-[#7D6857] block mb-1">Room</span>
+              <p class="font-medium">{{ activeModalReq.roomName }}</p>
+              <span class="text-[11px] text-[#7D6857] block mt-0.5">{{ activeModalReq.floor }} • {{ activeModalReq.capacity }} seats</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <span class="text-[11px] font-semibold uppercase text-[#7D6857] block mb-1">Schedule</span>
+              <p class="font-medium">{{ activeModalReq.date }}</p>
+              <p class="font-mono text-[11px] text-[#6F5849]">{{ activeModalReq.time }}</p>
+            </div>
+            <div>
+              <span class="text-[11px] font-semibold uppercase text-[#7D6857] block mb-1">Attendees</span>
+              <p class="font-medium">{{ activeModalReq.attendees }} participants</p>
+            </div>
+          </div>
+
+          <div v-if="activeModalReq.status === 'conflict'" class="p-3 bg-red-50 border border-red-200 rounded-xl text-red-900">
+            <div class="flex items-center gap-1.5 font-semibold mb-1">
+              <span class="iconify text-sm text-red-700" data-icon="lucide:alert-triangle" data-stroke-width="2"></span>
+              <span>Schedule Conflict Detected</span>
+            </div>
+            <p class="text-[11px] text-red-700">Overlaps with "National Payment System Audit" (14:30 – 16:30 in Bassac River).</p>
+          </div>
+        </div>
+
+        <div class="px-6 py-3 bg-[#FAF7F5] border-t border-[#E9E3DD] flex items-center justify-end gap-2">
+          <button @click="activeModalReq = null" class="h-8 px-3 rounded-lg bg-white border border-[#E9E3DD] text-xs font-medium text-[#6F5849] hover:bg-[#FAF7F4] cursor-pointer">
+            Close
+          </button>
+          <button 
+            v-if="activeModalReq.status === 'pending'"
+            @click="quickApprove(activeModalReq); activeModalReq = null"
+            class="h-8 px-4 rounded-lg bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+          >
+            <span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
+            <span>Authorize Request</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          searchTerm: '',
+          selectedRoom: 'all',
+          statusFilter: 'all',
+          columnMode: 'standard', // 'standard' (7-col) or 'compact' (6-col)
+          activeModalReq: null,
+          requests: [
+            {
+              id: 'REQ-2026-088',
+              title: 'Executive Board Monetary Policy Briefing',
+              requester: 'Dr. Jonathan Vance',
+              dept: 'Board & Executive Office',
+              deptShort: 'Executive Office',
+              avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
+              roomName: 'ទន្លេមេគង្គ - Mekong River',
+              floor: 'Level 18',
+              capacity: 28,
+              date: 'Today, 17 Sep',
+              time: '10:00 – 11:30',
+              duration: '90 mins',
+              attendees: 18,
+              status: 'pending',
+              statusLabel: 'Pending Review',
+              statusColor: 'bg-amber-500',
+              statusTextColor: 'text-amber-700',
+              submittedAgo: '12m ago'
+            },
+            {
+              id: 'REQ-2026-092',
+              title: 'Banking Supervision Committee',
+              requester: 'Sokha Mean',
+              dept: 'Banking Supervision',
+              deptShort: 'Supervision Dept',
+              avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+              roomName: 'ទន្លេបាសាក់ - Bassac River',
+              floor: 'Level 15',
+              capacity: 16,
+              date: 'Today, 17 Sep',
+              time: '14:00 – 16:00',
+              duration: '120 mins',
+              attendees: 14,
+              status: 'conflict',
+              statusLabel: 'Time Conflict',
+              statusColor: 'bg-red-500',
+              statusTextColor: 'text-red-700',
+              submittedAgo: '35m ago'
+            },
+            {
+              id: 'REQ-2026-079',
+              title: 'FinTech Innovation & Bakong Gateway',
+              requester: 'Kosal Vichea',
+              dept: 'Information Technology',
+              deptShort: 'Info Technology',
+              avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face',
+              roomName: 'ទន្លេសេកុង - Sekong River',
+              floor: 'Level 18',
+              capacity: 60,
+              date: 'Tomorrow, 18 Sep',
+              time: '09:00 – 10:30',
+              duration: '90 mins',
+              attendees: 35,
+              status: 'approved',
+              statusLabel: 'Approved',
+              statusColor: 'bg-emerald-600',
+              statusTextColor: 'text-emerald-700',
+              submittedAgo: '2h ago'
+            },
+            {
+              id: 'REQ-2026-084',
+              title: 'Macroeconomic Research Roundtable',
+              requester: 'Sreypov Chhim',
+              dept: 'Economic Research',
+              deptShort: 'Economic Research',
+              avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face',
+              roomName: 'ទន្លេមេគង្គ - Mekong River',
+              floor: 'Level 18',
+              capacity: 28,
+              date: 'Tomorrow, 18 Sep',
+              time: '14:00 – 15:30',
+              duration: '90 mins',
+              attendees: 20,
+              status: 'pending',
+              statusLabel: 'Pending Review',
+              statusColor: 'bg-amber-500',
+              statusTextColor: 'text-amber-700',
+              submittedAgo: '3h ago'
+            },
+            {
+              id: 'REQ-2026-071',
+              title: 'General Secretariat Operations Review',
+              requester: 'Chan Nimol',
+              dept: 'General Secretariat',
+              deptShort: 'Gen Secretariat',
+              avatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=100&h=100&fit=crop&crop=face',
+              roomName: 'ទន្លេបាសាក់ - Bassac River',
+              floor: 'Level 15',
+              capacity: 16,
+              date: '19 Sep 2026',
+              time: '11:00 – 12:00',
+              duration: '60 mins',
+              attendees: 12,
+              status: 'rejected',
+              statusLabel: 'Rejected',
+              statusColor: 'bg-stone-400',
+              statusTextColor: 'text-stone-500',
+              submittedAgo: '1d ago'
+            },
+            {
+              id: 'REQ-2026-095',
+              title: 'Internal Audit Regulatory Assessment',
+              requester: 'Heng Borin',
+              dept: 'Internal Audit',
+              deptShort: 'Internal Audit',
+              avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
+              roomName: 'ទន្លេសេកុង - Sekong River',
+              floor: 'Level 18',
+              capacity: 60,
+              date: '21 Sep 2026',
+              time: '15:00 – 17:00',
+              duration: '120 mins',
+              attendees: 42,
+              status: 'pending',
+              statusLabel: 'Pending Review',
+              statusColor: 'bg-amber-500',
+              statusTextColor: 'text-amber-700',
+              submittedAgo: '4h ago'
+            }
+          ]
+        }
+      },
+      computed: {
+        countPending() {
+          return this.requests.filter(r => r.status === 'pending').length;
+        },
+        countConflict() {
+          return this.requests.filter(r => r.status === 'conflict').length;
+        },
+        countApproved() {
+          return this.requests.filter(r => r.status === 'approved').length;
+        },
+        filteredRequests() {
+          return this.requests.filter(req => {
+            const matchesSearch = 
+              req.id.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+              req.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+              req.requester.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+              req.dept.toLowerCase().includes(this.searchTerm.toLowerCase());
+            
+            const matchesRoom = this.selectedRoom === 'all' || 
+              (this.selectedRoom === 'ROOM-101' && req.roomName.includes('Mekong')) ||
+              (this.selectedRoom === 'ROOM-103' && req.roomName.includes('Bassac')) ||
+              (this.selectedRoom === 'ROOM-105' && req.roomName.includes('Sekong'));
+
+            const matchesStatus = this.statusFilter === 'all' || req.status === this.statusFilter;
+
+            return matchesSearch && matchesRoom && matchesStatus;
+          });
+        }
+      },
+      methods: {
+        resetFilters() {
+          this.searchTerm = '';
+          this.selectedRoom = 'all';
+          this.statusFilter = 'all';
+        },
+        quickApprove(req) {
+          req.status = 'approved';
+          req.statusLabel = 'Approved';
+          req.statusColor = 'bg-emerald-600';
+          req.statusTextColor = 'text-emerald-700';
+        },
+        quickReject(req) {
+          req.status = 'rejected';
+          req.statusLabel = 'Rejected';
+          req.statusColor = 'bg-stone-400';
+          req.statusTextColor = 'text-stone-500';
+        },
+        openConflictModal(req) {
+          this.activeModalReq = req;
+        },
+        openDetail(req) {
+          this.activeModalReq = req;
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

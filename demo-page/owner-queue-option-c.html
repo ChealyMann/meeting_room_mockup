@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBC Private Room Approvals - Option C: Command Queue with Slide-In Inspection Drawer</title>
+  
+  <!-- Fonts: Poppins, Kantumruy Pro, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cafe: {
+              canvas: '#F9F7F5',
+              surface: '#FFFFFF',
+              border: '#E9E3DD',
+              subtle: '#FAF7F4',
+              ink: '#3E2B1E',
+              coffee: '#6F5849',
+              latte: '#7D6857'
+            },
+            crimson: {
+              DEFAULT: '#991B1B',
+              hover: '#7F1D1D',
+              active: '#691515',
+              subtle: '#FEF2F2'
+            },
+            sidebar: {
+              DEFAULT: '#260707',
+              surface: '#2A0808',
+              border: '#3D0C0C',
+              edge: '#450A0A'
+            }
+          },
+          fontFamily: {
+            sans: ['Poppins', 'Kantumruy Pro', '-apple-system', 'sans-serif'],
+            heading: ['Poppins', 'Kantumruy Pro', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Iconify SVG Framework (Stroke-only Lucide icons) -->
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+
+  <!-- Vue 3 for reactive state -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.38/dist/vue.global.prod.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', 'Kantumruy Pro', sans-serif;
+      background-color: #F9F7F5;
+      color: #3E2B1E;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="h-screen flex flex-col antialiased selection:bg-[#991B1B] selection:text-white">
+
+  <div id="app" class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Top Option Switcher Bar -->
+    <header class="bg-[#260707] text-white px-4 py-2 flex items-center justify-between border-b border-[#450A0A] shrink-0 z-30">
+      <div class="flex items-center gap-3">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#FACC15]"></span>
+        <span class="font-mono text-xs tracking-wider text-[#FACC15] uppercase font-bold">NBC UI LAB</span>
+        <span class="text-stone-500">•</span>
+        <span class="text-xs font-medium text-stone-200">Table Format Exploration for Private Room Approvals</span>
+      </div>
+
+      <!-- Options Quick Switcher Tabs -->
+      <div class="flex items-center gap-1 bg-[#2A0808] p-1 rounded-xl border border-[#3D0C0C]">
+        <a href="owner-queue-option-a.html" class="px-3 py-1 rounded-lg text-xs font-medium text-stone-300 hover:text-white hover:bg-white/5 flex items-center gap-1.5 transition">
+          <span class="iconify text-xs" data-icon="lucide:table" data-stroke-width="2"></span>
+          <span>Option 1 (A): Ledger</span>
+        </a>
+        <a href="owner-queue-option-b.html" class="px-3 py-1 rounded-lg text-xs font-medium text-stone-300 hover:text-white hover:bg-white/5 flex items-center gap-1.5 transition">
+          <span class="iconify text-xs" data-icon="lucide:layers" data-stroke-width="2"></span>
+          <span>Option 2 (B): Cards</span>
+        </a>
+        <a href="owner-queue-option-c.html" class="px-3 py-1 rounded-lg text-xs font-semibold bg-[#991B1B] text-white shadow-xs flex items-center gap-1.5 transition">
+          <span class="iconify text-xs" data-icon="lucide:layout-list" data-stroke-width="2"></span>
+          <span>Option 3 (C): Drawer</span>
+        </a>
+        <a href="owner-queue-option-4.html" class="px-3 py-1 rounded-lg text-xs font-medium text-stone-300 hover:text-white hover:bg-white/5 flex items-center gap-1.5 transition">
+          <span class="iconify text-xs" data-icon="lucide:sparkles" data-stroke-width="2"></span>
+          <span>Option 4: Refined</span>
+        </a>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="../index.html" class="text-xs text-stone-300 hover:text-white flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-white/5 transition">
+          <span class="iconify text-xs" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+          <span>Back to App</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <main class="flex-1 p-4 sm:p-5 max-w-[1700px] w-full mx-auto flex flex-col min-h-0 space-y-3">
+      
+      <!-- Top Title & Metrics Strip -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+        <div>
+          <h2 class="font-heading font-bold text-xl text-[#3E2B1E] tracking-tight">Private Room Approvals</h2>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#E9E3DD] shadow-2xs">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span class="text-xs text-[#6F5849]">Pending Action:</span>
+            <strong class="font-mono text-xs font-bold text-[#3E2B1E]">{{ countPending }}</strong>
+          </div>
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-[#E9E3DD] shadow-2xs">
+            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+            <span class="text-xs text-[#6F5849]">Schedule Overlap:</span>
+            <strong class="font-mono text-xs font-bold text-[#3E2B1E]">{{ countConflict }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- MASTER-DETAIL COMMAND GRID: 2-Column Split (Table 8 cols + Peek Panel 4 cols) -->
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-0 overflow-hidden">
+        
+        <!-- LEFT: High-Scannability Command Table (8 Cols) -->
+        <div class="lg:col-span-8 flex flex-col bg-white rounded-2xl border border-[#E9E3DD] shadow-xs overflow-hidden min-h-0">
+          
+          <!-- Mini Filter Bar inside Card -->
+          <div class="p-3 border-b border-[#E9E3DD] bg-[#FAF7F5] flex items-center justify-between gap-3 shrink-0">
+            <div class="relative flex-1 max-w-xs">
+              <span class="iconify absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 text-xs" data-icon="lucide:search" data-stroke-width="2"></span>
+              <input 
+                v-model="searchTerm"
+                type="text" 
+                placeholder="Filter requests..." 
+                class="w-full h-8 pl-8 pr-2 rounded-lg bg-white text-xs border border-[#E9E3DD] focus:border-[#991B1B] outline-none"
+              />
+            </div>
+
+            <div class="flex items-center gap-1 bg-white p-0.5 rounded-lg border border-[#E9E3DD]">
+              <button 
+                v-for="st in ['all', 'pending', 'conflict', 'approved']" 
+                :key="st"
+                @click="statusFilter = st"
+                :class="['px-2 py-1 rounded text-[11px] font-medium capitalize cursor-pointer transition', statusFilter === st ? 'bg-[#991B1B] text-white font-semibold' : 'text-[#6F5849] hover:text-[#3E2B1E]']"
+              >
+                {{ st }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Internal Scroll Table -->
+          <div class="flex-1 overflow-x-auto overflow-y-auto no-scrollbar">
+            <table class="w-full text-left border-collapse min-w-[700px]">
+              <thead class="bg-[#FAF7F5] border-b border-[#E9E3DD] sticky top-0 z-10 select-none text-[11px] font-semibold text-[#7D6857] uppercase tracking-wider">
+                <tr>
+                  <th class="py-3 pl-4 pr-2">ID</th>
+                  <th class="px-3 py-3">Meeting & Requester</th>
+                  <th class="px-3 py-3">Room</th>
+                  <th class="px-3 py-3">Schedule</th>
+                  <th class="px-3 py-3">Status</th>
+                  <th class="px-3 py-3 text-right pr-4">Quick Decision</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#E9E3DD]/60 text-xs">
+                <tr 
+                  v-for="req in filteredRequests" 
+                  :key="req.id"
+                  @click="activeReq = req"
+                  :class="[
+                    'transition cursor-pointer select-none',
+                    activeReq.id === req.id ? 'bg-[#FEF2F2] border-l-4 border-l-[#991B1B]' : 'hover:bg-[#FAF7F4]'
+                  ]"
+                >
+                  <td class="py-3 pl-4 pr-2 whitespace-nowrap">
+                    <span class="font-mono text-xs font-bold text-[#3E2B1E]">#{{ req.id }}</span>
+                  </td>
+
+                  <td class="px-3 py-3 min-w-[200px]">
+                    <div>
+                      <strong class="text-xs font-semibold text-[#3E2B1E] block truncate leading-tight">{{ req.title }}</strong>
+                      <span class="text-[11px] text-[#6F5849] block truncate mt-0.5">{{ req.requester }} • {{ req.dept }}</span>
+                    </div>
+                  </td>
+
+                  <td class="px-3 py-3 whitespace-nowrap">
+                    <span class="font-medium text-[#3E2B1E] block leading-tight">{{ req.roomName.split(' - ')[0] }}</span>
+                    <span class="text-[10px] text-[#7D6857] block mt-0.5">{{ req.floor }}</span>
+                  </td>
+
+                  <td class="px-3 py-3 whitespace-nowrap">
+                    <span class="font-medium text-[#3E2B1E] block leading-tight">{{ req.date }}</span>
+                    <span class="font-mono text-[11px] text-[#6F5849] block mt-0.5">{{ req.time }}</span>
+                  </td>
+
+                  <td class="px-3 py-3 whitespace-nowrap">
+                    <div class="flex items-center gap-1.5 font-medium">
+                      <span :class="['w-2 h-2 rounded-full shrink-0', req.statusColor]"></span>
+                      <span :class="['text-xs font-semibold', req.statusTextColor]">{{ req.statusLabel }}</span>
+                    </div>
+                  </td>
+
+                  <td class="px-3 py-3 whitespace-nowrap text-right pr-4" @click.stop>
+                    <div class="flex items-center justify-end gap-1">
+                      <button 
+                        v-if="req.status === 'pending'"
+                        @click="quickApprove(req)" 
+                        class="h-7 px-2.5 rounded-lg bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-[11px] font-semibold flex items-center gap-1 shadow-2xs transition cursor-pointer"
+                        title="Quick Authorize"
+                      >
+                        <span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
+                        <span>Approve</span>
+                      </button>
+                      <button 
+                        @click="activeReq = req"
+                        class="h-7 w-7 rounded-lg bg-white hover:bg-[#FAF7F4] text-[#7D6857] border border-[#E9E3DD] flex items-center justify-center transition cursor-pointer"
+                        title="Inspect in side panel"
+                      >
+                        <span class="iconify text-xs" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table Footer -->
+          <div class="p-2.5 bg-[#FAF7F5] border-t border-[#E9E3DD] flex items-center justify-between text-xs text-[#6F5849] shrink-0">
+            <span>{{ filteredRequests.length }} requests in queue</span>
+            <span class="text-[11px] text-[#7D6857]">Click any row to inspect details & conflict graph</span>
+          </div>
+
+        </div>
+
+        <!-- RIGHT: Instant Decision & Conflict Inspection Drawer (4 Cols) -->
+        <div class="lg:col-span-4 flex flex-col bg-white rounded-2xl border border-[#E9E3DD] shadow-xs overflow-hidden min-h-0">
+          
+          <!-- Panel Header -->
+          <div class="p-4 border-b border-[#E9E3DD] bg-[#FAF7F5] flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#991B1B]"></span>
+              <h3 class="font-heading font-bold text-sm text-[#3E2B1E]">Inspection & Review</h3>
+            </div>
+            <span class="font-mono text-xs font-bold text-[#991B1B]">#{{ activeReq.id }}</span>
+          </div>
+
+          <!-- Panel Scrollable Body -->
+          <div class="flex-1 p-4 overflow-y-auto no-scrollbar space-y-4">
+            
+            <!-- Meeting & Purpose Box -->
+            <div class="space-y-2">
+              <span class="text-[11px] font-semibold text-[#7D6857] uppercase tracking-wider block">Meeting Purpose</span>
+              <h4 class="font-heading font-bold text-base text-[#3E2B1E] leading-tight">{{ activeReq.title }}</h4>
+              <p class="text-xs text-[#6F5849] bg-[#FAF7F4] p-3 rounded-xl border border-[#E9E3DD] leading-relaxed">
+                {{ activeReq.justification }}
+              </p>
+            </div>
+
+            <!-- Conflict Banner Alert if Overlap -->
+            <div v-if="activeReq.status === 'conflict'" class="p-3 rounded-xl bg-red-50 border border-red-200 text-xs space-y-1 text-red-950">
+              <div class="flex items-center gap-1.5 font-bold text-red-900">
+                <span class="iconify text-sm" data-icon="lucide:alert-circle" data-stroke-width="2"></span>
+                <span>Direct Schedule Overlap Detected</span>
+              </div>
+              <p class="text-[11px] text-red-800 leading-snug">
+                Overlaps with <strong>"Internal Liquidity Audit Review"</strong> scheduled on this room from 14:30 – 16:30.
+              </p>
+            </div>
+
+            <!-- Requester Profile -->
+            <div class="p-3 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] flex items-center gap-3">
+              <img :src="activeReq.avatar" class="w-10 h-10 rounded-full object-cover border border-[#E9E3DD]" />
+              <div class="min-w-0">
+                <strong class="text-xs font-bold text-[#3E2B1E] block truncate">{{ activeReq.requester }}</strong>
+                <span class="text-[11px] text-[#6F5849] block truncate">{{ activeReq.dept }}</span>
+                <span class="text-[10px] text-stone-400 block mt-0.5">Submitted {{ activeReq.submittedAgo }}</span>
+              </div>
+            </div>
+
+            <!-- Room & Schedule Specs -->
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD]">
+                <span class="text-[10px] font-semibold text-[#7D6857] block">Boardroom</span>
+                <strong class="text-xs font-bold text-[#3E2B1E] block mt-0.5 truncate">{{ activeReq.roomName.split(' - ')[0] }}</strong>
+                <span class="text-[10px] text-[#7D6857] block">{{ activeReq.floor }}</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD]">
+                <span class="text-[10px] font-semibold text-[#7D6857] block">Time Slot</span>
+                <strong class="text-xs font-bold text-[#3E2B1E] block mt-0.5 font-mono">{{ activeReq.time }}</strong>
+                <span class="text-[10px] text-[#7D6857] block">{{ activeReq.date }}</span>
+              </div>
+            </div>
+
+            <!-- Services Checklist -->
+            <div class="space-y-1.5">
+              <span class="text-[11px] font-semibold text-[#7D6857] uppercase tracking-wider block">Requested Hardware & Amenities</span>
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded-lg text-xs font-medium border border-[#E9E3DD] flex items-center gap-1 bg-white">
+                  <span class="iconify text-amber-700" data-icon="lucide:coffee"></span>
+                  <span>{{ activeReq.needsCatering ? 'Coffee & Refreshments' : 'No Catering' }}</span>
+                </span>
+                <span class="px-2.5 py-1 rounded-lg text-xs font-medium border border-[#E9E3DD] flex items-center gap-1 bg-white">
+                  <span class="iconify text-[#991B1B]" data-icon="lucide:headset"></span>
+                  <span>{{ activeReq.needsIT ? 'IT Setup Requested' : 'No IT Rig' }}</span>
+                </span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Decision Action Footer -->
+          <div class="p-4 border-t border-[#E9E3DD] bg-[#FAF7F5] space-y-2 shrink-0">
+            <template v-if="activeReq.status === 'pending'">
+              <div class="flex items-center gap-2">
+                <button 
+                  @click="quickApprove(activeReq)" 
+                  class="flex-1 h-10 rounded-xl bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer"
+                >
+                  <span class="iconify text-white text-sm" data-icon="lucide:check" data-stroke-width="2.5"></span>
+                  <span>Authorize & Issue Door Pass</span>
+                </button>
+                <button 
+                  @click="quickReject(activeReq)" 
+                  class="h-10 px-3.5 rounded-xl bg-white hover:bg-stone-50 text-stone-700 border border-stone-200 text-xs font-semibold flex items-center justify-center gap-1 transition cursor-pointer"
+                >
+                  <span>Decline</span>
+                </button>
+              </div>
+            </template>
+            <template v-else-if="activeReq.status === 'conflict'">
+              <button 
+                @click="alert('Propose Alternate Time to Requester')" 
+                class="w-full h-10 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer"
+              >
+                <span class="iconify text-white text-sm" data-icon="lucide:calendar-clock" data-stroke-width="2"></span>
+                <span>Propose Alternate Slot</span>
+              </button>
+            </template>
+            <template v-else>
+              <div class="text-center py-2 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-xl border border-emerald-200">
+                Decision Recorded: {{ activeReq.statusLabel }}
+              </div>
+            </template>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        const sampleRequests = [
+          {
+            id: 'REQ-2026-088',
+            title: 'Executive Board Monetary Policy Briefing',
+            requester: 'Dr. Jonathan Vance',
+            dept: 'Board & Executive Office',
+            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face',
+            roomName: 'ទន្លេមេគង្គ - Mekong River',
+            floor: 'Level 18',
+            capacity: 28,
+            date: 'Today, 17 Sep',
+            time: '10:00 – 11:30',
+            duration: '90 mins',
+            attendees: 18,
+            needsCatering: true,
+            needsIT: true,
+            justification: 'Critical review of foreign exchange reserve deployment and regional currency swap arrangements with executive board governors.',
+            status: 'pending',
+            statusLabel: 'Pending Review',
+            statusColor: 'bg-amber-500',
+            statusTextColor: 'text-amber-700',
+            submittedAgo: '12m ago'
+          },
+          {
+            id: 'REQ-2026-092',
+            title: 'Banking Supervision Committee Review',
+            requester: 'Sokha Mean',
+            dept: 'Banking Supervision',
+            avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+            roomName: 'ទន្លេបាសាក់ - Bassac River',
+            floor: 'Level 15',
+            capacity: 16,
+            date: 'Today, 17 Sep',
+            time: '14:00 – 16:00',
+            duration: '120 mins',
+            attendees: 14,
+            needsCatering: false,
+            needsIT: true,
+            justification: 'Quarterly statutory capital compliance audit with commercial bank risk directors.',
+            status: 'conflict',
+            statusLabel: 'Time Conflict',
+            statusColor: 'bg-red-500',
+            statusTextColor: 'text-red-700',
+            submittedAgo: '35m ago'
+          },
+          {
+            id: 'REQ-2026-079',
+            title: 'FinTech Innovation & Bakong Gateway',
+            requester: 'Kosal Vichea',
+            dept: 'Information Technology',
+            avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face',
+            roomName: 'ទន្លេសេកុង - Sekong River',
+            floor: 'Level 18',
+            capacity: 60,
+            date: 'Tomorrow, 18 Sep',
+            time: '09:00 – 10:30',
+            duration: '90 mins',
+            attendees: 35,
+            needsCatering: true,
+            needsIT: true,
+            justification: 'Live demonstration of cross-border QR interoperability with international settlement partners.',
+            status: 'approved',
+            statusLabel: 'Approved',
+            statusColor: 'bg-emerald-600',
+            statusTextColor: 'text-emerald-700',
+            submittedAgo: '2h ago'
+          },
+          {
+            id: 'REQ-2026-084',
+            title: 'Macroeconomic Research Roundtable',
+            requester: 'Sreypov Chhim',
+            dept: 'Economic Research',
+            avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face',
+            roomName: 'ទន្លេមេគង្គ - Mekong River',
+            floor: 'Level 18',
+            capacity: 28,
+            date: 'Tomorrow, 18 Sep',
+            time: '14:00 – 15:30',
+            duration: '90 mins',
+            attendees: 20,
+            needsCatering: false,
+            needsIT: true,
+            justification: 'Econometric forecast model calibration ahead of quarterly inflation report.',
+            status: 'pending',
+            statusLabel: 'Pending Review',
+            statusColor: 'bg-amber-500',
+            statusTextColor: 'text-amber-700',
+            submittedAgo: '3h ago'
+          }
+        ];
+
+        return {
+          searchTerm: '',
+          statusFilter: 'all',
+          requests: sampleRequests,
+          activeReq: sampleRequests[0]
+        };
+      },
+      computed: {
+        countPending() {
+          return this.requests.filter(r => r.status === 'pending').length;
+        },
+        countConflict() {
+          return this.requests.filter(r => r.status === 'conflict').length;
+        },
+        filteredRequests() {
+          return this.requests.filter(r => {
+            if (this.statusFilter !== 'all' && r.status !== this.statusFilter) return false;
+            if (this.searchTerm) {
+              const q = this.searchTerm.toLowerCase();
+              return r.id.toLowerCase().includes(q) ||
+                     r.title.toLowerCase().includes(q) ||
+                     r.requester.toLowerCase().includes(q);
+            }
+            return true;
+          });
+        }
+      },
+      methods: {
+        quickApprove(req) {
+          req.status = 'approved';
+          req.statusLabel = 'Approved';
+          req.statusColor = 'bg-emerald-600';
+          req.statusTextColor = 'text-emerald-700';
+        },
+        quickReject(req) {
+          req.status = 'rejected';
+          req.statusLabel = 'Rejected';
+          req.statusColor = 'bg-stone-400';
+          req.statusTextColor = 'text-stone-500';
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

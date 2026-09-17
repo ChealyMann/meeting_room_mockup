@@ -54,6 +54,48 @@ h1, h2, h3, h4, .font-heading {
   font-family: 'JetBrains Mono', monospace;
 }
 
+/* Shared page navigation treatment */
+.page-back-button {
+  height: 2rem;
+  min-height: 2rem;
+  padding: 0 .75rem;
+  border-radius: .375rem;
+  background: #FFFFFF;
+  border: 1px solid #E9E3DD;
+  color: #57534E;
+  font-family: 'Poppins', 'Kantumruy Pro', sans-serif;
+  font-size: 13px;
+  line-height: 1.25;
+  font-weight: 500;
+}
+
+.page-back-button:hover {
+  background: #F4EFEA;
+  color: #3E2B1E;
+}
+
+.page-back-button .iconify {
+  color: #A8A29E;
+  font-size: 14px;
+}
+
+.page-breadcrumb {
+  color: #78716C;
+  font-family: 'Poppins', 'Kantumruy Pro', sans-serif;
+  font-size: 13px;
+  line-height: 1.25;
+  font-weight: 500;
+}
+
+.page-breadcrumb .breadcrumb-separator {
+  color: #A8A29E;
+}
+
+.page-breadcrumb .breadcrumb-current {
+  color: #3E2B1E;
+  font-weight: 600;
+}
+
 /* NBC Crimson Radio and Native Checkbox Accent */
 input[type="radio"] {
   accent-color: #991B1B;
@@ -900,7 +942,20 @@ select.bank-input {
 /*                     PRINTABLE OFFICIAL RECEIPT                   */
 /* ================================================================ */
 
+@page {
+  size: A4 portrait;
+  margin: 10mm;
+}
+
 @media print {
+  html,
+  body {
+    width: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
   body {
     background-color: white !important;
     color: #1C1917 !important;
@@ -911,16 +966,145 @@ select.bank-input {
   #receipt-printable-area, #receipt-printable-area * {
     visibility: visible;
   }
-  #receipt-printable-area {
+  #app-content-wrapper,
+  #app-main,
+  #view-receipt,
+  #view-receipt > .flex-1 {
+    height: auto !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  #receipt-printable-area.receipt-print-compact {
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
-    margin: 0;
-    padding: 24px;
+    box-sizing: border-box;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
     background: white !important;
     box-shadow: none !important;
     border: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+  #receipt-printable-area .receipt-print-body {
+    padding: 0 !important;
+    gap: 0 !important;
+    font-size: 9pt !important;
+    line-height: 1.25 !important;
+    height: 277mm !important;
+    min-height: 277mm !important;
+    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #receipt-printable-area .receipt-print-body > * {
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+  #receipt-printable-area .receipt-print-body > * + * {
+    margin-top: 2mm !important;
+  }
+  #receipt-printable-area header,
+  #receipt-printable-area .receipt-print-meta,
+  #receipt-printable-area footer {
+    flex: 0 0 auto !important;
+  }
+  #receipt-printable-area .receipt-print-meta {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+  #receipt-printable-area .receipt-print-meta .receipt-print-meta-card {
+    padding: 3.5mm !important;
+  }
+  #receipt-printable-area .receipt-print-layout {
+    grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+    grid-template-rows: minmax(0, 1.45fr) minmax(0, .8fr) minmax(0, 1fr) !important;
+    gap: 3mm !important;
+    align-items: stretch !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+  #receipt-printable-area .receipt-meeting-card {
+    grid-column: 1 / span 7 !important;
+  }
+  #receipt-printable-area .receipt-door-card {
+    grid-column: 8 / span 5 !important;
+  }
+  #receipt-printable-area .receipt-record-card {
+    grid-column: 1 / -1 !important;
+  }
+  #receipt-printable-area .receipt-record-card > .grid {
+    grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+    height: 100% !important;
+  }
+  #receipt-printable-area .receipt-room-panel {
+    grid-column: 1 / span 7 !important;
+  }
+  #receipt-printable-area .receipt-auth-panel {
+    grid-column: 8 / span 5 !important;
+    border-top: 0 !important;
+    border-left: 1px solid #E9E3DD !important;
+  }
+  #receipt-printable-area .receipt-services-card {
+    grid-column: 1 / -1 !important;
+  }
+  #receipt-printable-area .receipt-services-card > .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    column-gap: 3mm !important;
+  }
+  #receipt-printable-area .receipt-print-layout > section,
+  #receipt-printable-area footer {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  #receipt-printable-area .receipt-print-layout > section {
+    height: 100% !important;
+  }
+  #receipt-printable-area .receipt-meeting-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  #receipt-printable-area header {
+    padding-bottom: 4mm !important;
+  }
+  #receipt-printable-area .p-3,
+  #receipt-printable-area .p-3\.5,
+  #receipt-printable-area .p-4,
+  #receipt-printable-area .p-4\.5,
+  #receipt-printable-area .p-5,
+  #receipt-printable-area .p-6,
+  #receipt-printable-area .p-7,
+  #receipt-printable-area .p-8 {
+    padding: 2.5mm !important;
+  }
+  #receipt-printable-area .space-y-5 > * + *,
+  #receipt-printable-area .space-y-6 > * + * {
+    margin-top: 2mm !important;
+  }
+  #receipt-printable-area .mt-3,
+  #receipt-printable-area .mt-4 {
+    margin-top: 2mm !important;
+  }
+  #receipt-printable-area .py-3\.5 {
+    padding-top: 2mm !important;
+    padding-bottom: 2mm !important;
+  }
+  #receipt-printable-area .h-20 {
+    height: 16mm !important;
+    width: 16mm !important;
+  }
+  #receipt-printable-area .w-14,
+  #receipt-printable-area .h-14 {
+    width: 13mm !important;
+    height: 13mm !important;
   }
   .no-print {
     display: none !important;
@@ -1586,7 +1770,83 @@ input[type="datetime-local"].bank-input::-webkit-calendar-picker-indicator:hover
   }
 }
 
+/* ================================================================ */
+/*       MY BOOKINGS RESPONSIVE CARDS GRID (1 CARD ON ALL IPADS)    */
+/* ================================================================ */
+/* Enforce single-column layout on all iPads and tablets (<1400px)
+   including iPad Pro 12.9 landscape (1366px), switching to 2 columns
+   strictly on large desktop screens (>=1400px). */
+.my-bookings-cards-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 0.875rem !important;
+  width: 100% !important;
+}
 
+@media (min-width: 1400px) {
+  .my-bookings-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
 
+/* ================================================================ */
+/*       OPTION 4: MODERN EXECUTIVE STUDIO DECK (ROOM DETAILS)       */
+/* ================================================================ */
+.day-glider-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background-color: #FAF7F4;
+  border-radius: 0.75rem;
+  border: 1px solid #E9E3DD;
+  user-select: none;
+}
+.day-pill-btn {
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: #6F5849;
+  transition: all 0.15s ease;
+}
+.day-pill-btn:hover:not(.active) {
+  color: #1C1917;
+  background-color: #F4EFEA;
+}
+.day-pill-btn.active {
+  background-color: #991B1B;
+  color: #FFFFFF;
+  box-shadow: 0 1px 4px rgba(153, 27, 27, 0.25);
+}
+
+.time-slot-card {
+  padding: 0.75rem 1rem;
+  border-radius: 0.875rem;
+  background-color: #FFFFFF;
+  border: 1px solid #E9E3DD;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  user-select: none;
+}
+.time-slot-card:hover:not(.occupied) {
+  border-color: #991B1B;
+  background-color: #FAF7F4;
+  transform: translateY(-1px);
+}
+.time-slot-card.selected {
+  background-color: #FEF2F2;
+  border-color: #991B1B;
+  box-shadow: 0 2px 8px rgba(153, 27, 27, 0.15);
+}
+.time-slot-card.occupied {
+  background-color: #FAF7F4;
+  border-color: #E9E3DD;
+  opacity: 0.55;
+  cursor: not-allowed;
+}
 
 
