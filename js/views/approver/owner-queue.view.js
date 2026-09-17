@@ -1959,27 +1959,17 @@ class RoomOwnerQueueView {
 
           <!-- 3. PRIVATE ROOM -->
           <td class="px-4 py-3.5 whitespace-nowrap">
-            <div class="flex items-center space-x-2.5">
-              <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                <span class="iconify text-sm text-blue-600" data-icon="lucide:door-closed" data-stroke-width="2"></span>
-              </div>
-              <div class="min-w-0">
-                <span class="font-semibold text-xs text-stone-900 block truncate leading-tight">${roomShort}</span>
-                <span class="text-[11px] text-stone-400 block truncate mt-0.5 leading-tight">${roomFloor}</span>
-              </div>
+            <div class="min-w-0">
+              <span class="font-semibold text-xs text-stone-900 block truncate leading-tight">${roomShort}</span>
+              <span class="text-[11px] text-stone-400 block truncate mt-0.5 leading-tight">${roomFloor}</span>
             </div>
           </td>
 
           <!-- 4. SCHEDULE -->
           <td class="px-4 py-3.5 whitespace-nowrap">
-            <div class="flex items-center space-x-2.5">
-              <div class="w-7 h-7 rounded-lg bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
-                <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:calendar" data-stroke-width="2"></span>
-              </div>
-              <div class="min-w-0">
-                <span class="font-semibold text-xs text-stone-900 block truncate leading-tight">${formattedDate}</span>
-                <span class="text-[11px] text-stone-500 font-mono block mt-0.5 leading-tight">${timeRange}</span>
-              </div>
+            <div class="min-w-0">
+              <span class="font-semibold text-xs text-stone-900 block truncate leading-tight">${formattedDate}</span>
+              <span class="text-[11px] text-stone-500 font-mono block mt-0.5 leading-tight">${timeRange}</span>
             </div>
           </td>
 

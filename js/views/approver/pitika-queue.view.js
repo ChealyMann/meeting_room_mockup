@@ -183,7 +183,7 @@ class PitikaQueueView {
   render(container) {
     if (!container) return;
     container.innerHTML = `
-      <div id="view-pitika-queue-content" class="w-full h-[calc(100dvh-112px)] flex flex-col space-y-2.5 min-h-0">
+      <div id="view-pitika-queue-content" class="w-full h-[calc(100dvh-140px)] flex flex-col space-y-2.5 min-h-0">
         ${this.template}
       </div>
     `;
