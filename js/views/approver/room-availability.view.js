@@ -24,9 +24,9 @@ class RoomAvailabilityView {
       }
     };
 
-    // Timeline configuration (08:00 to 17:00 = 9 hours = 540 mins)
-    this.timelineStartHour = 8;
-    this.timelineEndHour = 17;
+    // Timeline configuration (07:00 to 18:00 = 11 hours = 660 mins)
+    this.timelineStartHour = 7;
+    this.timelineEndHour = 18;
     this.timelineTotalMinutes = (this.timelineEndHour - this.timelineStartHour) * 60;
   }
 
@@ -311,6 +311,7 @@ class RoomAvailabilityView {
                 <th class="py-3 px-3 w-36 min-w-[130px] bg-stone-50">Type</th>
                 <th class="py-3 px-2 w-[calc(100%-414px)] min-w-[600px] bg-stone-50">
                   <div class="flex justify-between font-mono text-[11px] text-stone-500 font-semibold px-2 select-none">
+                    <span>07:00</span>
                     <span>08:00</span>
                     <span>09:00</span>
                     <span>10:00</span>
@@ -321,6 +322,7 @@ class RoomAvailabilityView {
                     <span>15:00</span>
                     <span>16:00</span>
                     <span>17:00</span>
+                    <span>18:00</span>
                   </div>
                 </th>
               </tr>
@@ -505,8 +507,10 @@ class RoomAvailabilityView {
           <!-- Timeline Track -->
           <td class="py-3.5 px-2">
             <div class="relative w-full h-11 bg-stone-50/40 rounded-lg border border-stone-100 overflow-hidden flex items-center">
-              <!-- 9 Column Hour Grid Guide Lines (08:00 - 17:00) -->
-              <div class="absolute inset-0 grid grid-cols-9 pointer-events-none">
+              <!-- 11 Column Hour Grid Guide Lines (07:00 - 18:00) -->
+              <div class="absolute inset-0 grid grid-cols-11 pointer-events-none">
+                <div class="border-r border-stone-200/60"></div>
+                <div class="border-r border-stone-200/60"></div>
                 <div class="border-r border-stone-200/60"></div>
                 <div class="border-r border-stone-200/60"></div>
                 <div class="border-r border-stone-200/60"></div>
@@ -530,9 +534,9 @@ class RoomAvailabilityView {
   }
 
   _timeToMinutes(timeStr) {
-    if (!timeStr) return 480;
+    if (!timeStr) return 420;
     const parts = timeStr.split(':');
-    const h = parseInt(parts[0], 10) || 8;
+    const h = parseInt(parts[0], 10) || 7;
     const m = parseInt(parts[1], 10) || 0;
     return h * 60 + m;
   }

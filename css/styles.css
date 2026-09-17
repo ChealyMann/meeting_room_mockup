@@ -23,13 +23,25 @@
   --brand-gold-light: #FEF3C7;
 }
 
-/* Prevent horizontal page shifts when vertical scrollbar appears or disappears */
-html {
-  scrollbar-gutter: stable;
+/* Sleek hidden scrollbars & full viewport lock (Strict No Full-Page Vertical Scroll Mandate) */
+html, body {
+  height: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
-#app-content-wrapper {
-  scrollbar-gutter: stable;
+/* Hide scrollbar for Chrome, Safari, Edge, Firefox while preserving smooth trackpad/wheel scrolling */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0px !important;
+  height: 0px !important;
+  background: transparent !important;
+}
+
+* {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
 }
 
 body {
@@ -716,10 +728,12 @@ select.bank-input {
 /* ================================================================ */
 
 .room-card-hover {
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 .room-card-hover:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px) translateZ(0);
   border-color: #C8B8A8 !important;
   box-shadow: 0 8px 24px -4px rgba(42, 8, 8, 0.1), 0 2px 6px -1px rgba(42, 8, 8, 0.05);
 }
@@ -804,14 +818,17 @@ select.bank-input {
 /* Distinct Private Room Card Theming (Rich Gold / Amber vs Public Crisp White) */
 .private-room-card {
   background: linear-gradient(180deg, #FFFDF8 0%, #FEF9EE 100%);
-  border: 2.5px solid #F59E0B !important;
-  box-shadow: 0 6px 22px -2px rgba(217, 119, 6, 0.16), 0 2px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 2px solid #F59E0B !important;
+  box-shadow: 0 6px 20px -2px rgba(217, 119, 6, 0.14), 0 2px 6px -1px rgba(0, 0, 0, 0.05);
   position: relative;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 .private-room-card:hover {
   border-color: #D97706 !important;
-  box-shadow: 0 12px 28px -3px rgba(217, 119, 6, 0.25), 0 4px 10px -2px rgba(0, 0, 0, 0.08);
-  transform: translateY(-3px);
+  box-shadow: 0 10px 24px -3px rgba(217, 119, 6, 0.22), 0 4px 8px -2px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px) translateZ(0);
 }
 .private-room-header-strip {
   background: linear-gradient(90deg, #2D0808 0%, #451A03 50%, #2D0808 100%);
@@ -823,11 +840,14 @@ select.bank-input {
   border: 2px solid #EF4444 !important;
   box-shadow: 0 4px 16px -2px rgba(239, 68, 68, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.05);
   position: relative;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 .other-private-room-card:hover {
   border-color: #DC2626 !important;
-  box-shadow: 0 10px 24px -3px rgba(239, 68, 68, 0.22), 0 4px 10px -2px rgba(0, 0, 0, 0.08);
-  transform: translateY(-3px);
+  box-shadow: 0 10px 22px -3px rgba(239, 68, 68, 0.2), 0 4px 8px -2px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px) translateZ(0);
 }
 
 /* ================================================================ */
@@ -1032,26 +1052,11 @@ select.bank-input {
   color: #6F5849 !important;
 }
 
-.nbc-calendar-container .fc-timegrid-event {
-  border-radius: 8px !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08) !important;
-  padding: 0 !important;
-  border: none !important;
-  cursor: pointer;
-  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden !important;
-  left: 4px !important;
-  right: 4px !important;
-  width: calc(100% - 8px) !important;
-  margin-top: 2.5px !important;
-  margin-bottom: 2.5px !important;
-}
-
-/* Event Container & Harness Full-Width Overrides (Removes 20px overlap margin & 2.5% column gap) */
+/* Event Container & Harness Full-Width Overrides (Clean event positioning within day columns) */
 .nbc-calendar-container .fc-direction-ltr .fc-timegrid-col-events,
 .nbc-calendar-container .fc-direction-rtl .fc-timegrid-col-events,
 .nbc-calendar-container .fc-timegrid-col-events {
-  margin: 0 2px !important;
+  margin: 0 1px !important;
   left: 0 !important;
   right: 0 !important;
 }
@@ -1063,18 +1068,21 @@ select.bank-input {
   left: 0 !important;
 }
 
-.nbc-calendar-container .fc-timegrid-event-harness-inset {
-  margin-right: 0 !important;
-  margin-left: 0 !important;
+.nbc-calendar-container .fc-timegrid-event {
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+  padding: 0 !important;
+  border: none !important;
+  cursor: pointer;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden !important;
 }
 
 .nbc-calendar-container .fc-timegrid-event-harness > .fc-timegrid-event {
-  left: 4px !important;
-  right: 4px !important;
-  width: calc(100% - 8px) !important;
-  margin-top: 2.5px !important;
-  margin-bottom: 2.5px !important;
-  border-radius: 8px !important;
+  left: 2px !important;
+  right: 2px !important;
+  width: calc(100% - 4px) !important;
+  border-radius: 6px !important;
 }
 
 .nbc-calendar-container .fc-timegrid-event:hover {
@@ -1129,11 +1137,13 @@ select.bank-input {
   box-shadow: 0 2px 8px rgba(153, 27, 27, 0.25) !important;
   color: #FFFFFF !important;
   opacity: 1 !important;
-  z-index: 30 !important;
+  z-index: 20 !important;
   border-radius: 6px !important;
   user-select: none !important;
   -webkit-user-select: none !important;
   cursor: grab !important;
+  box-sizing: border-box !important;
+  max-width: 100% !important;
 }
 
 .fc-event-selected-slot:active,
@@ -1435,11 +1445,35 @@ select.bank-input {
 }
 
 .catalog-view-container {
+  position: relative;
+  z-index: 1;
   animation: smoothFadeIn 0.18s ease-out forwards;
 }
 
 .catalog-room-card {
+  position: relative;
+  z-index: 1;
   animation: smoothFadeIn 0.18s ease-out forwards;
+}
+
+/* Sticky Catalog Search & Filter Navbar */
+.sticky-catalog-navbar {
+  position: sticky !important;
+  top: 44px !important;
+  z-index: 40 !important;
+  background-color: #F9F7F5 !important;
+}
+
+@media (min-width: 640px) {
+  .sticky-catalog-navbar {
+    top: 56px !important;
+  }
+}
+
+#app-topbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
 }
 
 .animate-empty-state {

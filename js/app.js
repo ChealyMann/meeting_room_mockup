@@ -234,10 +234,12 @@ class BankBookingApp {
       console.warn(`View '${viewId}' not registered in window.NBC.views`);
     }
 
-    window.scrollTo(0, 0);
     const contentWrapper = document.getElementById('app-content-wrapper');
     if (contentWrapper) {
       contentWrapper.scrollTop = 0;
+    }
+    if (typeof window.scrollTo === 'function') {
+      try { window.scrollTo(0, 0); } catch (_) {}
     }
   }
 

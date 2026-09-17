@@ -941,13 +941,13 @@ class CreateRoomView {
     });
 
     const nameInput = document.getElementById('cr-name');
-    if (nameInput && !nameInput.dataset.boundPreview) {
-      nameInput.dataset.boundPreview = 'true';
+    if (nameInput && !(nameInput.dataset && nameInput.dataset.boundPreview)) {
+      if (nameInput.dataset) nameInput.dataset.boundPreview = 'true';
       nameInput.addEventListener('input', () => this.updateCreateRoomImagePreview());
     }
     const capInput = document.getElementById('cr-capacity');
-    if (capInput && !capInput.dataset.boundPreview) {
-      capInput.dataset.boundPreview = 'true';
+    if (capInput && !(capInput.dataset && capInput.dataset.boundPreview)) {
+      if (capInput.dataset) capInput.dataset.boundPreview = 'true';
       capInput.addEventListener('input', () => this.updateCreateRoomImagePreview());
     }
 
@@ -1181,25 +1181,26 @@ class CreateRoomView {
     const capInput = document.getElementById('cr-capacity');
 
     if (previewImg && urlInput) {
-      const url = urlInput.value.trim();
+      const url = (urlInput.value || '').trim();
       if (url) {
         previewImg.src = url;
       }
     }
     if (titleEl) {
-      titleEl.innerText = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : "New Meeting Room";
+      const nameVal = (nameInput && nameInput.value) ? nameInput.value.trim() : "";
+      titleEl.innerText = nameVal || "New Meeting Room";
     }
     if (deptEl) {
-      const provVal = provInput ? provInput.value.trim() : "Phnom Penh";
-      const locVal = locInput ? locInput.value.trim() : "";
+      const provVal = (provInput && provInput.value) ? provInput.value.trim() : "Phnom Penh";
+      const locVal = (locInput && locInput.value) ? locInput.value.trim() : "";
       const isPrivate = !!document.getElementById('cr-is-private')?.checked;
-      const deptVal = (isPrivate && deptInput) ? deptInput.value.trim() : "";
+      const deptVal = (isPrivate && deptInput && deptInput.value) ? deptInput.value.trim() : "";
       const shortLoc = locVal ? locVal.split('(')[0].trim() : provVal;
       const shortDept = deptVal ? deptVal.split('(')[0].trim() : (isPrivate ? "Executive Office" : "Public Facilities");
       deptEl.innerText = `${shortLoc} • ${shortDept}`;
     }
     if (capEl) {
-      const capVal = capInput ? capInput.value : "16";
+      const capVal = (capInput && capInput.value) ? capInput.value.trim() : "16";
       capEl.innerText = `${capVal || 16} Seats`;
     }
 
@@ -1215,8 +1216,8 @@ class CreateRoomView {
     const mapAddress = document.getElementById('cr-map-preview-address');
     const mapLink = document.getElementById('cr-map-preview-link');
     if (mapIframe || mapAddress || mapLink) {
-      const pVal = (provInput && provInput.value.trim()) || 'Phnom Penh';
-      const lVal = (locInput && locInput.value.trim()) || '';
+      const pVal = (provInput && provInput.value ? provInput.value.trim() : '') || 'Phnom Penh';
+      const lVal = (locInput && locInput.value ? locInput.value.trim() : '') || '';
       const dummyRoom = { province: pVal, location: lVal, branch: pVal };
       const mapInfo = (typeof bookingStore !== 'undefined' && bookingStore.getRoomMapDetails)
         ? bookingStore.getRoomMapDetails(dummyRoom)

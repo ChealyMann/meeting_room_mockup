@@ -21,7 +21,7 @@ class PitikaQueueView {
         .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
       </style>
       <!-- Executive Queue Header -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b border-[#E9E3DD]">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b border-[#E9E3DD] shrink-0">
         <div>
           <h2 class="font-heading font-bold text-xl text-stone-900 leading-tight">Manager Review Requests</h2>
         </div>
@@ -40,7 +40,7 @@ class PitikaQueueView {
       </div>
 
       <!-- Executive KPI Overview Strip (Interactive Filter Shortcuts) -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pb-3 border-b border-[#E9E3DD]">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pb-3 border-b border-[#E9E3DD] shrink-0">
         <!-- Metric 1: Pending Review -->
         <div onclick="app.filterApproverRequests('pending')" title="Filter by Pending Review" class="bg-white px-4 py-3.5 rounded-xl border border-[#E9E3DD] hover:border-amber-400 hover:shadow-xs transition flex items-center space-x-3.5 shadow-2xs cursor-pointer select-none">
           <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
@@ -99,7 +99,7 @@ class PitikaQueueView {
       </div>
 
       <!-- Productivity Filter Bar (Organized 12-Column Responsive Grid) -->
-      <div class="grid grid-cols-2 sm:grid-cols-6 lg:grid-cols-12 gap-2.5 w-full items-center">
+      <div class="grid grid-cols-2 sm:grid-cols-6 lg:grid-cols-12 gap-2.5 w-full items-center shrink-0">
         <!-- Search (Col span 3) -->
         <div class="col-span-2 sm:col-span-6 lg:col-span-3 relative w-full">
           <span class="iconify absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 text-xs pointer-events-none" data-icon="lucide:search" data-stroke-width="2"></span>
@@ -183,7 +183,7 @@ class PitikaQueueView {
   render(container) {
     if (!container) return;
     container.innerHTML = `
-      <div id="view-pitika-queue-content" class="w-full h-[calc(100dvh-104px)] flex flex-col space-y-2.5 min-h-0">
+      <div id="view-pitika-queue-content" class="w-full h-[calc(100dvh-112px)] flex flex-col space-y-2.5 min-h-0">
         ${this.template}
       </div>
     `;
@@ -361,10 +361,13 @@ class PitikaQueueView {
   }
 
   goToApproverPage(page) {
+    if (page < 0) return;
     this.approverCurrentPage = page;
     this.renderApproverRequests();
-    const listEl = document.getElementById('view-approver-requests-list');
-    if (listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const scrollableEl = document.querySelector('#view-approver-requests-list .overflow-y-auto');
+    if (scrollableEl) {
+      scrollableEl.scrollTop = 0;
+    }
   }
 
   renderApproverRequests() {
@@ -504,23 +507,7 @@ class PitikaQueueView {
     // RENDER MODE A: EXECUTIVE DATA TABLE (Clean & Minimal - No Clutter)
     // =========================================================================
     if (this.approverViewMode === 'table') {
-      let tableHtml = `
-        <div class="approver-table-wrapper">
-          <table class="approver-table">
-            <thead>
-              <tr>
-                <th class="min-w-[130px]">Meeting ID</th>
-                <th class="min-w-[140px]">Requester</th>
-                <th class="min-w-[140px]">Room</th>
-                <th class="min-w-[180px]">Schedule</th>
-                <th class="min-w-[110px]">Status</th>
-                <th class="min-w-[110px] text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
-
-      tableHtml += paginatedItems.map(req => {
+      let tableRowsHtml = paginatedItems.map(req => {
         const isPending = req.status === 'Pending Review' || req.status === 'Pending Manager Review';
         const isOwnerPending = req.status === 'Pending Room Owner Approval';
         const isSetup = req.status === 'Approved - Setup In Progress';
@@ -565,34 +552,34 @@ class PitikaQueueView {
 
         return `
           <!-- Main Clean Table Row -->
-          <tr class="${rowClass}">
+          <tr class="${rowClass} h-[52px]">
             
             <!-- 1. Meeting ID (Clean & Clickable to Review Workspace) -->
-            <td>
+            <td class="px-4 py-3 whitespace-nowrap">
               <div class="flex items-center space-x-2">
                 ${isPrivate ? `
                   <span class="${isPassed ? 'text-stone-400' : 'text-amber-600'} shrink-0" title="Private Executive Room">
                     <span class="iconify text-sm" data-icon="lucide:lock"></span>
                   </span>
                 ` : ''}
-                <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="font-mono font-bold text-xs ${isPassed ? 'text-stone-600' : 'text-stone-900'} hover:text-red-900 transition underline-offset-2 hover:underline inline-flex items-center" title="Click to view details in Review Workspace">
+                <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="font-mono font-bold text-xs ${isPassed ? 'text-stone-600' : 'text-stone-900'} hover:text-red-900 transition underline-offset-2 hover:underline inline-flex items-center cursor-pointer" title="Click to view details in Review Workspace">
                   ${req.id}
                 </button>
               </div>
             </td>
 
             <!-- 2. Requester (Name only) -->
-            <td>
+            <td class="px-4 py-3 whitespace-nowrap">
               <span class="${isPassed ? 'text-stone-600 font-medium' : 'text-stone-800 font-semibold'} text-xs">${req.requester.name}</span>
             </td>
 
             <!-- 3. Room (Room name only) -->
-            <td>
+            <td class="px-4 py-3 whitespace-nowrap">
               <span class="${isPassed ? 'text-stone-600 font-medium' : 'text-stone-800 font-semibold'} text-xs">${req.room.name}</span>
             </td>
 
             <!-- 4. Schedule (Date & Time on 1 clean line) -->
-            <td>
+            <td class="px-4 py-3 whitespace-nowrap">
               ${isPassed ? `
                 <div class="flex items-center space-x-1.5 text-xs whitespace-nowrap text-stone-400">
                   <span class="iconify text-xs text-stone-400 shrink-0" data-icon="lucide:history"></span>
@@ -608,14 +595,14 @@ class PitikaQueueView {
             </td>
 
             <!-- 5. Status -->
-            <td>
+            <td class="px-4 py-3 whitespace-nowrap">
               <span class="px-2.5 py-0.5 rounded text-[11px] font-bold ${statusBadgeClass} inline-flex items-center shadow-2xs whitespace-nowrap">
                 <span>${statusLabel}</span>
               </span>
             </td>
 
             <!-- 6. Action (Review button - click to view details and approve/reject) -->
-            <td class="text-right">
+            <td class="px-4 py-3 whitespace-nowrap text-right pr-6">
               ${isPassed ? `
                 <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" aria-label="View request ${req.id}" class="min-h-[30px] w-[76px] py-1 rounded-md text-xs font-semibold bg-white hover:bg-stone-100 text-stone-600 border border-[#E9E3DD] shadow-2xs transition inline-flex items-center justify-center space-x-1.5 cursor-pointer">
                   <span class="iconify text-xs text-stone-400" data-icon="lucide:eye" data-stroke-width="1.8"></span>
@@ -632,16 +619,32 @@ class PitikaQueueView {
         `;
       }).join('');
 
-      tableHtml += `
-            </tbody>
-          </table>
+      let tableHtml = `
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] overflow-hidden shadow-2xs flex flex-col flex-1 min-h-0">
+          <div class="overflow-x-auto overflow-y-auto flex-1 hide-scrollbar">
+            <table class="w-full min-w-[760px] text-left border-collapse relative">
+              <thead class="bg-[#FAF7F5] border-b border-[#E9E3DD] sticky top-0 z-10 shadow-sm">
+                <tr>
+                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 w-[140px]">MEETING ID</th>
+                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 w-[170px]">REQUESTER</th>
+                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 w-[190px]">ROOM</th>
+                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 w-[210px]">SCHEDULE</th>
+                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 w-[140px]">STATUS</th>
+                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 text-right pr-6 w-[100px]">ACTION</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-stone-100">
+                ${tableRowsHtml}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table Bottom Action & Pagination Bar (Fixed at bottom, matching Private Requests) -->
+          <div class="shrink-0 bg-white relative z-20">
+            ${this._renderTableActionFooter(totalPages, totalItems, startIdx, Math.min(endIdx, totalItems))}
+          </div>
         </div>
       `;
-
-      // Pagination Controls
-      if (totalPages > 1) {
-        tableHtml += this._renderPaginationControls(totalPages, totalItems, startIdx, endIdx);
-      }
 
       container.innerHTML = tableHtml;
       return;
@@ -786,6 +789,42 @@ class PitikaQueueView {
     container.innerHTML = finalHtml;
   }
 
+  _renderTableActionFooter(totalPages, totalItems, startIdx, showingEnd) {
+    const currentPage = this.approverCurrentPage;
+
+    let pageButtons = '';
+    for (let i = 0; i < totalPages; i++) {
+      const isActive = i === currentPage;
+      pageButtons += `
+        <button type="button" onclick="app.goToApproverPage(${i})" class="w-7 h-7 rounded-lg text-xs font-bold ${isActive ? 'bg-[#991B1B] text-white shadow-2xs' : 'text-stone-700 hover:bg-stone-100 cursor-pointer'} flex items-center justify-center transition">
+          ${i + 1}
+        </button>
+      `;
+    }
+
+    return `
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-2.5 bg-white border-t border-[#E9E3DD] h-[52px] shrink-0">
+        <div>
+          <span class="text-xs text-stone-500 font-medium">
+            Showing <strong class="text-stone-800 font-semibold">${startIdx + 1}–${showingEnd}</strong> of <strong class="text-stone-800 font-semibold">${totalItems}</strong> requests
+          </span>
+        </div>
+
+        <div class="flex items-center space-x-1.5">
+          <button type="button" onclick="app.goToApproverPage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''} class="px-2 py-1 text-xs font-medium flex items-center space-x-1 ${currentPage === 0 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-700 hover:text-stone-900 cursor-pointer'}">
+            <span class="iconify text-xs" data-icon="lucide:chevron-left" data-stroke-width="2"></span>
+            <span>Prev</span>
+          </button>
+          ${pageButtons}
+          <button type="button" onclick="app.goToApproverPage(${currentPage + 1})" ${currentPage >= totalPages - 1 ? 'disabled' : ''} class="px-2 py-1 text-xs font-semibold flex items-center space-x-1 ${currentPage >= totalPages - 1 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-800 hover:text-black cursor-pointer'}">
+            <span>Next</span>
+            <span class="iconify text-xs" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
   _renderPaginationControls(totalPages, totalItems, startIdx, endIdx) {
     const currentPage = this.approverCurrentPage;
     const showingEnd = Math.min(endIdx, totalItems);
@@ -793,19 +832,23 @@ class PitikaQueueView {
     let pageButtons = '';
     for (let i = 0; i < totalPages; i++) {
       const isActive = i === currentPage;
-      pageButtons += `<button type="button" onclick="app.goToApproverPage(${i})" class="min-w-[28px] h-7 px-2 rounded-md text-xs font-bold transition-all duration-150 flex items-center justify-center ${isActive ? 'btn-primary shadow-2xs text-white' : 'btn-secondary text-stone-700 shadow-2xs cursor-pointer active:scale-[0.98]'}">${i + 1}</button>`;
+      pageButtons += `
+        <button type="button" onclick="app.goToApproverPage(${i})" class="w-7 h-7 rounded-lg text-xs font-bold ${isActive ? 'bg-[#991B1B] text-white shadow-2xs' : 'text-stone-700 hover:bg-stone-100 cursor-pointer'} flex items-center justify-center transition">
+          ${i + 1}
+        </button>
+      `;
     }
 
     return `
-      <div class="flex items-center justify-between pt-2 mt-0.5">
-        <span class="text-[11px] text-stone-500 font-medium">Showing <strong class="text-stone-800 font-semibold">${startIdx + 1}–${showingEnd}</strong> of <strong class="text-stone-800 font-semibold">${totalItems}</strong> requests</span>
+      <div class="flex items-center justify-between pt-2 mt-0.5 h-[40px] shrink-0">
+        <span class="text-xs text-stone-500 font-medium">Showing <strong class="text-stone-800 font-semibold">${startIdx + 1}–${showingEnd}</strong> of <strong class="text-stone-800 font-semibold">${totalItems}</strong> requests</span>
         <div class="flex items-center space-x-1.5">
-          <button type="button" onclick="app.goToApproverPage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''} aria-label="Previous page" class="btn-secondary h-7 px-2.5 rounded-md text-xs font-medium transition-all duration-150 shadow-2xs flex items-center space-x-1 ${currentPage === 0 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}">
+          <button type="button" onclick="app.goToApproverPage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''} aria-label="Previous page" class="px-2 py-1 text-xs font-medium flex items-center space-x-1 ${currentPage === 0 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-700 hover:text-stone-900 cursor-pointer'}">
             <span class="iconify text-xs" data-icon="lucide:chevron-left" data-stroke-width="2"></span>
             <span>Prev</span>
           </button>
           ${pageButtons}
-          <button type="button" onclick="app.goToApproverPage(${currentPage + 1})" ${currentPage >= totalPages - 1 ? 'disabled' : ''} aria-label="Next page" class="btn-secondary h-7 px-2.5 rounded-md text-xs font-medium transition-all duration-150 shadow-2xs flex items-center space-x-1 ${currentPage >= totalPages - 1 ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}">
+          <button type="button" onclick="app.goToApproverPage(${currentPage + 1})" ${currentPage >= totalPages - 1 ? 'disabled' : ''} aria-label="Next page" class="px-2 py-1 text-xs font-semibold flex items-center space-x-1 ${currentPage >= totalPages - 1 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-800 hover:text-black cursor-pointer'}">
             <span>Next</span>
             <span class="iconify text-xs" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
           </button>
