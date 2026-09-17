@@ -491,8 +491,10 @@ class RoomOwnerQueueView {
     if (page < 0) return;
     this.ownerCurrentPage = page;
     this.renderRoomOwnerRequests();
-    const listEl = document.getElementById('view-owner-requests-list');
-    if (listEl) listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const scrollableEl = document.querySelector('#view-owner-requests-list .overflow-y-auto');
+    if (scrollableEl) {
+      scrollableEl.scrollTop = 0;
+    }
   }
 
   openRoomOwnerReviewWorkspace(requestId) {

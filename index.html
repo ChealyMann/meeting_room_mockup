@@ -11,6 +11,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
+  <!-- Cache Control -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -85,10 +90,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
 
   <!-- Custom Styles and Animations -->
-  <link rel="stylesheet" href="css/styles.css?v=48" />
-  <link rel="stylesheet" href="css/animations.css?v=18" />
+  <link rel="stylesheet" href="css/styles.css?v=54" />
+  <link rel="stylesheet" href="css/animations.css?v=21" />
 </head>
-<body class="bg-[#F9F7F5] text-[#3E2B1E] min-h-screen flex antialiased selection:bg-[#991B1B] selection:text-white">
+<body class="bg-[#F9F7F5] text-[#3E2B1E] h-screen overflow-hidden flex antialiased selection:bg-[#991B1B] selection:text-white">
 
   <!-- Mobile Sidebar Backdrop Overlay -->
   <div id="sidebar-backdrop"></div>
@@ -97,7 +102,7 @@
   <aside id="app-sidebar" tabindex="-1" aria-labelledby="drawer-sidebar-label"></aside>
 
   <!-- Main Content Area -->
-  <div id="app-content-wrapper" class="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#F9F7F5]">
+  <div id="app-content-wrapper" class="h-full flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#F9F7F5]">
     <!-- Topbar Layout Mount -->
     <header id="app-topbar"></header>
 
@@ -115,17 +120,17 @@
 
   <!-- Core Data & Store -->
   <script src="js/data.js?v=20"></script>
-  <script src="js/store.js?v=21"></script>
+  <script src="js/store.js?v=22"></script>
 
   <!-- Layout Partials -->
   <script src="js/layouts/sidebar.js?v=32"></script>
-  <script src="js/layouts/topbar.js?v=30"></script>
+  <script src="js/layouts/topbar.js?v=35"></script>
 
   <script src="js/layouts/toast.js?v=17"></script>
   <script src="js/layouts/modals.js?v=18"></script>
 
   <!-- View Partials: Booker -->
-  <script src="js/views/booker/catalog.view.js?v=43"></script>
+  <script src="js/views/booker/catalog.view.js?v=56"></script>
   <script src="js/views/booker/other-private.view.js?v=18"></script>
   <script src="js/views/booker/booking-form.view.js?v=27"></script>
   <script src="js/views/booker/my-bookings.view.js?v=40"></script>
@@ -134,9 +139,10 @@
   <script src="js/views/booker/room-details.view.js?v=28"></script>
 
   <!-- View Partials: Approver -->
-  <script src="js/views/approver/pitika-queue.view.js?v=18"></script>
+  <script src="js/views/approver/pitika-queue.view.js?v=35"></script>
   <script src="js/views/approver/pitika-review.view.js?v=18"></script>
-  <script src="js/views/approver/owner-queue.view.js?v=25"></script>
+  <script src="js/views/approver/room-availability.view.js?v=13"></script>
+  <script src="js/views/approver/owner-queue.view.js?v=35"></script>
   <script src="js/views/approver/owner-review.view.js?v=46"></script>
 
   <!-- View Partials: IT -->

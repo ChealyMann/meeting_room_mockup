@@ -151,6 +151,10 @@ class BankBookingApp {
         title: 'Review Booking Request',
         sub: 'Step 1: Pitika Review'
       },
+      'room-availability': {
+        title: 'Room Availability',
+        sub: 'View the status of all meeting rooms for today.'
+      },
       'room-owner-queue': {
         title: 'Private Room Requests',
         sub: 'Step 2: Room Owner Review'
@@ -230,10 +234,12 @@ class BankBookingApp {
       console.warn(`View '${viewId}' not registered in window.NBC.views`);
     }
 
-    window.scrollTo(0, 0);
     const contentWrapper = document.getElementById('app-content-wrapper');
     if (contentWrapper) {
       contentWrapper.scrollTop = 0;
+    }
+    if (typeof window.scrollTo === 'function') {
+      try { window.scrollTo(0, 0); } catch (_) {}
     }
   }
 

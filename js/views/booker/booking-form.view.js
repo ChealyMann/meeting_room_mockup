@@ -1578,7 +1578,12 @@ class BookingFormView {
         }
       },
       selectAllow: (selectInfo) => {
-        return selectInfo.start >= new Date();
+        if (selectInfo.start < new Date()) return false;
+        // Strictly prevent multi-day cross-column selection
+        const startDay = `${selectInfo.start.getFullYear()}-${String(selectInfo.start.getMonth() + 1).padStart(2, '0')}-${String(selectInfo.start.getDate()).padStart(2, '0')}`;
+        const endDayObj = new Date(selectInfo.end.getTime() - 1);
+        const endDay = `${endDayObj.getFullYear()}-${String(endDayObj.getMonth() + 1).padStart(2, '0')}-${String(endDayObj.getDate()).padStart(2, '0')}`;
+        return startDay === endDay;
       },
       events: events,
       eventClassNames: (arg) => {
@@ -1758,12 +1763,23 @@ class BookingFormView {
           return;
         }
 
-        const dateStr = info.startStr.substring(0, 10);
+        const startDateStr = info.startStr.substring(0, 10);
+        const endDateStr = info.endStr.substring(0, 10);
         const startTime = info.startStr.substring(11, 16);
-        const endTime = info.endStr.substring(11, 16);
+        let endTime = info.endStr.substring(11, 16);
 
-        // Always add or toggle session to allow seamless multi-slot selection
-        this.addOrToggleSession(dateStr, startTime, endTime);
+        // Clamping to same-day: a single session cannot span multiple days
+        if (startDateStr !== endDateStr) {
+          endTime = '18:00';
+        }
+
+        // Validate that start < end
+        if (startTime >= endTime) {
+          if (this.step1Calendar) this.step1Calendar.unselect();
+          return;
+        }
+
+        this.addOrToggleSession(startDateStr, startTime, endTime);
         if (this.step1Calendar) this.step1Calendar.unselect();
       },
       eventDrop: (info) => {
@@ -1780,13 +1796,23 @@ class BookingFormView {
           return;
         }
 
-        const newDateStr = info.event.startStr.substring(0, 10);
+        const startDateStr = info.event.startStr.substring(0, 10);
+        const endDateObj = new Date(info.event.end.getTime() - 1);
+        const endDateStr = `${endDateObj.getFullYear()}-${String(endDateObj.getMonth() + 1).padStart(2, '0')}-${String(endDateObj.getDate()).padStart(2, '0')}`;
+
+        if (startDateStr !== endDateStr) {
+          this.showToast("Same Day Only", "Sessions cannot span across multiple days.", "warning");
+          info.revert();
+          return;
+        }
+
+        const newDateStr = startDateStr;
         const newStartTime = info.event.startStr.substring(11, 16);
         const newEndTime = info.event.endStr.substring(11, 16);
         const roomId = document.getElementById('form-room-id')?.value;
 
         // Check building business hours (07:00 - 18:00)
-        if (newStartTime < '07:00' || newEndTime > '18:00') {
+        if (newStartTime < '07:00' || newEndTime > '18:00' || newStartTime >= newEndTime) {
           this.showToast("Outside Building Hours", "Sessions must be scheduled between 07:00 and 18:00.", "warning");
           info.revert();
           return;
@@ -1815,8 +1841,10 @@ class BookingFormView {
             endTime: newEndTime
           };
           this.selectedSessions = this.mergeContiguousSessions(this.selectedSessions);
-          this.renderMultiSlotCalendarHighlights();
-          this.renderSelectedSessionsTray();
+          setTimeout(() => {
+            this.renderMultiSlotCalendarHighlights();
+            this.renderSelectedSessionsTray();
+          }, 0);
           this.showToast("Session Moved", `Moved to ${newDateStr} (${newStartTime} – ${newEndTime})`, "success");
         } else {
           info.revert();
@@ -1829,7 +1857,17 @@ class BookingFormView {
           return;
         }
 
-        const newDateStr = info.event.startStr.substring(0, 10);
+        const startDateStr = info.event.startStr.substring(0, 10);
+        const endDateObj = new Date(info.event.end.getTime() - 1);
+        const endDateStr = `${endDateObj.getFullYear()}-${String(endDateObj.getMonth() + 1).padStart(2, '0')}-${String(endDateObj.getDate()).padStart(2, '0')}`;
+
+        if (startDateStr !== endDateStr) {
+          this.showToast("Same Day Only", "A session cannot span across multiple days.", "warning");
+          info.revert();
+          return;
+        }
+
+        const newDateStr = startDateStr;
         const newStartTime = info.event.startStr.substring(11, 16);
         const newEndTime = info.event.endStr.substring(11, 16);
         const roomId = document.getElementById('form-room-id')?.value;
@@ -1837,13 +1875,13 @@ class BookingFormView {
         const [sH, sM] = newStartTime.split(':').map(Number);
         const [eH, eM] = newEndTime.split(':').map(Number);
         const diffM = (eH * 60 + eM) - (sH * 60 + sM);
-        if (diffM < 15) {
+        if (diffM < 15 || newStartTime >= newEndTime) {
           this.showToast("Duration Too Short", "Meeting sessions must be at least 15 minutes.", "warning");
           info.revert();
           return;
         }
 
-        if (newEndTime > '18:00') {
+        if (newEndTime > '18:00' || newStartTime < '07:00') {
           this.showToast("Outside Building Hours", "Meeting sessions cannot extend past 18:00.", "warning");
           info.revert();
           return;
@@ -1871,15 +1909,17 @@ class BookingFormView {
             endTime: newEndTime
           };
           this.selectedSessions = this.mergeContiguousSessions(this.selectedSessions);
-          this.renderMultiSlotCalendarHighlights();
-          this.renderSelectedSessionsTray();
+          setTimeout(() => {
+            this.renderMultiSlotCalendarHighlights();
+            this.renderSelectedSessionsTray();
+          }, 0);
           const hrs = Math.floor(diffM / 60);
           const mins = diffM % 60;
           let durStr = '';
           if (hrs > 0) durStr += `${hrs}h`;
           if (mins > 0) durStr += ` ${mins}m`;
           durStr = durStr.trim() || `${diffM}m`;
-          this.showToast("Duration Updated", `${newDateStr} • ${newStartTime} – ${newEndTime} (${durStr})`, "success");
+          this.showToast("Duration Updated", `${durStr} (${newStartTime} – ${newEndTime})`, "success");
         } else {
           info.revert();
         }
@@ -1906,7 +1946,7 @@ class BookingFormView {
 
     this.step1Calendar.render();
     setTimeout(() => {
-      if (this.step1Calendar) this.step1Calendar.updateSize();
+      if (this.step1Calendar && typeof this.step1Calendar.updateSize === 'function') this.step1Calendar.updateSize();
     }, 100);
 
     // Double-click on calendar grid, mirror, or highlight to deselect slot
@@ -1933,7 +1973,7 @@ class BookingFormView {
       this.step1Calendar.changeView(viewName);
     }
     setTimeout(() => {
-      if (this.step1Calendar) this.step1Calendar.updateSize();
+      if (this.step1Calendar && typeof this.step1Calendar.updateSize === 'function') this.step1Calendar.updateSize();
       this.ensureStep1SlotSelected();
     }, 50);
   }
@@ -2300,7 +2340,7 @@ class BookingFormView {
       if (modeHint) modeHint.innerText = '• Click open slots across the week to batch book';
 
       if (!silent && typeof anime !== 'undefined' && tickBox) {
-        anime({ targets: tickBox, scale: [0.75, 1.25, 1], duration: 320, easing: 'easeOutElastic(1, .6)' });
+        anime({ targets: tickBox, scale: [0.94, 1], duration: 160, easing: 'easeOutQuad' });
       }
 
       if (calendarEl) {
@@ -2350,7 +2390,7 @@ class BookingFormView {
       if (modeHint) modeHint.innerText = '• Click or drag an open slot to book';
 
       if (!silent && typeof anime !== 'undefined' && tickBox) {
-        anime({ targets: tickBox, scale: [1.15, 0.9, 1], duration: 220, easing: 'easeOutQuad' });
+        anime({ targets: tickBox, scale: [0.94, 1], duration: 160, easing: 'easeOutQuad' });
       }
 
       if (calendarEl) {
@@ -2677,9 +2717,9 @@ class BookingFormView {
       if (count > 0 && count !== prevCount && typeof anime !== 'undefined') {
         anime({
           targets: badge,
-          scale: [0.65, 1.25, 1],
-          duration: 280,
-          easing: 'easeOutElastic(1, .5)'
+          scale: [0.92, 1],
+          duration: 180,
+          easing: 'easeOutQuad'
         });
       }
     }
@@ -2813,7 +2853,9 @@ class BookingFormView {
         stepEl.classList.toggle('hidden', num !== stepNumber);
       }
       if (tabEl) {
-        const label = tabEl.lastElementChild.innerText;
+        const stepLabels = ['Time & Date', 'Purpose & Services', 'Layout & IT', 'Review & Confirm'];
+        const labelSpan = tabEl.querySelector('span:last-child');
+        const label = (labelSpan ? labelSpan.innerText : '').trim() || stepLabels[num - 1] || `Step ${num}`;
         if (num === stepNumber) {
           tabEl.className = 'wizard-step-tab active h-8 px-2.5 rounded-md bg-[#FEF2F2] border border-red-200 text-[#991B1B] font-semibold text-[13px] flex items-center space-x-1.5 transition cursor-pointer shadow-2xs shrink-0';
           tabEl.innerHTML = `<span class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center text-[11px] font-bold">${num}</span><span>${label}</span>`;
@@ -2829,7 +2871,7 @@ class BookingFormView {
 
     if (stepNumber === 1 && this.step1Calendar) {
       setTimeout(() => {
-        this.step1Calendar.updateSize();
+        if (typeof this.step1Calendar.updateSize === 'function') this.step1Calendar.updateSize();
         if (this.slotSelectionMode === 'multi') {
           this.renderMultiSlotCalendarHighlights();
           this.renderSelectedSessionsTray();
@@ -2839,7 +2881,9 @@ class BookingFormView {
       }, 60);
     }
 
-    window.scrollTo(0, 0);
+    if (typeof window.scrollTo === 'function') {
+      try { window.scrollTo(0, 0); } catch (_) {}
+    }
   }
 
   bookingFormSkipAddons() {

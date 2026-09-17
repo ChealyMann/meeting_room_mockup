@@ -8,7 +8,8 @@ window.NBC.layouts.topbar = {
     if (!header) return;
 
     header.className =
-      'h-11 sm:h-14 bg-[#2A0808] border-b border-[#3D0C0C] px-3 sm:px-6 flex items-center justify-between sticky top-0 z-20 shrink-0 text-white shadow-xs';
+      'h-11 sm:h-14 bg-[#2A0808] border-b border-[#3D0C0C] px-3 sm:px-6 flex items-center justify-between sticky top-0 z-50 shrink-0 text-white shadow-xs';
+    header.style.cssText = 'position: sticky; top: 0; z-index: 50;';
 
     header.innerHTML = `
       <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1 mr-2">
@@ -47,17 +48,10 @@ window.NBC.layouts.topbar = {
         <div class="min-w-0 flex-1">
           <h1
             id="topbar-page-title"
-            class="font-heading font-bold text-xs sm:text-sm text-white truncate leading-tight"
+            class="font-heading font-bold text-sm sm:text-base text-white truncate leading-normal"
           >
             Find a Meeting Room
           </h1>
-
-          <p
-            id="topbar-page-subtitle"
-            class="text-[10px] sm:text-[11px] text-stone-300 truncate leading-tight mt-0.5"
-          >
-            Choose an available room to book for your team
-          </p>
         </div>
       </div>
 
@@ -73,16 +67,10 @@ window.NBC.layouts.topbar = {
     `;
   },
 
-  setTitle(title, subtitle) {
+  setTitle(title, subtitle = '') {
     const titleEl = document.getElementById('topbar-page-title');
-    const subtitleEl = document.getElementById('topbar-page-subtitle');
-
     if (titleEl) {
       titleEl.innerText = title || 'NBC Meeting Portal';
-    }
-
-    if (subtitleEl) {
-      subtitleEl.innerText = subtitle || '';
     }
   }
 };

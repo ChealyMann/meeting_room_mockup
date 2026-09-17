@@ -454,9 +454,12 @@ window.NBC.views['book-room'] = {
 
       template: `
         <div>
-          <!-- Sticky Frosted Search & Actions Bar -->
-          <div class="sticky top-11 sm:top-14 z-15 -mx-1 sm:-mx-2 px-1 sm:px-2 py-2 bg-[#F9F7F5]/90 backdrop-blur-md">
-            <div class="bg-white/95 backdrop-blur-md rounded-2xl border border-[#E9E3DD] p-3.5 sm:p-4 shadow-sm hover:shadow-md transition space-y-3.5">
+          <!-- Fixed/Sticky Search & Filter Navbar (z-40 Above All Room Cards and Content) -->
+          <div
+            class="sticky-catalog-navbar -mx-3.5 sm:-mx-5 lg:-mx-6 xl:-mx-8 px-3.5 sm:px-5 lg:px-6 xl:px-8 -mt-3.5 sm:-mt-5 lg:-mt-6 xl:-mt-6 pt-3.5 sm:pt-5 lg:pt-6 xl:pt-6 pb-3 border-b border-[#E9E3DD]/80 shadow-[0_4px_16px_-4px_rgba(42,8,8,0.06)]"
+            style="position: sticky; z-index: 40; background-color: #F9F7F5;"
+          >
+            <div class="bg-white rounded-2xl border border-[#E9E3DD] p-3.5 sm:p-4 shadow-sm hover:shadow-md transition space-y-3.5">
               
               <!-- Top Responsive Command Grid: Search (7 cols) + Date Range (5 cols) -->
               <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-end">
@@ -540,7 +543,6 @@ window.NBC.views['book-room'] = {
                     {{ dateRangeError }}
                   </div>
                 </div>
-
               </div>
 
               <!-- Smart Quick-Filter Chips Bar with Segmented Glider Track -->
