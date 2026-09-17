@@ -456,10 +456,10 @@ window.NBC.views['book-room'] = {
         <div>
           <!-- Fixed/Sticky Search & Filter Navbar (z-40 Above All Room Cards and Content) -->
           <div
-            class="sticky-catalog-navbar -mx-3.5 sm:-mx-5 lg:-mx-6 xl:-mx-8 px-3.5 sm:px-5 lg:px-6 xl:px-8 -mt-3.5 sm:-mt-5 lg:-mt-6 xl:-mt-6 pt-3.5 sm:pt-5 lg:pt-6 xl:pt-6 pb-3 border-b border-[#E9E3DD]/80 shadow-[0_4px_16px_-4px_rgba(42,8,8,0.06)]"
+            class="sticky-catalog-navbar -mx-3.5 sm:-mx-5 lg:-mx-6 xl:-mx-8 px-3.5 sm:px-5 lg:px-6 xl:px-8 -mt-3.5 sm:-mt-5 lg:-mt-6 xl:-mt-6 pt-3.5 sm:pt-5 lg:pt-6 xl:pt-6 pb-3 border-b border-[#E9E3DD]/80"
             style="position: sticky; z-index: 40; background-color: #F9F7F5;"
           >
-            <div class="bg-white rounded-2xl border border-[#E9E3DD] p-3.5 sm:p-4 shadow-sm hover:shadow-md transition space-y-3.5">
+            <div class="space-y-3">
               
               <!-- Top Responsive Command Grid: Search (7 cols) + Date Range (5 cols) -->
               <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-end">
@@ -476,7 +476,7 @@ window.NBC.views['book-room'] = {
                       v-model="searchQuery"
                       id="room-search-input"
                       placeholder="Search rooms by name, floor, amenities, or department..."
-                      class="w-full h-11 pl-10 pr-9 bg-[#F4EFEA] hover:bg-[#EAE3DC] focus:bg-white text-[#1C1917] text-xs sm:text-sm font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none"
+                      class="w-full h-11 pl-10 pr-9 bg-white hover:bg-[#FAF7F4] focus:bg-white text-[#1C1917] text-xs sm:text-sm font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none"
                     />
                     <!-- Clear Button (X) -->
                     <transition name="fade-scale">
@@ -508,7 +508,7 @@ window.NBC.views['book-room'] = {
                         type="date"
                         v-model="rangeStart"
                         :min="todayString"
-                        class="w-full h-11 px-3 bg-[#F4EFEA] hover:bg-[#EAE3DC] focus:bg-white text-[#3E2B1E] font-mono text-xs font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none cursor-pointer"
+                        class="w-full h-11 px-3 bg-white hover:bg-[#FAF7F4] focus:bg-white text-[#3E2B1E] font-mono text-xs font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none cursor-pointer"
                         aria-label="Availability start date"
                       />
                     </div>
@@ -533,7 +533,7 @@ window.NBC.views['book-room'] = {
                         type="date"
                         v-model="rangeEnd"
                         :min="rangeStart || todayString"
-                        class="w-full h-11 px-3 bg-[#F4EFEA] hover:bg-[#EAE3DC] focus:bg-white text-[#3E2B1E] font-mono text-xs font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none cursor-pointer"
+                        class="w-full h-11 px-3 bg-white hover:bg-[#FAF7F4] focus:bg-white text-[#3E2B1E] font-mono text-xs font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none cursor-pointer"
                         aria-label="Availability end date"
                       />
                     </div>
@@ -546,7 +546,7 @@ window.NBC.views['book-room'] = {
               </div>
 
               <!-- Smart Quick-Filter Chips Bar with Segmented Glider Track -->
-              <div class="flex items-center justify-between gap-3 pt-3 border-t border-[#E9E3DD]/60 overflow-x-auto no-scrollbar">
+              <div class="flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
                 <div class="flex items-center gap-2 flex-nowrap py-0.5 shrink-0">
                   <!-- Clean Location Filter Track -->
                   <div id="building-pills-track">
