@@ -512,10 +512,10 @@ select.bank-input {
 
 .stepper-line {
   position: absolute;
-  top: 13px;
+  top: 11px;
   left: 12.5%;
   right: 12.5%;
-  height: 2.5px;
+  height: 2px;
   background-color: #E7DFD7;
   border-radius: 9999px;
   z-index: 1;
@@ -541,7 +541,7 @@ select.bank-input {
   top: 0;
   left: 0;
   height: 100%;
-  background-color: #991B1B;
+  background-color: #16A34A;
   border-radius: 9999px;
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -558,33 +558,33 @@ select.bank-input {
 }
 
 .stepper-circle {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border-radius: 9999px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.6875rem;
-  font-weight: 800;
+  font-size: 0.75rem;
+  font-weight: 700;
   transition: all 0.2s ease;
   background-color: #FFFFFF;
-  border: 2px solid #D6CCC2;
+  border: 1.5px solid #D6CCC2;
   color: #78716C;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .stepper-node.completed .stepper-circle {
-  background-color: #991B1B;
-  border-color: #991B1B;
+  background-color: #16A34A;
+  border-color: #16A34A;
   color: #FFFFFF;
-  box-shadow: 0 2px 4px rgba(153, 27, 27, 0.25);
+  box-shadow: 0 2px 4px rgba(22, 163, 74, 0.25);
 }
 
 .stepper-node.active .stepper-circle {
-  background-color: #FEF2F2;
-  border-color: #991B1B;
-  color: #991B1B;
-  box-shadow: 0 0 0 4px rgba(153, 27, 27, 0.15);
+  background-color: #F0FDF4;
+  border-color: #16A34A;
+  color: #16A34A;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.15);
   animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
@@ -597,7 +597,7 @@ select.bank-input {
 .stepper-label {
   font-size: 0.6875rem;
   font-weight: 600;
-  margin-top: 0.4rem;
+  margin-top: 0.5rem;
   color: #57534E;
   line-height: 1.25;
 }
@@ -608,7 +608,7 @@ select.bank-input {
 }
 
 .stepper-node.active .stepper-label {
-  color: #991B1B;
+  color: #16A34A;
   font-weight: 800;
 }
 

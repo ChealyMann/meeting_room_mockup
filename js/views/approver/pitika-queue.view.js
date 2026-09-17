@@ -1,24 +1,49 @@
 // Pitika Approver Queue View Component (view-pitika-queue)
+// Cafe Design System with NBC Crimson Heritage
 window.NBC = window.NBC || {};
 window.NBC.views = window.NBC.views || {};
 
 class PitikaQueueView {
   constructor() {
     this.id = 'pitika-queue';
-    this.approverFilter = 'all';
-    this.approverViewMode = 'table';
-    this.approverExpandedRows = new Set();
-    this.approverDateFilter = '';
-    this.approverRoomTypeFilter = 'all';
-    this.approverDeptFilter = 'all';
+    this.approverFilter = 'all'; // 'all', 'pending', 'approved', 'rejected'
+    this.approverViewMode = 'table'; // Default table view
     this.approverSearchTerm = '';
+    this.approverDateFilter = '';
+    this.approverRoomTypeFilter = 'all'; // 'all', 'public', 'private'
+    this.approverDeptFilter = 'all';
+    this.approverSortColumn = 'id';
+    this.approverSortDirection = 'desc';
+    this.selectedApproverRequestIds = new Set();
+    this.approverExpandedRows = new Set();
     this.approverCurrentPage = 0;
     this.approverTablePageSize = 6;
     this.approverCardsPageSize = 4;
     this.approverPageSize = 6;
+    this._currentPaginatedItems = [];
+    this._pendingRejectTarget = null; // null or requestId
+
     this.template = `<style>
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+        @keyframes pitikaCardFadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-card-fade-in {
+          animation: pitikaCardFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .pitika-queue-cards-grid {
+          display: grid !important;
+          grid-template-columns: 1fr !important;
+          gap: 0.875rem !important;
+          width: 100% !important;
+        }
+        @media (min-width: 1400px) {
+          .pitika-queue-cards-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          }
+        }
       </style>
       <!-- Executive Queue Header -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b border-[#E9E3DD] shrink-0">
@@ -28,13 +53,13 @@ class PitikaQueueView {
 
         <!-- View Mode Switcher -->
         <div class="flex items-center space-x-1 shrink-0 bg-stone-100 p-0.5 rounded-lg border border-[#E9E3DD]">
-          <button id="approver-view-table-btn" onclick="app.setApproverViewMode('table')" aria-label="Switch to table view" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 flex items-center space-x-1.5 bg-[#991B1B] text-white shadow-2xs cursor-pointer">
-            <span class="iconify text-xs text-white" data-icon="lucide:table" data-stroke-width="2"></span>
-            <span>Table</span>
-          </button>
           <button id="approver-view-cards-btn" onclick="app.setApproverViewMode('cards')" aria-label="Switch to card view" class="px-3 py-1.5 rounded-md text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-200/50 transition-all duration-150 flex items-center space-x-1.5 cursor-pointer">
             <span class="iconify text-xs text-stone-500" data-icon="lucide:layout-grid" data-stroke-width="2"></span>
             <span>Cards</span>
+          </button>
+          <button id="approver-view-table-btn" onclick="app.setApproverViewMode('table')" aria-label="Switch to table view" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 flex items-center space-x-1.5 bg-[#991B1B] text-white shadow-2xs cursor-pointer">
+            <span class="iconify text-xs text-white" data-icon="lucide:table" data-stroke-width="2"></span>
+            <span>Table</span>
           </button>
         </div>
       </div>
@@ -163,6 +188,39 @@ class PitikaQueueView {
       <!-- Requests Content (Table or Cards rendered dynamically) -->
       <div id="view-approver-requests-list" class="flex flex-col flex-1 min-h-0 mt-2.5">
         <!-- Populated dynamically by app.renderApproverRequests() -->
+      </div>
+
+      <!-- Custom In-App Modal for Declining Requests -->
+      <div id="approver-reject-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] w-full max-w-md shadow-2xl overflow-hidden flex flex-col animate-scale-in" onclick="event.stopPropagation()">
+          <div class="bg-[#2A0808] px-5 py-3.5 border-b border-[#450A0A] flex items-center justify-between text-white">
+            <div class="flex items-center space-x-2">
+              <span class="iconify text-base text-white" data-icon="lucide:ban" data-stroke-width="2"></span>
+              <h3 id="approver-reject-modal-title" class="font-heading font-bold text-sm text-white">Decline Request</h3>
+            </div>
+            <button type="button" onclick="app.closeApproverRejectModal()" class="text-stone-400 hover:text-white p-1 rounded transition cursor-pointer">
+              <span class="iconify text-base" data-icon="lucide:x" data-stroke-width="2"></span>
+            </button>
+          </div>
+          <div class="p-5 space-y-3">
+            <p id="approver-reject-modal-desc" class="text-xs text-stone-600 leading-relaxed">
+              Please enter the reason for declining this meeting room reservation:
+            </p>
+            <div>
+              <label class="form-label text-stone-700 font-bold text-xs mb-1 block">Reason for Rejection <span class="text-[#991B1B]">*</span></label>
+              <textarea id="approver-reject-reason-input" rows="3" class="bank-input text-xs w-full p-2.5 border border-[#E9E3DD] rounded-lg focus:border-[#991B1B]" placeholder="e.g. Room unavailable due to high priority official delegation session.">Room unavailable due to scheduled maintenance or conflict.</textarea>
+            </div>
+            <div class="flex items-center justify-end space-x-2 pt-2">
+              <button type="button" onclick="app.closeApproverRejectModal()" class="px-4 py-2 rounded-lg text-xs font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 transition cursor-pointer">
+                Cancel
+              </button>
+              <button type="button" id="approver-confirm-reject-btn" onclick="app.confirmApproverModalRejection()" class="px-4 py-2 rounded-lg text-xs font-bold bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white flex items-center space-x-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
+                <span>Confirm Rejection</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>`;
   }
 
@@ -180,10 +238,38 @@ class PitikaQueueView {
     }
   }
 
+  getInitials(name) {
+    if (!name) return 'NB';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  formatScheduleDate(dateStr) {
+    if (!dateStr) return 'Sep 11, 2026';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      const year = parts[0];
+      const monthIndex = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${months[monthIndex] || 'Sep'} ${day}, ${year}`;
+    }
+    return dateStr;
+  }
+
+  copyApproverReferenceCode(code) {
+    if (!code) return;
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      navigator.clipboard.writeText(code).catch(() => {});
+    }
+    this.showToast("Copied", `Reference code ${code} copied to clipboard.`, "info");
+  }
+
   render(container) {
     if (!container) return;
     container.innerHTML = `
-      <div id="view-pitika-queue-content" class="w-full h-[calc(100dvh-140px)] flex flex-col space-y-2.5 min-h-0">
+      <div id="view-pitika-queue-content" class="w-full h-[calc(100dvh-150px)] flex flex-col space-y-2.5 min-h-0">
         ${this.template}
       </div>
     `;
@@ -235,11 +321,27 @@ class PitikaQueueView {
     window.app.resetApproverFilters = () => this.resetApproverFilters();
     window.app.filterApproverRequests = (status) => this.filterApproverRequests(status);
     window.app.goToApproverPage = (page) => this.goToApproverPage(page);
-    window.app.toggleApproverRowExpand = (id) => this.toggleApproverRowExpand(id);
+    window.app.sortApproverBy = (column) => this.sortApproverBy(column);
+    window.app.quickApproverApprove = (requestId) => this.quickApproverApprove(requestId);
+    window.app.quickApproverReject = (requestId) => this.quickApproverReject(requestId);
+    window.app.openApproverRejectModal = (requestId) => this.openApproverRejectModal(requestId);
+    window.app.closeApproverRejectModal = () => this.closeApproverRejectModal();
+    window.app.confirmApproverModalRejection = () => this.confirmApproverModalRejection();
+    window.app.copyApproverReferenceCode = (code) => this.copyApproverReferenceCode(code);
+    window.app.openPitikaReviewWorkspace = (requestId) => this.openPitikaReviewWorkspace(requestId);
   }
 
   update() {
     this.renderApproverRequests();
+  }
+
+  openPitikaReviewWorkspace(requestId) {
+    const reviewView = window.NBC.views['pitika-review'];
+    if (reviewView && typeof reviewView.openPitikaReviewWorkspace === 'function') {
+      reviewView.openPitikaReviewWorkspace(requestId);
+    } else {
+      this.navigateTo('pitika-review', { requestId });
+    }
   }
 
   setApproverViewMode(mode) {
@@ -266,15 +368,6 @@ class PitikaQueueView {
       if (tIcon) tIcon.setAttribute('class', `iconify text-xs ${isTable ? 'text-white' : 'text-stone-500'}`);
       if (cIcon) cIcon.setAttribute('class', `iconify text-xs ${!isTable ? 'text-white' : 'text-stone-500'}`);
     }
-  }
-
-  toggleApproverRowExpand(requestId) {
-    if (this.approverExpandedRows.has(requestId)) {
-      this.approverExpandedRows.delete(requestId);
-    } else {
-      this.approverExpandedRows.add(requestId);
-    }
-    this.renderApproverRequests();
   }
 
   handleApproverFilterChange() {
@@ -360,6 +453,25 @@ class PitikaQueueView {
     this.renderApproverRequests();
   }
 
+  sortApproverBy(column) {
+    if (this.approverSortColumn === column) {
+      this.approverSortDirection = this.approverSortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.approverSortColumn = column;
+      this.approverSortDirection = (column === 'id' || column === 'schedule') ? 'desc' : 'asc';
+    }
+    this.renderApproverRequests();
+  }
+
+  _getSortIcon(column) {
+    if (this.approverSortColumn === column) {
+      return this.approverSortDirection === 'asc'
+        ? '<span class="iconify text-[#991B1B] text-xs" data-icon="lucide:arrow-up" data-stroke-width="2"></span>'
+        : '<span class="iconify text-[#991B1B] text-xs" data-icon="lucide:arrow-down" data-stroke-width="2"></span>';
+    }
+    return '<span class="iconify text-stone-400 text-xs" data-icon="lucide:chevrons-up-down" data-stroke-width="2"></span>';
+  }
+
   goToApproverPage(page) {
     if (page < 0) return;
     this.approverCurrentPage = page;
@@ -370,9 +482,186 @@ class PitikaQueueView {
     }
   }
 
+  _getFilteredApproverRequests() {
+    if (typeof bookingStore === 'undefined' || !bookingStore.getRequests) return [];
+    const allRequests = bookingStore.getRequests();
+
+    let filtered = allRequests.filter(req => {
+      if (this.approverFilter === 'pending') {
+        return req.status === 'Pending Review' || req.status === 'Pending Manager Review' || req.statusDisplay === 'Pending Review';
+      } else if (this.approverFilter === 'approved') {
+        return req.status.includes('Approved') || req.status === 'Pending Room Owner Approval';
+      } else if (this.approverFilter === 'rejected') {
+        return req.status === 'Rejected' || req.status === 'Cancelled';
+      }
+      return true;
+    });
+
+    if (this.approverSearchTerm) {
+      const q = this.approverSearchTerm;
+      filtered = filtered.filter(req => {
+        return (req.id && req.id.toLowerCase().includes(q)) ||
+               (req.referenceCode && req.referenceCode.toLowerCase().includes(q)) ||
+               (req.meetingTitle && req.meetingTitle.toLowerCase().includes(q)) ||
+               (req.room?.name && req.room.name.toLowerCase().includes(q)) ||
+               (req.requester?.name && req.requester.name.toLowerCase().includes(q)) ||
+               (req.requester?.department && req.requester.department.toLowerCase().includes(q)) ||
+               (req.meetingPurpose && req.meetingPurpose.toLowerCase().includes(q)) ||
+               (req.privateJustification && req.privateJustification.toLowerCase().includes(q));
+      });
+    }
+
+    if (this.approverDateFilter && this.approverDateFilter !== 'all') {
+      const selectedDate = this.approverDateFilter.trim();
+      filtered = filtered.filter(req => req.date === selectedDate);
+    }
+
+    if (this.approverRoomTypeFilter === 'public') {
+      filtered = filtered.filter(req => !req.isPrivateRequest && !req.room?.isPrivate);
+    } else if (this.approverRoomTypeFilter === 'private') {
+      filtered = filtered.filter(req => req.isPrivateRequest || req.room?.isPrivate);
+    }
+
+    if (this.approverDeptFilter && this.approverDeptFilter !== 'all') {
+      filtered = filtered.filter(req => req.requester?.department === this.approverDeptFilter);
+    }
+
+    // Interactive Sorting
+    filtered.sort((a, b) => {
+      let valA, valB;
+      switch (this.approverSortColumn) {
+        case 'id':
+          valA = a.id || '';
+          valB = b.id || '';
+          break;
+        case 'requester':
+          valA = a.requester?.name || '';
+          valB = b.requester?.name || '';
+          break;
+        case 'room':
+          valA = a.room?.name || '';
+          valB = b.room?.name || '';
+          break;
+        case 'schedule':
+          valA = (a.date || '') + ' ' + (a.startTime || '');
+          valB = (b.date || '') + ' ' + (b.startTime || '');
+          break;
+        case 'status':
+          valA = a.status || '';
+          valB = b.status || '';
+          break;
+        default:
+          valA = a.id || '';
+          valB = b.id || '';
+      }
+      if (valA < valB) return this.approverSortDirection === 'asc' ? -1 : 1;
+      if (valA > valB) return this.approverSortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return filtered;
+  }
+
+  quickApproverApprove(requestId) {
+    if (typeof bookingStore === 'undefined') return;
+    const req = bookingStore.getRequestById(requestId);
+    if (!req) return;
+
+    const isPrivate = req.isPrivateRequest || req.room?.isPrivate;
+
+    if (isPrivate) {
+      if (typeof bookingStore.forwardToRoomOwner === 'function') {
+        bookingStore.forwardToRoomOwner(requestId, { managerNotes: "Endorsed by Manager Pitika." });
+      } else {
+        req.status = 'Pending Room Owner Approval';
+        req.statusDisplay = 'Waiting Owner';
+        if (typeof bookingStore.saveState === 'function') bookingStore.saveState();
+      }
+      this.showToast("Step 1 Endorsed", `Request ${requestId} forwarded to Room Owner for final sign-off.`, "success");
+    } else if (req.needsIT) {
+      if (typeof bookingStore.approveAndSetupRequest === 'function') {
+        bookingStore.approveAndSetupRequest(requestId, { cateringNotes: "", forwardToIT: true });
+      } else {
+        req.status = 'Approved - Setup In Progress';
+        req.statusDisplay = 'Setting Up';
+        if (typeof bookingStore.saveState === 'function') bookingStore.saveState();
+      }
+      this.showToast("Approved with IT", `Request ${requestId} approved and dispatched to IT Specialist.`, "success");
+    } else {
+      if (typeof bookingStore.approveAndSetupRequest === 'function') {
+        bookingStore.approveAndSetupRequest(requestId, { cateringNotes: "", forwardToIT: false });
+        if (typeof bookingStore.finalizeRoomStatus === 'function') {
+          bookingStore.finalizeRoomStatus(requestId);
+        }
+      } else {
+        req.status = 'Approved - Confirmed';
+        req.statusDisplay = 'Approved';
+        if (typeof bookingStore.saveState === 'function') bookingStore.saveState();
+      }
+      this.showToast("Request Approved", `Meeting room reservation ${requestId} confirmed.`, "success");
+    }
+
+    this.renderApproverRequests();
+  }
+
+  quickApproverReject(requestId) {
+    this.openApproverRejectModal(requestId);
+  }
+
+  openApproverRejectModal(target) {
+    this._pendingRejectTarget = target;
+    const modal = document.getElementById('approver-reject-modal');
+    const title = document.getElementById('approver-reject-modal-title');
+    const desc = document.getElementById('approver-reject-modal-desc');
+    const input = document.getElementById('approver-reject-reason-input');
+
+    if (!modal) return;
+    if (title) title.innerText = `Decline Request ${target}`;
+    if (desc) desc.innerText = `Please enter the reason for declining meeting reservation #${target}:`;
+    if (input) {
+      input.value = "Room unavailable due to scheduled maintenance or official conflict.";
+    }
+    modal.classList.remove('hidden');
+  }
+
+  closeApproverRejectModal() {
+    const modal = document.getElementById('approver-reject-modal');
+    if (modal) modal.classList.add('hidden');
+    this._pendingRejectTarget = null;
+  }
+
+  confirmApproverModalRejection() {
+    const input = document.getElementById('approver-reject-reason-input');
+    const reason = (input?.value || '').trim() || "Room unavailable due to official scheduling conflict.";
+    const target = this._pendingRejectTarget;
+
+    if (target && typeof bookingStore !== 'undefined') {
+      if (typeof bookingStore.rejectBookingRequest === 'function') {
+        bookingStore.rejectBookingRequest(target, reason);
+      } else {
+        const req = bookingStore.getRequestById(target);
+        if (req) {
+          req.status = 'Rejected';
+          req.statusDisplay = 'Rejected';
+          req.rejectionReason = reason;
+          if (typeof bookingStore.saveState === 'function') bookingStore.saveState();
+        }
+      }
+      this.showToast("Request Declined", `Reservation ${target} has been declined.`, "info");
+    }
+
+    this.closeApproverRejectModal();
+    this.renderApproverRequests();
+  }
+
   renderApproverRequests() {
     const container = document.getElementById('view-approver-requests-list');
     if (!container) return;
+
+    if (typeof bookingStore === 'undefined' || !bookingStore.getRequests) {
+      container.innerHTML = `<div class="p-8 text-center text-xs text-stone-500">Booking store is initializing...</div>`;
+      return;
+    }
 
     const allRequests = bookingStore.getRequests();
 
@@ -396,53 +685,283 @@ class PitikaQueueView {
     if (kpiApprovedEl) kpiApprovedEl.innerText = weekApproved;
     if (kpiRoomsEl) kpiRoomsEl.innerText = totalRooms;
 
-    // 3. Filter by Status
-    let filtered = allRequests.filter(req => {
-      if (this.approverFilter === 'pending') {
-        return req.status === 'Pending Review' || req.status === 'Pending Manager Review' || req.statusDisplay === 'Pending Review';
-      } else if (this.approverFilter === 'approved') {
-        return req.status.includes('Approved') || req.status === 'Pending Room Owner Approval';
-      } else if (this.approverFilter === 'rejected') {
-        return req.status === 'Rejected' || req.status === 'Cancelled';
+    // 3. Filtered Requests
+    const filtered = this._getFilteredApproverRequests();
+
+    // 4. Empty State
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-12 text-center flex flex-col items-center justify-center space-y-3 shadow-2xs flex-1">
+          <div class="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400">
+            <span class="iconify text-xl" data-icon="lucide:inbox" data-stroke-width="2"></span>
+          </div>
+          <h3 class="font-heading font-bold text-sm text-stone-900">No Review Requests Found</h3>
+          <p class="text-xs text-stone-500 max-w-sm leading-relaxed">
+            No meeting reservations matched your filter criteria. Reset filters to view all pending and approved bookings.
+          </p>
+          <button type="button" onclick="app.resetApproverFilters()" class="btn-secondary h-8 px-4 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition cursor-pointer">
+            <span class="iconify text-xs" data-icon="lucide:rotate-ccw" data-stroke-width="2"></span>
+            <span>Reset Filters</span>
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    // 5. Route between Table and Card modes
+    if (this.approverViewMode === 'table') {
+      this._renderTableView(container, filtered);
+    } else {
+      this._renderCardsView(container, filtered);
+    }
+  }
+
+  // =========================================================================
+  // RENDER MODE A: EXECUTIVE DATA TABLE (Matching owner-queue theme & layout)
+  // =========================================================================
+  _renderTableView(container, filtered) {
+    const pageSize = this.approverTablePageSize || 6;
+    const totalItems = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+    if (this.approverCurrentPage >= totalPages) this.approverCurrentPage = totalPages - 1;
+    if (this.approverCurrentPage < 0) this.approverCurrentPage = 0;
+    const startIdx = this.approverCurrentPage * pageSize;
+    const endIdx = startIdx + pageSize;
+    const paginatedItems = filtered.slice(startIdx, endIdx);
+    this._currentPaginatedItems = paginatedItems;
+
+    let tableRowsHtml = paginatedItems.map((req, idx) => {
+      const reqId = req.id || `REQ-2026-${String(idx + 1).padStart(3, '0')}`;
+      const submittedText = req.submittedText || (idx === 0 ? 'Submitted 10 mins ago' : (idx === 1 ? 'Submitted 1 hour ago' : `Submitted ${idx} hours ago`));
+
+      const requesterName = req.requester?.name || 'Jonathan Vance';
+      const initials = this.getInitials(requesterName);
+
+      const rawRoomName = req.room?.name || 'Executive Room';
+      const roomShort = rawRoomName.split(' - ')[0];
+      const roomFloor = req.room?.floor ? req.room.floor.split('(')[0].trim() : (req.isPrivateRequest ? 'Level 18' : 'Level 5');
+
+      const formattedDate = this.formatScheduleDate(req.date || '2026-09-11');
+      const timeRange = `${req.startTime || '09:00'} - ${req.endTime || '11:00'}`;
+
+      const isPending = req.status === 'Pending Review' || req.status === 'Pending Manager Review' || req.statusDisplay === 'Pending Review';
+      const isOwnerPending = req.status === 'Pending Room Owner Approval';
+      const isSetup = req.status === 'Approved - Setup In Progress' || req.statusDisplay === 'Setting Up';
+      const isConfirmed = req.status === 'Approved - Confirmed' || req.status === 'Approved' || req.statusDisplay === 'Approved';
+      const isRejected = req.status === 'Rejected' || req.statusDisplay === 'Rejected';
+      const isConflict = req.status === 'Time Conflict' || req.statusDisplay === 'Time Conflict' || req.hasConflict;
+      const isPrivate = req.isPrivateRequest || req.room?.isPrivate;
+
+      let statusHtml = '';
+      if (isConflict) {
+        statusHtml = `
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+            <span class="iconify text-xs text-rose-600 shrink-0" data-icon="lucide:alert-circle" data-stroke-width="2"></span>
+            <span>Time Conflict</span>
+          </div>
+        `;
+      } else if (isOwnerPending) {
+        statusHtml = `
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
+            <span class="iconify text-xs text-purple-600 shrink-0" data-icon="lucide:shield-check" data-stroke-width="2"></span>
+            <span>Sent to Owner</span>
+          </div>
+        `;
+      } else if (isSetup) {
+        statusHtml = `
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+            <span class="iconify text-xs text-blue-600 shrink-0" data-icon="lucide:settings" data-stroke-width="2"></span>
+            <span>Setting Up</span>
+          </div>
+        `;
+      } else if (isConfirmed) {
+        statusHtml = `
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span class="iconify text-xs text-emerald-600 shrink-0" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
+            <span>Approved</span>
+          </div>
+        `;
+      } else if (isRejected) {
+        statusHtml = `
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-stone-100 text-stone-600 border border-stone-200">
+            <span class="iconify text-xs text-stone-500 shrink-0" data-icon="lucide:x-circle" data-stroke-width="2"></span>
+            <span>Rejected</span>
+          </div>
+        `;
+      } else {
+        statusHtml = `
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+            <span class="iconify text-xs text-amber-600 shrink-0" data-icon="lucide:clock" data-stroke-width="2"></span>
+            <span>Pending Review</span>
+          </div>
+        `;
       }
-      return true;
-    });
 
-    // 4. Filter by Search Query
-    if (this.approverSearchTerm) {
-      const q = this.approverSearchTerm;
-      filtered = filtered.filter(req => {
-        return (req.id && req.id.toLowerCase().includes(q)) ||
-               (req.referenceCode && req.referenceCode.toLowerCase().includes(q)) ||
-               (req.meetingTitle && req.meetingTitle.toLowerCase().includes(q)) ||
-               (req.room?.name && req.room.name.toLowerCase().includes(q)) ||
-               (req.requester?.name && req.requester.name.toLowerCase().includes(q)) ||
-               (req.requester?.department && req.requester.department.toLowerCase().includes(q)) ||
-               (req.meetingPurpose && req.meetingPurpose.toLowerCase().includes(q)) ||
-               (req.privateJustification && req.privateJustification.toLowerCase().includes(q));
-      });
-    }
+      return `
+        <tr class="hover:bg-stone-50/70 transition-colors">
+          <!-- 1. REQUEST ID -->
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            <div class="flex items-center space-x-1.5">
+              ${isPrivate ? `
+                <span class="text-amber-600 shrink-0" title="Private Room">
+                  <span class="iconify text-xs" data-icon="lucide:lock" data-stroke-width="2"></span>
+                </span>
+              ` : ''}
+              <button type="button" onclick="app.openPitikaReviewWorkspace('${reqId}')" title="Open Review Workspace" class="font-bold text-xs text-stone-900 hover:text-[#991B1B] transition hover:underline cursor-pointer block leading-tight text-left">
+                ${reqId}
+              </button>
+            </div>
+            <span class="text-[11px] text-stone-400 block mt-1 leading-tight">${submittedText}</span>
+          </td>
 
-    // 5. Filter by Date Picker (Date-only YYYY-MM-DD)
-    if (this.approverDateFilter && this.approverDateFilter !== 'all') {
-      const selectedDate = this.approverDateFilter.trim();
-      filtered = filtered.filter(req => req.date === selectedDate);
-    }
+          <!-- 2. REQUESTER -->
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            <div class="flex items-center space-x-2.5 max-w-[200px]">
+              <div class="w-7 h-7 rounded-full bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center shrink-0">
+                ${initials}
+              </div>
+              <span class="font-semibold text-xs text-stone-900 truncate leading-tight" title="${requesterName}">${requesterName}</span>
+            </div>
+          </td>
 
-    // 6. Filter by Room Type
-    if (this.approverRoomTypeFilter === 'public') {
-      filtered = filtered.filter(req => !req.isPrivateRequest && !req.room?.isPrivate);
-    } else if (this.approverRoomTypeFilter === 'private') {
-      filtered = filtered.filter(req => req.isPrivateRequest || req.room?.isPrivate);
-    }
+          <!-- 3. ROOM (Clean Typography - Zero Icon) -->
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            <div class="min-w-0">
+              <span class="font-semibold text-xs text-stone-900 block truncate leading-tight">${roomShort}</span>
+              <span class="text-[11px] text-stone-400 block truncate mt-0.5 leading-tight">${roomFloor}</span>
+            </div>
+          </td>
 
-    // 7. Filter by Department
-    if (this.approverDeptFilter && this.approverDeptFilter !== 'all') {
-      filtered = filtered.filter(req => req.requester?.department === this.approverDeptFilter);
-    }
+          <!-- 4. SCHEDULE (Clean Typography - Zero Icon) -->
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            <div class="min-w-0">
+              <span class="font-semibold text-xs text-stone-900 block truncate leading-tight">${formattedDate}</span>
+              <span class="text-[11px] text-stone-500 font-mono block mt-0.5 leading-tight">${timeRange}</span>
+            </div>
+          </td>
 
-    // Pagination
-    const pageSize = this.approverViewMode === 'cards' ? (this.approverCardsPageSize || 4) : (this.approverTablePageSize || 6);
+          <!-- 5. SERVICES -->
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            <div class="flex items-center space-x-2 text-xs">
+              ${req.needsCatering ? `<span class="text-amber-600 flex items-center space-x-1" title="Catering / Food"><span class="iconify text-xs" data-icon="lucide:utensils" data-stroke-width="1.8"></span><span>Food</span></span>` : ''}
+              ${req.needsIT ? `<span class="text-[#991B1B] flex items-center space-x-1" title="IT Setup"><span class="iconify text-xs" data-icon="lucide:headset" data-stroke-width="1.8"></span><span>IT</span></span>` : ''}
+              ${!req.needsCatering && !req.needsIT ? `<span class="text-stone-400 text-[11px]">None</span>` : ''}
+            </div>
+          </td>
+
+          <!-- 6. STATUS -->
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            ${statusHtml}
+          </td>
+
+          <!-- 7. ACTIONS -->
+          <td class="px-4 py-3.5 whitespace-nowrap text-right pr-6">
+            <div class="flex items-center justify-end space-x-1.5">
+              ${isPending ? `
+                <button type="button" onclick="app.quickApproverApprove('${reqId}')" title="Approve request" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white flex items-center space-x-1 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                  <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
+                  <span class="text-white">Approve</span>
+                </button>
+                <button type="button" onclick="app.quickApproverReject('${reqId}')" title="Decline reservation" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-stone-50 active:bg-stone-100 text-stone-700 border border-stone-200 flex items-center space-x-1 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                  <span class="iconify text-xs text-stone-600" data-icon="lucide:x" data-stroke-width="2"></span>
+                  <span>Decline</span>
+                </button>
+                <button type="button" onclick="app.openPitikaReviewWorkspace('${reqId}')" title="Open Review Workspace" class="w-7 h-7 rounded-lg bg-white hover:bg-stone-50 active:bg-stone-100 text-stone-600 border border-stone-200 flex items-center justify-center shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                  <span class="iconify text-sm text-stone-600" data-icon="lucide:file-text" data-stroke-width="2"></span>
+                </button>
+              ` : `
+                <button type="button" onclick="app.openPitikaReviewWorkspace('${reqId}')" title="Open Review Workspace" class="h-7 px-2.5 rounded-lg bg-white hover:bg-stone-50 active:bg-stone-100 text-stone-700 border border-stone-200 text-xs font-semibold flex items-center space-x-1 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+                  <span class="iconify text-xs text-stone-500" data-icon="lucide:file-text" data-stroke-width="1.8"></span>
+                  <span>View</span>
+                </button>
+              `}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    let tableHtml = `
+      <div class="bg-white rounded-2xl border border-[#E9E3DD] overflow-hidden shadow-2xs flex flex-col flex-1 min-h-0">
+        <div class="overflow-x-auto overflow-y-auto flex-1 hide-scrollbar">
+          <table class="w-full text-left border-collapse relative">
+            <thead class="bg-[#FAF7F5] border-b border-[#E9E3DD] sticky top-0 z-10 shadow-xs">
+              <tr>
+                <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortApproverBy('id')">
+                  <div class="flex items-center space-x-1">
+                    <span>REQUEST</span>
+                    ${this._getSortIcon('id')}
+                  </div>
+                </th>
+                <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortApproverBy('requester')">
+                  <div class="flex items-center space-x-1">
+                    <span>REQUESTER</span>
+                    ${this._getSortIcon('requester')}
+                  </div>
+                </th>
+                <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortApproverBy('room')">
+                  <div class="flex items-center space-x-1">
+                    <span>ROOM</span>
+                    ${this._getSortIcon('room')}
+                  </div>
+                </th>
+                <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortApproverBy('schedule')">
+                  <div class="flex items-center space-x-1">
+                    <span>SCHEDULE</span>
+                    ${this._getSortIcon('schedule')}
+                  </div>
+                </th>
+                <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500">
+                  <span>SERVICES</span>
+                </th>
+                <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 cursor-pointer select-none" onclick="app.sortApproverBy('status')">
+                  <div class="flex items-center space-x-1">
+                    <span>STATUS</span>
+                    ${this._getSortIcon('status')}
+                  </div>
+                </th>
+                <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 text-right pr-6">
+                  <span>ACTIONS</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100">
+              ${tableRowsHtml}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Pagination Footer -->
+        <div class="shrink-0 bg-white border-t border-[#E9E3DD] px-4 py-3 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-stone-500 font-medium">
+              Showing <strong class="text-stone-800 font-semibold">${startIdx + 1}–${Math.min(endIdx, totalItems)}</strong> of <strong class="text-stone-800 font-semibold">${totalItems}</strong> requests
+            </span>
+          </div>
+
+          <div class="flex items-center space-x-1.5">
+            <button type="button" onclick="app.goToApproverPage(${this.approverCurrentPage - 1})" ${this.approverCurrentPage === 0 ? 'disabled' : ''} class="px-2 py-1 text-xs font-medium flex items-center space-x-1 ${this.approverCurrentPage === 0 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-700 hover:text-stone-900 cursor-pointer'}">
+              <span class="iconify text-xs" data-icon="lucide:chevron-left" data-stroke-width="2"></span>
+              <span>Prev</span>
+            </button>
+            ${this._renderPagePills(totalPages)}
+            <button type="button" onclick="app.goToApproverPage(${this.approverCurrentPage + 1})" ${this.approverCurrentPage >= totalPages - 1 ? 'disabled' : ''} class="px-2 py-1 text-xs font-semibold flex items-center space-x-1 ${this.approverCurrentPage >= totalPages - 1 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-800 hover:text-black cursor-pointer'}">
+              <span>Next</span>
+              <span class="iconify text-xs" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    container.innerHTML = tableHtml;
+  }
+
+  // =========================================================================
+  // RENDER MODE B: CARD VIEW (Matching owner-queue cards grid & typography)
+  // =========================================================================
+  _renderCardsView(container, filtered) {
+    const pageSize = this.approverCardsPageSize || 4;
     const totalItems = filtered.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
     if (this.approverCurrentPage >= totalPages) this.approverCurrentPage = totalPages - 1;
@@ -451,414 +970,401 @@ class PitikaQueueView {
     const endIdx = startIdx + pageSize;
     const paginatedItems = filtered.slice(startIdx, endIdx);
 
-    // Empty State
-    if (filtered.length === 0) {
-      const isDateFiltered = !!this.approverDateFilter && this.approverDateFilter !== 'all';
-      const otherDatesPending = isDateFiltered
-        ? allRequests.filter(r => (r.status === 'Pending Review' || r.status === 'Pending Manager Review') && r.date !== this.approverDateFilter).length
-        : 0;
-      const totalOtherRequests = isDateFiltered
-        ? allRequests.filter(r => r.date !== this.approverDateFilter).length
-        : 0;
-
-      let emptyTitle = "No Review Requests Match";
-      let emptySubtitle = "Try clearing your search term, changing the date filter, or selecting a different status tab.";
-      let emptyActions = `
-        <button onclick="app.resetApproverFilters()" class="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold text-xs rounded-lg transition border border-stone-200 shadow-2xs cursor-pointer">
-          Clear All Filters
-        </button>
-      `;
-
-      if (isDateFiltered && totalOtherRequests > 0) {
-        emptyTitle = "No Review Requests For Selected Date";
-        emptySubtitle = otherDatesPending > 0
-          ? `There are no requests for this date, but <strong>${otherDatesPending} pending request${otherDatesPending > 1 ? 's are' : ' is'} waiting on other dates</strong>.`
-          : `There are no requests for this date, but ${totalOtherRequests} request${totalOtherRequests > 1 ? 's exist' : ' exists'} on other dates.`;
-        emptyActions = `
-          <button onclick="app.clearApproverDateFilter()" class="px-4 py-2 bg-red-800 hover:bg-red-900 text-white font-semibold text-xs rounded-lg transition shadow-2xs flex items-center space-x-1.5 cursor-pointer">
-            <span class="iconify text-xs" data-icon="lucide:calendar-range"></span>
-            <span>View All Dates</span>
-          </button>
-          <button onclick="app.resetApproverFilters()" class="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-xs rounded-lg transition border border-stone-200 shadow-2xs cursor-pointer">
-            Reset Filters
-          </button>
-        `;
-      }
-
-      container.innerHTML = `
-        <div class="py-12 px-4 text-center bg-white rounded-xl border border-[#E9E3DD] shadow-xs space-y-3">
-          <div class="w-12 h-12 rounded-full bg-stone-100 text-stone-500 mx-auto flex items-center justify-center">
-            <span class="iconify text-xl" data-icon="lucide:inbox" data-stroke-width="1.8"></span>
-          </div>
-          <div class="space-y-1">
-            <h4 class="text-sm font-heading font-bold text-stone-900">${emptyTitle}</h4>
-            <p class="text-xs text-stone-500 max-w-md mx-auto leading-relaxed">${emptySubtitle}</p>
-          </div>
-          <div class="flex items-center justify-center gap-2 pt-2">
-            ${emptyActions}
-          </div>
-        </div>
-      `;
-      return;
-    }
-
-    // =========================================================================
-    // =========================================================================
-    // RENDER MODE A: EXECUTIVE DATA TABLE (Clean & Minimal - No Clutter)
-    // =========================================================================
-    if (this.approverViewMode === 'table') {
-      let tableRowsHtml = paginatedItems.map(req => {
-        const isPending = req.status === 'Pending Review' || req.status === 'Pending Manager Review';
-        const isOwnerPending = req.status === 'Pending Room Owner Approval';
-        const isSetup = req.status === 'Approved - Setup In Progress';
-        const isConfirmed = req.status === 'Approved - Confirmed';
-        const isRejected = req.status === 'Rejected';
-        const isCancelled = req.status === 'Cancelled';
-        const isPrivate = req.isPrivateRequest || req.room?.isPrivate;
-
-        // Check if the scheduled meeting date and time has passed
-        let isPassed = false;
-        if (req.date) {
-          const now = new Date();
-          const endTimeStr = req.endTime || '23:59';
-          const meetingEnd = new Date(`${req.date}T${endTimeStr}:00`);
-          if (!isNaN(meetingEnd.getTime())) {
-            isPassed = meetingEnd < now;
-          }
-        }
-
-        let statusLabel = 'Waiting Review';
-        let statusBadgeClass = 'badge-pending';
-        if (isConfirmed) {
-          statusLabel = 'Confirmed';
-          statusBadgeClass = 'badge-approved';
-        } else if (isRejected) {
-          statusLabel = 'Rejected';
-          statusBadgeClass = 'badge-rejected';
-        } else if (isCancelled) {
-          statusLabel = 'Cancelled';
-          statusBadgeClass = 'badge-cancelled';
-        } else if (isOwnerPending) {
-          statusLabel = 'Sent to Owner';
-          statusBadgeClass = 'badge-owner-pending';
-        } else if (isSetup) {
-          statusLabel = 'Setting Up';
-          statusBadgeClass = 'badge-setup';
-        }
-
-        const rowClass = isPassed
-          ? 'approver-row-item opacity-60 hover:opacity-100 transition-opacity bg-stone-50/60'
-          : 'approver-row-item hover:bg-stone-50/80 transition-colors';
-
-        return `
-          <!-- Main Clean Table Row -->
-          <tr class="${rowClass} h-[52px]">
-            
-            <!-- 1. Meeting ID (Clean & Clickable to Review Workspace) -->
-            <td class="px-4 py-3 whitespace-nowrap">
-              <div class="flex items-center space-x-2">
-                ${isPrivate ? `
-                  <span class="${isPassed ? 'text-stone-400' : 'text-amber-600'} shrink-0" title="Private Executive Room">
-                    <span class="iconify text-sm" data-icon="lucide:lock"></span>
-                  </span>
-                ` : ''}
-                <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="font-mono font-bold text-xs ${isPassed ? 'text-stone-600' : 'text-stone-900'} hover:text-red-900 transition underline-offset-2 hover:underline inline-flex items-center cursor-pointer" title="Click to view details in Review Workspace">
-                  ${req.id}
-                </button>
-              </div>
-            </td>
-
-            <!-- 2. Requester (Name only) -->
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="${isPassed ? 'text-stone-600 font-medium' : 'text-stone-800 font-semibold'} text-xs">${req.requester.name}</span>
-            </td>
-
-            <!-- 3. Room (Room name only) -->
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="${isPassed ? 'text-stone-600 font-medium' : 'text-stone-800 font-semibold'} text-xs">${req.room.name}</span>
-            </td>
-
-            <!-- 4. Schedule (Date & Time on 1 clean line) -->
-            <td class="px-4 py-3 whitespace-nowrap">
-              ${isPassed ? `
-                <div class="flex items-center space-x-1.5 text-xs whitespace-nowrap text-stone-400">
-                  <span class="iconify text-xs text-stone-400 shrink-0" data-icon="lucide:history"></span>
-                  <span class="text-stone-500 font-normal">${req.date}</span>
-                  <span class="text-stone-400 text-[11px]">(${req.startTime}–${req.endTime})</span>
-                </div>
-              ` : `
-                <div class="flex items-center space-x-1.5 text-xs whitespace-nowrap">
-                  <strong class="text-stone-900 font-semibold">${req.date}</strong>
-                  <span class="text-stone-500 text-[11px]">(${req.startTime}–${req.endTime})</span>
-                </div>
-              `}
-            </td>
-
-            <!-- 5. Status -->
-            <td class="px-4 py-3 whitespace-nowrap">
-              <span class="px-2.5 py-0.5 rounded text-[11px] font-bold ${statusBadgeClass} inline-flex items-center shadow-2xs whitespace-nowrap">
-                <span>${statusLabel}</span>
-              </span>
-            </td>
-
-            <!-- 6. Action (Review button - click to view details and approve/reject) -->
-            <td class="px-4 py-3 whitespace-nowrap text-right pr-6">
-              ${isPassed ? `
-                <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" aria-label="View request ${req.id}" class="min-h-[30px] w-[76px] py-1 rounded-md text-xs font-semibold bg-white hover:bg-stone-100 text-stone-600 border border-[#E9E3DD] shadow-2xs transition inline-flex items-center justify-center space-x-1.5 cursor-pointer">
-                  <span class="iconify text-xs text-stone-400" data-icon="lucide:eye" data-stroke-width="1.8"></span>
-                  <span>View</span>
-                </button>
-              ` : `
-                <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" aria-label="View request ${req.id}" class="btn-primary min-h-[30px] w-[76px] py-1 rounded-md text-xs font-bold transition inline-flex items-center justify-center space-x-1.5 shadow-2xs cursor-pointer">
-                  <span class="iconify text-xs text-white" data-icon="lucide:eye" data-stroke-width="1.8"></span>
-                  <span>View</span>
-                </button>
-              `}
-            </td>
-          </tr>
-        `;
-      }).join('');
-
-      let tableHtml = `
-        <div class="bg-white rounded-2xl border border-[#E9E3DD] overflow-hidden shadow-2xs flex flex-col flex-1 min-h-0">
-          <div class="overflow-x-auto overflow-y-auto flex-1 hide-scrollbar">
-            <table class="w-full min-w-[760px] text-left border-collapse relative">
-              <thead class="bg-[#FAF7F5] border-b border-[#E9E3DD] sticky top-0 z-10 shadow-sm">
-                <tr>
-                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 w-[140px]">MEETING ID</th>
-                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 w-[170px]">REQUESTER</th>
-                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 w-[190px]">ROOM</th>
-                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 w-[210px]">SCHEDULE</th>
-                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 w-[140px]">STATUS</th>
-                  <th class="px-4 py-3.5 text-[11px] font-bold uppercase tracking-wider text-stone-500 text-right pr-6 w-[100px]">ACTION</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-stone-100">
-                ${tableRowsHtml}
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Table Bottom Action & Pagination Bar (Fixed at bottom, matching Private Requests) -->
-          <div class="shrink-0 bg-white relative z-20">
-            ${this._renderTableActionFooter(totalPages, totalItems, startIdx, Math.min(endIdx, totalItems))}
-          </div>
-        </div>
-      `;
-
-      container.innerHTML = tableHtml;
-      return;
-    }
-
-    // =========================================================================
-    // RENDER MODE B: CARD VIEW (Exact match to Private Room Owner Review Request card)
-    // =========================================================================
-    let cardsHtml = paginatedItems.map(req => {
-      const isPending = req.status === 'Pending Review' || req.status === 'Pending Manager Review' || req.statusDisplay === 'Pending Review';
-      const isOwnerPending = req.status === 'Pending Room Owner Approval';
-      const isConfirmed = req.status === 'Approved - Confirmed' || req.status === 'Approved' || req.statusDisplay === 'Approved';
-      const isSetup = req.status === 'Approved - Setup In Progress';
-      const isRejected = req.status === 'Rejected';
-      const isCancelled = req.status === 'Cancelled';
-      const isConflict = req.status === 'Time Conflict' || req.statusDisplay === 'Time Conflict' || req.hasConflict;
-
-      // Check if the scheduled meeting date and time has passed
-      let isPassed = false;
-      if (req.date) {
-        const endTimeStr = req.endTime || '23:59';
-        const meetingEnd = new Date(`${req.date}T${endTimeStr}:00`);
-        if (!isNaN(meetingEnd.getTime())) {
-          isPassed = meetingEnd < now;
-        }
-      }
-
-      let statusLabel = 'Waiting Review';
-      let statusIcon = 'lucide:clock';
-      let statusColor = 'text-amber-600';
-
-      if (isConflict) {
-        statusLabel = 'Time Conflict';
-        statusIcon = 'lucide:alert-circle';
-        statusColor = 'text-red-600';
-      } else if (isConfirmed) {
-        statusLabel = 'Approved & Ready';
-        statusIcon = 'lucide:check-circle-2';
-        statusColor = 'text-emerald-600';
-      } else if (isOwnerPending) {
-        statusLabel = 'Waiting Owner';
-        statusIcon = 'lucide:clock';
-        statusColor = 'text-amber-600';
-      } else if (isSetup) {
-        statusLabel = 'Setting Up';
-        statusIcon = 'lucide:settings';
-        statusColor = 'text-blue-600';
-      } else if (isRejected) {
-        statusLabel = 'Rejected';
-        statusIcon = 'lucide:x-circle';
-        statusColor = 'text-red-600';
-      } else if (isCancelled) {
-        statusLabel = 'Cancelled';
-        statusIcon = 'lucide:slash';
-        statusColor = 'text-stone-500';
-      }
-
-      const avatarUrl = req.requester?.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(req.requester?.name || 'Jonathan Vance') + '&background=f3e8ff&color=7e22ce';
-      const roomImgUrl = req.room?.image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80';
-      const roomShortName = (req.room?.name || 'Meeting Room').split(' - ')[0];
-      const floorShort = (req.room?.floor || 'Level 18').split('(')[0].trim();
-
-      return `
-        <div class="bg-white rounded-xl border border-[#E9E3DD] p-3.5 sm:p-4 transition-all duration-150 hover:border-[#D8CFC7] hover:shadow-2xs flex flex-col justify-between ${isPassed ? 'opacity-60 hover:opacity-100' : ''}">
-          <!-- Row 1: Meeting ID + Requester + Clean Status -->
-          <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-stone-100">
-            <div class="flex items-center space-x-2 min-w-0">
-              <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="font-mono font-bold text-xs text-[#991B1B] hover:underline shrink-0 cursor-pointer" title="Open in Review Workspace">
-                ${req.id}
-              </button>
-              <span class="text-stone-300 shrink-0">•</span>
-              <div class="flex items-center space-x-2 min-w-0 truncate">
-                <img src="${avatarUrl}" class="w-6 h-6 rounded-full object-cover border border-[#E9E3DD] shrink-0" style="width: 24px; height: 24px; min-width: 24px;" alt="Avatar" />
-                <span class="text-xs text-stone-800 font-semibold truncate">${req.requester?.name || 'Jonathan Vance'}</span>
-              </div>
-            </div>
-            <div class="shrink-0 flex items-center space-x-1 text-xs font-bold ${statusColor}">
-              <span class="iconify text-xs" data-icon="${statusIcon}" data-stroke-width="2"></span>
-              <span class="whitespace-nowrap text-[11px]">${statusLabel}</span>
-            </div>
-          </div>
-
-          <!-- Row 2: Room Thumbnail + Schedule + Services -->
-          <div class="flex items-center gap-3 py-3">
-            <img src="${roomImgUrl}" class="rounded-lg object-cover border border-[#E9E3DD] shrink-0" style="width: 88px; height: 68px; min-width: 88px; max-width: 88px;" alt="Room" />
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center justify-between gap-1">
-                <h4 class="font-heading font-bold text-xs sm:text-sm text-stone-900 truncate leading-tight" title="${req.room?.name || ''}">${roomShortName}</h4>
-                <div class="flex items-center space-x-1.5 shrink-0 text-[10px] font-bold">
-                  ${req.isPrivateRequest || req.room?.isPrivate ? `<span class="text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200" title="Private Room">Private</span>` : ''}
-                  ${req.needsCatering ? `<span class="text-amber-600 flex items-center space-x-0.5" title="Food / Catering"><span class="iconify text-[11px]" data-icon="lucide:utensils" data-stroke-width="1.8"></span><span>Food</span></span>` : ''}
-                  ${req.needsIT ? `<span class="text-red-600 flex items-center space-x-0.5" title="IT Technician Setup"><span class="iconify text-[11px]" data-icon="lucide:headset" data-stroke-width="1.8"></span><span>IT</span></span>` : ''}
-                  ${req.attendees ? `<span class="text-stone-500 flex items-center space-x-0.5" title="${req.attendees} Attendees"><span class="iconify text-[11px]" data-icon="lucide:users" data-stroke-width="1.8"></span><span>${req.attendees}</span></span>` : ''}
-                </div>
-              </div>
-              <div class="text-[11px] text-stone-500 truncate mt-0.5">${floorShort}${req.meetingTitle ? ` • <span class="text-stone-700 font-medium">${req.meetingTitle}</span>` : ''}</div>
-              <div class="flex items-center space-x-1.5 text-xs font-mono font-medium text-stone-700 pt-1">
-                <span class="inline-flex items-center space-x-1">
-                  <span class="iconify text-xs text-[#D97706]" data-icon="lucide:calendar" data-stroke-width="2"></span>
-                  <span>${req.date}</span>
-                </span>
-                <span class="text-stone-300">•</span>
-                <span class="inline-flex items-center space-x-1 font-semibold text-stone-900">
-                  <span class="iconify text-xs text-[#D97706]" data-icon="lucide:clock" data-stroke-width="2"></span>
-                  <span>${req.startTime}–${req.endTime}</span>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Row 3: Action Buttons -->
-          <div class="pt-2.5 border-t border-stone-100 flex items-center gap-2">
-            <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="w-full ${isPassed ? 'btn-secondary text-stone-600' : 'btn-primary text-white'} min-h-[34px] h-[34px] px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-1 cursor-pointer active:scale-[0.98]">
-              <span class="iconify ${isPassed ? 'text-stone-500' : 'text-white'} text-xs" data-icon="lucide:eye" data-stroke-width="2"></span>
-              <span>${isPassed ? 'View Details' : 'View Decision'}</span>
-            </button>
-          </div>
-        </div>
-      `;
+    const cardsHtml = paginatedItems.map(req => {
+      return this._renderSinglePitikaCard(req);
     }).join('');
 
-    // Wrap cards in a 2-column grid matching Private Room Owner cards
     let finalHtml = `
       <div class="flex flex-col flex-1 min-h-0">
         <div class="flex-1 overflow-y-auto hide-scrollbar pb-4 pr-1">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div class="pitika-queue-cards-grid">
             ${cardsHtml}
           </div>
         </div>
+
+        <!-- Pagination Controls for Card View -->
+        <div class="shrink-0 mt-auto pt-2 bg-[#F9F7F5] border-t border-[#E9E3DD]/60 flex items-center justify-between">
+          <span class="text-xs text-stone-500 font-medium">Showing <strong class="text-stone-800 font-semibold">${startIdx + 1}–${Math.min(endIdx, totalItems)}</strong> of <strong class="text-stone-800 font-semibold">${totalItems}</strong> requests</span>
+          <div class="flex items-center space-x-1.5">
+            <button type="button" onclick="app.goToApproverPage(${this.approverCurrentPage - 1})" ${this.approverCurrentPage === 0 ? 'disabled' : ''} aria-label="Previous page" class="px-2 py-1 text-xs font-medium flex items-center space-x-1 ${this.approverCurrentPage === 0 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-700 hover:text-stone-900 cursor-pointer'}">
+              <span class="iconify text-xs" data-icon="lucide:chevron-left" data-stroke-width="2"></span>
+              <span>Prev</span>
+            </button>
+            ${this._renderPagePills(totalPages)}
+            <button type="button" onclick="app.goToApproverPage(${this.approverCurrentPage + 1})" ${this.approverCurrentPage >= totalPages - 1 ? 'disabled' : ''} aria-label="Next page" class="px-2 py-1 text-xs font-semibold flex items-center space-x-1 ${this.approverCurrentPage >= totalPages - 1 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-800 hover:text-black cursor-pointer'}">
+              <span>Next</span>
+              <span class="iconify text-xs" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
+            </button>
+          </div>
+        </div>
+      </div>
     `;
 
-    // Pagination Controls for Card View
-    if (totalItems > 0) {
-      finalHtml += `
-        <div class="shrink-0 mt-auto pt-2 relative z-20">
-          ${this._renderPaginationControls(totalPages, totalItems, startIdx, endIdx)}
-        </div>
-      `;
-    }
-
-    finalHtml += `</div>`;
     container.innerHTML = finalHtml;
   }
 
-  _renderTableActionFooter(totalPages, totalItems, startIdx, showingEnd) {
-    const currentPage = this.approverCurrentPage;
+  _renderSinglePitikaCard(req) {
+    const isPending = req.status === 'Pending Review' || req.status === 'Pending Manager Review' || req.statusDisplay === 'Pending Review';
+    const isOwnerPending = req.status === 'Pending Room Owner Approval';
+    const isSetup = req.status === 'Approved - Setup In Progress' || req.statusDisplay === 'Setting Up';
+    const isConfirmed = req.status === 'Approved - Confirmed' || req.status === 'Approved' || req.statusDisplay === 'Approved';
+    const isRejected = req.status === 'Rejected' || req.statusDisplay === 'Rejected';
+    const isConflict = req.status === 'Time Conflict' || req.statusDisplay === 'Time Conflict' || req.hasConflict;
+    const isPrivate = req.isPrivateRequest || req.room?.isPrivate;
 
-    let pageButtons = '';
-    for (let i = 0; i < totalPages; i++) {
-      const isActive = i === currentPage;
-      pageButtons += `
-        <button type="button" onclick="app.goToApproverPage(${i})" class="w-7 h-7 rounded-lg text-xs font-bold ${isActive ? 'bg-[#991B1B] text-white shadow-2xs' : 'text-stone-700 hover:bg-stone-100 cursor-pointer'} flex items-center justify-center transition">
-          ${i + 1}
-        </button>
-      `;
+    let statusLabel = 'Waiting Review';
+    let statusIcon = 'lucide:clock';
+    let statusBadgeClass = 'bg-[#FFFBEB] text-[#D97706] border border-[#FDE68A]';
+
+    if (isConflict) {
+      statusLabel = 'Time Conflict';
+      statusIcon = 'lucide:alert-circle';
+      statusBadgeClass = 'bg-rose-50 text-rose-700 border border-rose-200';
+    } else if (isOwnerPending) {
+      statusLabel = 'Sent to Owner';
+      statusIcon = 'lucide:shield-check';
+      statusBadgeClass = 'bg-purple-50 text-purple-700 border border-purple-200';
+    } else if (isConfirmed) {
+      statusLabel = 'Approved';
+      statusIcon = 'lucide:check-circle-2';
+      statusBadgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+    } else if (isSetup) {
+      statusLabel = 'Setting Up';
+      statusIcon = 'lucide:settings';
+      statusBadgeClass = 'bg-blue-50 text-blue-700 border border-blue-200';
+    } else if (isRejected) {
+      statusLabel = 'Rejected';
+      statusIcon = 'lucide:x-circle';
+      statusBadgeClass = 'bg-stone-50 text-stone-700 border border-stone-200';
     }
 
+    const roomObj = (typeof bookingStore !== 'undefined' && bookingStore.getRoomById) ? (bookingStore.getRoomById(req.room?.id) || req.room || {}) : (req.room || {});
+    const roomImgUrl = roomObj.image || req.room?.image || 'assets/rooms/boardroom-alpha.jpg';
+    const roomShortName = (roomObj.name || req.room?.name || 'Meeting Room').split(' - ')[0];
+    const floorShort = (roomObj.floor || req.room?.floor || 'Level 18').split('(')[0].trim();
+    const refCode = req.referenceCode || req.id || 'NBC-MR-2026';
+    const requesterName = req.requester?.name || 'Jonathan Vance';
+    const avatarUrl = req.requester?.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(requesterName) + '&background=f3e8ff&color=7e22ce';
+
     return `
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-2.5 bg-white border-t border-[#E9E3DD] h-[52px] shrink-0">
-        <div>
-          <span class="text-xs text-stone-500 font-medium">
-            Showing <strong class="text-stone-800 font-semibold">${startIdx + 1}–${showingEnd}</strong> of <strong class="text-stone-800 font-semibold">${totalItems}</strong> requests
-          </span>
+      <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-4.5 shadow-xs transition-all duration-150 hover:border-[#D8CFC7] hover:shadow-sm flex flex-col justify-between animate-card-fade-in">
+        <!-- Row 1: ID + Reference Code + Status Pill -->
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center space-x-2 min-w-0">
+            ${isPrivate ? `
+              <span class="text-amber-600 shrink-0" title="Private Executive Room">
+                <span class="iconify text-xs" data-icon="lucide:lock" data-stroke-width="2"></span>
+              </span>
+            ` : ''}
+            <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="font-mono font-bold text-xs text-[#991B1B] hover:underline cursor-pointer" title="Open Review Workspace">
+              ${req.id}
+            </button>
+            <span class="text-stone-300 font-light">•</span>
+            <button type="button" onclick="app.copyApproverReferenceCode('${refCode}')" title="Click to copy reference code" class="font-mono text-xs font-normal text-stone-500 hover:text-stone-800 flex items-center space-x-1 cursor-pointer">
+              <span>${refCode}</span>
+              <span class="iconify text-xs text-stone-400 hover:text-stone-600" data-icon="lucide:copy" data-stroke-width="2"></span>
+            </button>
+          </div>
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass} shrink-0">
+            <span class="iconify text-xs" data-icon="${statusIcon}" data-stroke-width="2"></span>
+            <span>${statusLabel}</span>
+          </div>
         </div>
 
-        <div class="flex items-center space-x-1.5">
-          <button type="button" onclick="app.goToApproverPage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''} class="px-2 py-1 text-xs font-medium flex items-center space-x-1 ${currentPage === 0 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-700 hover:text-stone-900 cursor-pointer'}">
-            <span class="iconify text-xs" data-icon="lucide:chevron-left" data-stroke-width="2"></span>
-            <span>Prev</span>
-          </button>
-          ${pageButtons}
-          <button type="button" onclick="app.goToApproverPage(${currentPage + 1})" ${currentPage >= totalPages - 1 ? 'disabled' : ''} class="px-2 py-1 text-xs font-semibold flex items-center space-x-1 ${currentPage >= totalPages - 1 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-800 hover:text-black cursor-pointer'}">
-            <span>Next</span>
-            <span class="iconify text-xs" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
-          </button>
+        <!-- Row 2: Room Thumbnail + Meeting Specs + Services Tag -->
+        <div class="flex items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-3.5">
+          <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
+            <img src="${roomImgUrl}" class="rounded-xl object-cover border border-[#E9E3DD] shrink-0 w-[116px] sm:w-[124px] h-[74px] sm:h-[78px] shadow-2xs" alt="Room" />
+            <div class="min-w-0">
+              <h4 class="font-heading font-semibold text-sm text-stone-900 leading-snug truncate" title="${req.meetingTitle || ''}">${req.meetingTitle || req.meetingPurpose || 'Department Meeting'}</h4>
+              <div class="flex items-center space-x-1.5 text-xs text-stone-500 mt-1 font-normal">
+                <span class="iconify text-stone-400 text-xs shrink-0" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+                <span>${floorShort} • ${roomShortName}</span>
+              </div>
+              <div class="flex items-center flex-wrap sm:flex-nowrap gap-x-2 gap-y-0.5 text-xs font-mono font-medium text-stone-600 mt-1.5">
+                <span class="inline-flex items-center space-x-1 text-stone-600 shrink-0">
+                  <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:calendar" data-stroke-width="2"></span>
+                  <span>${req.date}</span>
+                </span>
+                <span class="text-stone-300 font-light hidden sm:inline">•</span>
+                <span class="inline-flex items-center space-x-1 font-semibold text-stone-800 shrink-0">
+                  <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:clock" data-stroke-width="2"></span>
+                  <span>${req.startTime} – ${req.endTime}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Services Tag (Right Side) -->
+          <div class="shrink-0 flex items-center space-x-2 text-xs font-medium">
+            ${req.needsCatering ? `
+              <span class="flex items-center space-x-1 text-[#D97706]" title="Catering / Food">
+                <span class="iconify text-sm text-[#D97706]" data-icon="lucide:utensils" data-stroke-width="2"></span>
+                <span>Food</span>
+              </span>
+            ` : ''}
+            ${req.needsIT ? `
+              <span class="flex items-center space-x-1 text-[#991B1B]" title="IT Setup">
+                <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:headset" data-stroke-width="2"></span>
+                <span>IT</span>
+              </span>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- Row 3: Requester Metadata Strip -->
+        <div class="flex items-center justify-between gap-2 py-2 px-3 mb-2 rounded-xl bg-stone-50 border border-stone-200/70 text-xs">
+          <div class="flex items-center space-x-2 min-w-0">
+            <img src="${avatarUrl}" class="w-5 h-5 rounded-full object-cover border border-[#E9E3DD] shrink-0" alt="Requester" />
+            <span class="font-semibold text-stone-800 truncate">${requesterName}</span>
+            <span class="text-stone-400 hidden sm:inline">•</span>
+            <span class="text-stone-500 truncate hidden sm:inline">${req.requester?.department || 'NBC Operations'}</span>
+          </div>
+          <div class="flex items-center space-x-1.5 shrink-0">
+            ${isPrivate ? `
+              <span class="inline-flex items-center space-x-1 text-[11px] font-medium text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                <span class="iconify text-xs text-amber-700" data-icon="lucide:lock" data-stroke-width="2"></span>
+                <span>Private Room</span>
+              </span>
+            ` : `
+              <span class="inline-flex items-center space-x-1 text-[11px] font-medium text-stone-600 bg-stone-100 px-2 py-0.5 rounded border border-stone-200">
+                <span class="iconify text-xs text-stone-500" data-icon="lucide:users" data-stroke-width="2"></span>
+                <span>${req.attendees || 8} Attendees</span>
+              </span>
+            `}
+          </div>
+        </div>
+
+        <!-- Stepper: Visual Approval Progress -->
+        ${this._renderApproverBookingStepper(req)}
+
+        <!-- Row 5: Action Buttons (Consistently h-[36px] rounded-xl) -->
+        <div class="mt-3.5 flex items-center gap-2 sm:gap-2.5">
+          ${isPending ? `
+            <button type="button" onclick="app.quickApproverApprove('${req.id}')" title="Approve request" class="btn-primary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-bold text-white flex items-center justify-center space-x-1.5 shadow-2xs transition cursor-pointer active:scale-[0.98]">
+              <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
+              <span class="text-white">Approve</span>
+            </button>
+            <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" title="Open Review Workspace" class="flex-1 btn-secondary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
+              <span class="iconify text-xs text-stone-600" data-icon="lucide:file-text" data-stroke-width="2"></span>
+              <span>Review</span>
+            </button>
+            <button type="button" onclick="app.quickApproverReject('${req.id}')" title="Decline reservation" class="w-9 h-9 shrink-0 rounded-xl bg-white hover:bg-rose-50 text-[#991B1B] border border-rose-200 transition flex items-center justify-center cursor-pointer active:scale-[0.98]">
+              <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:x" data-stroke-width="2"></span>
+            </button>
+          ` : `
+            <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="w-full btn-secondary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
+              <span class="iconify text-xs text-stone-600" data-icon="lucide:eye" data-stroke-width="2"></span>
+              <span>View Workspace & Decision</span>
+            </button>
+          `}
         </div>
       </div>
     `;
   }
 
-  _renderPaginationControls(totalPages, totalItems, startIdx, endIdx) {
-    const currentPage = this.approverCurrentPage;
-    const showingEnd = Math.min(endIdx, totalItems);
+  _renderApproverBookingStepper(req) {
+    const isConfirmed = req.status === 'Approved - Confirmed' || req.status === 'Approved' || req.statusDisplay === 'Approved';
+    const isSetup = req.status === 'Approved - Setup In Progress' || req.statusDisplay === 'Setting Up';
+    const isOwnerPending = req.status === 'Pending Room Owner Approval';
+    const isRejected = req.status === 'Rejected' || req.statusDisplay === 'Rejected';
+    const isCancelled = req.status === 'Cancelled';
+    const isConflict = req.status === 'Time Conflict' || req.statusDisplay === 'Time Conflict' || req.hasConflict;
+    const isPrivate = req.isPrivateRequest || req.room?.isPrivate;
 
-    let pageButtons = '';
-    for (let i = 0; i < totalPages; i++) {
-      const isActive = i === currentPage;
-      pageButtons += `
-        <button type="button" onclick="app.goToApproverPage(${i})" class="w-7 h-7 rounded-lg text-xs font-bold ${isActive ? 'bg-[#991B1B] text-white shadow-2xs' : 'text-stone-700 hover:bg-stone-100 cursor-pointer'} flex items-center justify-center transition">
-          ${i + 1}
-        </button>
-      `;
+    // Compute progress percentage
+    let progressPercent = '0%';
+    if (isPrivate) {
+      if (isConfirmed) progressPercent = '100%';
+      else if (isSetup) progressPercent = '75%';
+      else if (isOwnerPending) progressPercent = '50%';
+      else if (!isRejected && !isCancelled && !isConflict) progressPercent = '25%';
+    } else {
+      if (isConfirmed) progressPercent = '100%';
+      else if (isSetup) progressPercent = '66.6%';
+      else if (!isRejected && !isCancelled && !isConflict) progressPercent = '33.3%';
     }
 
     return `
-      <div class="flex items-center justify-between pt-2 mt-0.5 h-[40px] shrink-0">
-        <span class="text-xs text-stone-500 font-medium">Showing <strong class="text-stone-800 font-semibold">${startIdx + 1}–${showingEnd}</strong> of <strong class="text-stone-800 font-semibold">${totalItems}</strong> requests</span>
-        <div class="flex items-center space-x-1.5">
-          <button type="button" onclick="app.goToApproverPage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''} aria-label="Previous page" class="px-2 py-1 text-xs font-medium flex items-center space-x-1 ${currentPage === 0 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-700 hover:text-stone-900 cursor-pointer'}">
-            <span class="iconify text-xs" data-icon="lucide:chevron-left" data-stroke-width="2"></span>
-            <span>Prev</span>
-          </button>
-          ${pageButtons}
-          <button type="button" onclick="app.goToApproverPage(${currentPage + 1})" ${currentPage >= totalPages - 1 ? 'disabled' : ''} aria-label="Next page" class="px-2 py-1 text-xs font-semibold flex items-center space-x-1 ${currentPage >= totalPages - 1 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-800 hover:text-black cursor-pointer'}">
-            <span>Next</span>
-            <span class="iconify text-xs" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
-          </button>
+      <div class="relative w-full my-3.5 pt-0.5 pb-1">
+        <!-- Connecting Line Background & Progress -->
+        <div class="absolute top-[11px] left-[8%] right-[8%] sm:left-[10%] sm:right-[10%] h-[2px] bg-[#E7DFD7] rounded-full z-0 pointer-events-none">
+          <div class="h-full bg-emerald-600 rounded-full transition-all duration-300" style="width: ${progressPercent};"></div>
+        </div>
+
+        <!-- Stepper Nodes Track -->
+        <div class="relative z-10 flex items-start justify-between w-full">
+          ${isPrivate ? `
+            <!-- Step 1: 1. Submitted -->
+            <div class="flex flex-col items-center text-center flex-1 min-w-0">
+              <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">1. Submitted</span>
+            </div>
+
+            <!-- Step 2: 2. Pitika -->
+            <div class="flex flex-col items-center text-center flex-1 min-w-0">
+              ${isOwnerPending || isConfirmed || isSetup ? `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                  <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">2. Pitika</span>
+              ` : (isConflict ? `
+                <div class="w-6 h-6 rounded-full bg-amber-600 ring-[4px] ring-amber-100 flex items-center justify-center shadow-xs">
+                  <span class="iconify text-xs text-white" data-icon="lucide:alert-circle" data-stroke-width="2"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-semibold text-amber-700 mt-2 whitespace-nowrap">2. Pitika</span>
+                <span class="text-[10px] sm:text-xs font-normal text-amber-600 mt-0.5 whitespace-nowrap">Conflict</span>
+              ` : (isRejected ? `
+                <div class="w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-2xs">
+                  <span class="iconify text-xs text-white" data-icon="lucide:x" data-stroke-width="2"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-semibold text-rose-700 mt-2 whitespace-nowrap">2. Pitika</span>
+                <span class="text-[10px] sm:text-xs font-normal text-rose-600 mt-0.5 whitespace-nowrap">Rejected</span>
+              ` : `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 border-2 border-white ring-[4px] ring-emerald-200/60 flex items-center justify-center shadow-xs"></div>
+                <span class="text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2 whitespace-nowrap">2. Pitika</span>
+                <span class="text-[10px] sm:text-xs font-normal text-stone-500 mt-0.5 whitespace-nowrap">Reviewing</span>
+              `))}
+            </div>
+
+            <!-- Step 3: 3. Room Owner -->
+            <div class="flex flex-col items-center text-center flex-1 min-w-0">
+              ${isConfirmed || isSetup ? `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                  <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">3. Room Owner</span>
+              ` : (isOwnerPending ? `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 border-2 border-white ring-[4px] ring-emerald-200/60 flex items-center justify-center shadow-xs"></div>
+                <span class="text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2 whitespace-nowrap">3. Room Owner</span>
+                <span class="text-[10px] sm:text-xs font-normal text-stone-500 mt-0.5 whitespace-nowrap">Waiting</span>
+              ` : `
+                <div class="w-6 h-6 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs">
+                  <span>3</span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-medium text-stone-400 mt-2 whitespace-nowrap">3. Room Owner</span>
+              `)}
+            </div>
+
+            <!-- Step 4: 4. IT Setup -->
+            <div class="flex flex-col items-center text-center flex-1 min-w-0">
+              ${isConfirmed ? `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                  <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">4. IT Setup</span>
+              ` : (isSetup ? `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 ring-[4px] ring-emerald-100 flex items-center justify-center shadow-xs">
+                  <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2 whitespace-nowrap">4. IT Setup</span>
+                <span class="text-[10px] sm:text-xs font-normal text-stone-500 mt-0.5 whitespace-nowrap">Setting Up</span>
+              ` : `
+                <div class="w-6 h-6 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs">
+                  <span>4</span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-medium text-stone-400 mt-2 whitespace-nowrap">4. IT Setup</span>
+              `)}
+            </div>
+
+            <!-- Step 5: 5. Door Pass -->
+            <div class="flex flex-col items-center text-center flex-1 min-w-0">
+              ${isConfirmed ? `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                  <span class="iconify text-xs text-white" data-icon="lucide:check-check" data-stroke-width="2"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-semibold text-stone-900 mt-2 whitespace-nowrap">5. Door Pass</span>
+              ` : `
+                <div class="w-6 h-6 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs">
+                  <span>5</span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-medium text-stone-400 mt-2 whitespace-nowrap">5. Door Pass</span>
+              `}
+            </div>
+          ` : `
+            <!-- Standard Public Room: 4 Steps -->
+            <div class="flex flex-col items-center text-center flex-1 min-w-0">
+              <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">1. Submitted</span>
+            </div>
+
+            <div class="flex flex-col items-center text-center flex-1 min-w-0">
+              ${isConfirmed || isSetup ? `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                  <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">2. Approved</span>
+              ` : (isRejected || isCancelled ? `
+                <div class="w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-2xs">
+                  <span class="iconify text-xs text-white" data-icon="lucide:x" data-stroke-width="2"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-semibold text-rose-700 mt-2 whitespace-nowrap">2. Pitika</span>
+                <span class="text-[10px] sm:text-xs font-normal text-rose-600 mt-0.5 whitespace-nowrap">${isCancelled ? 'Cancelled' : 'Rejected'}</span>
+              ` : `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 ring-[4px] ring-emerald-100 flex items-center justify-center shadow-xs">
+                  <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2 whitespace-nowrap">2. Pitika</span>
+                <span class="text-[10px] sm:text-xs font-normal text-stone-500 mt-0.5 whitespace-nowrap">Reviewing</span>
+              `)}
+            </div>
+
+            <div class="flex flex-col items-center text-center flex-1 min-w-0">
+              ${isConfirmed ? `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                  <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">${req.needsIT ? '3. IT Setup' : '3. Setup'}</span>
+              ` : (isSetup ? `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 ring-[4px] ring-emerald-100 flex items-center justify-center shadow-xs">
+                  <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2 whitespace-nowrap">${req.needsIT ? '3. IT Setup' : '3. Setup'}</span>
+                <span class="text-[10px] sm:text-xs font-normal text-stone-500 mt-0.5 whitespace-nowrap">Setting Up</span>
+              ` : `
+                <div class="w-6 h-6 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs">
+                  <span>3</span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-medium text-stone-400 mt-2 whitespace-nowrap">${req.needsIT ? '3. IT Setup' : '3. Setup'}</span>
+              `)}
+            </div>
+
+            <div class="flex flex-col items-center text-center flex-1 min-w-0">
+              ${isConfirmed ? `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                  <span class="iconify text-xs text-white" data-icon="lucide:check-check" data-stroke-width="2"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-semibold text-stone-900 mt-2 whitespace-nowrap">4. Door Pass</span>
+              ` : `
+                <div class="w-6 h-6 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs">
+                  <span>4</span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-medium text-stone-400 mt-2 whitespace-nowrap">4. Door Pass</span>
+              `}
+            </div>
+          `}
         </div>
       </div>
     `;
   }
 
-  // ==================== 5. PITIKA SINGLE-PAGE REVIEW WORKSPACE ====================
-
+  _renderPagePills(totalPages) {
+    const currentPage = this.approverCurrentPage;
+    let pills = '';
+    for (let i = 0; i < totalPages; i++) {
+      const isActive = i === currentPage;
+      pills += `
+        <button type="button" onclick="app.goToApproverPage(${i})" class="w-7 h-7 rounded-lg text-xs font-bold ${isActive ? 'bg-[#991B1B] text-white shadow-2xs' : 'text-stone-700 hover:bg-stone-100 cursor-pointer'} flex items-center justify-center transition">
+          ${i + 1}
+        </button>
+      `;
+    }
+    return pills;
+  }
 }
 
 window.NBC.views['pitika-queue'] = new PitikaQueueView();

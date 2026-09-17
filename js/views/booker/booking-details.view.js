@@ -453,38 +453,38 @@
             let labelClass = 'text-stone-600';
             let subClass = 'text-stone-400';
 
-            // Determine if the line connecting this node to the next should be active (crimson) or pending (stone)
+            // Determine if the line connecting this node to the next should be active (green) or pending (stone)
             const nextStep = steps[i + 1];
             const isLineActive = st.state === 'completed' && nextStep && (nextStep.state === 'completed' || nextStep.state === 'active');
-            const lineColor = isLineActive ? 'bg-[#991B1B]' : 'bg-[#E9E3DD]';
+            const lineColor = isLineActive ? 'bg-emerald-600' : 'bg-[#E9E3DD]';
 
             if (st.state === 'completed') {
               circleHtml = `
-                <div class="relative z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
-                  <span class="iconify text-xs sm:text-sm text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
+                <div class="relative z-10 w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
+                  <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
                 </div>
               `;
               labelClass = 'text-stone-900 font-bold';
               subClass = 'text-stone-500';
             } else if (st.state === 'active') {
               circleHtml = `
-                <div class="relative z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border-2 border-[#991B1B] text-[#991B1B] flex items-center justify-center shadow-xs">
-                  <div class="w-2.5 h-2.5 rounded-full bg-[#991B1B] animate-pulse"></div>
+                <div class="relative z-10 w-6 h-6 rounded-full bg-white border-2 border-emerald-600 text-emerald-700 flex items-center justify-center shadow-xs ring-[4px] ring-emerald-100">
+                  <div class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></div>
                 </div>
               `;
-              labelClass = 'text-[#991B1B] font-bold';
-              subClass = 'text-[#991B1B] font-semibold';
+              labelClass = 'text-emerald-700 font-bold';
+              subClass = 'text-emerald-700 font-semibold';
             } else if (st.state === 'failed') {
               circleHtml = `
-                <div class="relative z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-2xs">
-                  <span class="iconify text-xs" data-icon="lucide:x" data-stroke-width="2.5"></span>
+                <div class="relative z-10 w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-2xs">
+                  <span class="iconify text-xs text-white" data-icon="lucide:x" data-stroke-width="2.5"></span>
                 </div>
               `;
               labelClass = 'text-rose-700 font-bold';
               subClass = 'text-rose-600 font-medium';
             } else {
               circleHtml = `
-                <div class="relative z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border border-[#E9E3DD] text-stone-400 flex items-center justify-center text-xs font-mono font-medium">
+                <div class="relative z-10 w-6 h-6 rounded-full bg-white border border-[#E9E3DD] text-stone-400 flex items-center justify-center text-xs font-mono font-medium">
                   <span>${i + 1}</span>
                 </div>
               `;
@@ -496,14 +496,14 @@
               <div class="flex-1 flex flex-col items-center text-center relative px-1">
                 <!-- Connecting Line to next step (centered vertically on the circle, spans from this node center to next node center) -->
                 ${i < steps.length - 1 ? `
-                  <div class="absolute top-3.5 sm:top-4 -translate-y-1/2 left-1/2 w-full h-[2px] z-0 pointer-events-none ${lineColor}"></div>
+                  <div class="absolute top-3 -translate-y-1/2 left-1/2 w-full h-[2px] z-0 pointer-events-none ${lineColor}"></div>
                 ` : ''}
 
                 <!-- Step Circle Icon -->
                 ${circleHtml}
 
                 <!-- Step Labels -->
-                <span class="mt-2 text-xs sm:text-[13px] font-heading leading-tight truncate w-full ${labelClass}">${st.label}</span>
+                <span class="mt-2 text-xs font-semibold leading-tight truncate w-full ${labelClass}">${st.label}</span>
                 <span class="mt-0.5 text-[10px] sm:text-[11px] leading-tight truncate w-full ${subClass}">${st.sub}</span>
               </div>
             `;

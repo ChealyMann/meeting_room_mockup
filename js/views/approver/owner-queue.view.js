@@ -1553,15 +1553,15 @@ class RoomOwnerQueueView {
     return `
       <div class="relative w-full my-3.5 pt-0.5 pb-1">
         <!-- Connecting Line Background & Progress -->
-        <div class="absolute top-[10px] left-[8%] right-[8%] sm:left-[10%] sm:right-[10%] h-[2px] bg-[#E7DFD7] rounded-full z-0 pointer-events-none">
-          <div class="h-full bg-[#991B1B] rounded-full transition-all duration-300" style="width: ${progressPercent};"></div>
+        <div class="absolute top-[11px] left-[8%] right-[8%] sm:left-[10%] sm:right-[10%] h-[2px] bg-[#E7DFD7] rounded-full z-0 pointer-events-none">
+          <div class="h-full bg-emerald-600 rounded-full transition-all duration-300" style="width: ${progressPercent};"></div>
         </div>
 
         <!-- Stepper Nodes Track: 5 Steps -->
         <div class="relative z-10 flex items-start justify-between w-full">
           <!-- Step 1: 1. Submitted -->
           <div class="flex flex-col items-center text-center flex-1 min-w-0">
-            <div class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+            <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
               <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
             </div>
             <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">1. Submitted</span>
@@ -1569,7 +1569,7 @@ class RoomOwnerQueueView {
 
           <!-- Step 2: 2. Pitika (Approved) -->
           <div class="flex flex-col items-center text-center flex-1 min-w-0">
-            <div class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+            <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
               <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
             </div>
             <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">2. Pitika</span>
@@ -1578,25 +1578,25 @@ class RoomOwnerQueueView {
           <!-- Step 3: 3. Room Owner -->
           <div class="flex flex-col items-center text-center flex-1 min-w-0">
             ${isConfirmed || isSetup ? `
-              <div class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+              <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
                 <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
               </div>
               <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">3. Room Owner</span>
             ` : (isRejected || isCancelled ? `
-              <div class="w-5 h-5 rounded-full bg-rose-50 border border-rose-300 text-rose-600 flex items-center justify-center shadow-2xs">
+              <div class="w-6 h-6 rounded-full bg-rose-50 border border-rose-300 text-rose-600 flex items-center justify-center shadow-2xs">
                 <span class="iconify text-xs text-rose-600" data-icon="lucide:x" data-stroke-width="2"></span>
               </div>
               <span class="text-[11px] sm:text-xs font-semibold text-rose-700 mt-2 whitespace-nowrap">3. Room Owner</span>
               <span class="text-[10px] sm:text-xs font-normal text-rose-600 mt-0.5 whitespace-nowrap">${isCancelled ? 'Cancelled' : 'Rejected'}</span>
             ` : (isConflict ? `
-              <div class="w-5 h-5 rounded-full bg-amber-50 border border-amber-300 text-amber-600 flex items-center justify-center shadow-2xs">
+              <div class="w-6 h-6 rounded-full bg-amber-50 border border-amber-300 text-amber-600 flex items-center justify-center shadow-2xs">
                 <span class="iconify text-xs text-amber-600" data-icon="lucide:alert-circle" data-stroke-width="2"></span>
               </div>
               <span class="text-[11px] sm:text-xs font-semibold text-amber-700 mt-2 whitespace-nowrap">3. Room Owner</span>
               <span class="text-[10px] sm:text-xs font-normal text-amber-600 mt-0.5 whitespace-nowrap">Conflict</span>
             ` : `
-              <div class="w-5 h-5 rounded-full bg-[#991B1B] border-2 border-white ring-[5px] ring-rose-200/60 flex items-center justify-center shadow-xs"></div>
-              <span class="text-[11px] sm:text-xs font-semibold text-[#991B1B] mt-2 whitespace-nowrap">3. Room Owner</span>
+              <div class="w-6 h-6 rounded-full bg-emerald-600 border-2 border-white ring-[4px] ring-emerald-200/60 flex items-center justify-center shadow-xs"></div>
+              <span class="text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2 whitespace-nowrap">3. Room Owner</span>
               <span class="text-[10px] sm:text-xs font-normal text-stone-500 mt-0.5 whitespace-nowrap">Reviewing</span>
             `))}
           </div>
@@ -1604,18 +1604,18 @@ class RoomOwnerQueueView {
           <!-- Step 4: 4. IT Setup -->
           <div class="flex flex-col items-center text-center flex-1 min-w-0">
             ${isConfirmed ? `
-              <div class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+              <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
                 <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
               </div>
               <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">4. IT Setup</span>
             ` : (isSetup ? `
-              <div class="w-5 h-5 rounded-full bg-[#991B1B] ring-[5px] ring-rose-100 flex items-center justify-center shadow-xs">
+              <div class="w-6 h-6 rounded-full bg-emerald-600 ring-[4px] ring-emerald-100 flex items-center justify-center shadow-xs">
                 <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
               </div>
-              <span class="text-[11px] sm:text-xs font-semibold text-[#991B1B] mt-2 whitespace-nowrap">4. IT Setup</span>
+              <span class="text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2 whitespace-nowrap">4. IT Setup</span>
               <span class="text-[10px] sm:text-xs font-normal text-stone-500 mt-0.5 whitespace-nowrap">Setting Up</span>
             ` : `
-              <div class="w-5 h-5 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs">
+              <div class="w-6 h-6 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs">
                 <span>4</span>
               </div>
               <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">4. IT Setup</span>
@@ -1625,13 +1625,13 @@ class RoomOwnerQueueView {
           <!-- Step 5: 5. Door Pass -->
           <div class="flex flex-col items-center text-center flex-1 min-w-0">
             ${isConfirmed ? `
-              <div class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs">
+              <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs">
                 <span class="iconify text-xs text-white" data-icon="lucide:check-check" data-stroke-width="2"></span>
               </div>
               <span class="text-[11px] sm:text-xs font-semibold text-stone-900 mt-2 whitespace-nowrap">5. Door Pass</span>
               <span class="text-[10px] sm:text-xs font-medium text-emerald-700 mt-0.5 whitespace-nowrap">Active</span>
             ` : `
-              <div class="w-5 h-5 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs">
+              <div class="w-6 h-6 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs">
                 <span>5</span>
               </div>
               <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">5. Door Pass</span>

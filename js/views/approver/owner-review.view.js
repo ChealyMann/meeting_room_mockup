@@ -314,48 +314,48 @@ class RoomOwnerReviewView {
               </div>
 
               <div class="relative flex items-center justify-between text-center">
-                <div class="absolute left-3 right-3 top-3.5 h-0.5 bg-[#E9E3DD] -z-0">
-                  <div class="h-full bg-[#991B1B]" style="width: ${activeStage === 5 ? '100%' : (activeStage === 4 ? '75%' : (activeStage === 3 ? '50%' : '25%'))}"></div>
+                <div class="absolute left-3 right-3 top-[11px] h-[2px] bg-[#E9E3DD] -z-0">
+                  <div class="h-full bg-emerald-600" style="width: ${activeStage === 5 ? '100%' : (activeStage === 4 ? '75%' : (activeStage === 3 ? '50%' : '25%'))}"></div>
                 </div>
 
                 <!-- 1. Sent -->
                 <div class="relative z-10 flex flex-col items-center">
-                  <div class="w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center text-xs shadow-2xs">
+                  <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs shadow-2xs">
                     <span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
                   </div>
-                  <span class="text-[10px] font-semibold text-stone-700 mt-1">Sent</span>
+                  <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2">Sent</span>
                 </div>
 
                 <!-- 2. Pitika -->
                 <div class="relative z-10 flex flex-col items-center">
-                  <div class="w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center text-xs shadow-2xs">
+                  <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs shadow-2xs">
                     <span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
                   </div>
-                  <span class="text-[10px] font-semibold text-stone-700 mt-1">Pitika</span>
+                  <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2">Pitika</span>
                 </div>
 
                 <!-- 3. Owner -->
                 <div class="relative z-10 flex flex-col items-center">
-                  <div class="w-7 h-7 rounded-full ${isConfirmed || isSetup ? 'bg-[#991B1B] text-white' : (isRejected ? 'bg-rose-600 text-white' : 'bg-white border-2 border-[#991B1B] text-[#991B1B] ring-4 ring-[#991B1B]/10')} flex items-center justify-center text-xs shadow-2xs">
+                  <div class="w-6 h-6 rounded-full ${isConfirmed || isSetup ? 'bg-emerald-600 text-white' : (isRejected ? 'bg-rose-600 text-white' : 'bg-white border-2 border-emerald-600 text-emerald-700 ring-[4px] ring-emerald-100')} flex items-center justify-center text-xs shadow-2xs">
                     <span class="iconify ${isConfirmed || isSetup ? 'text-white' : ''} text-xs" data-icon="${isConfirmed || isSetup ? 'lucide:check' : (isRejected ? 'lucide:x' : 'lucide:key')}" data-stroke-width="2"></span>
                   </div>
-                  <span class="text-[10px] font-bold ${isConfirmed || isSetup ? 'text-stone-700' : 'text-[#991B1B]'} mt-1">Owner</span>
+                  <span class="text-[11px] sm:text-xs font-semibold ${isConfirmed || isSetup ? 'text-stone-600' : 'text-emerald-700'} mt-2">Owner</span>
                 </div>
 
                 <!-- 4. Setup -->
                 <div class="relative z-10 flex flex-col items-center">
-                  <div class="w-7 h-7 rounded-full ${isConfirmed ? 'bg-[#991B1B] text-white' : (isSetup ? 'bg-white border-2 border-blue-600 text-blue-600 ring-4 ring-blue-600/10' : 'bg-[#FAF7F4] border border-[#E9E3DD] text-stone-400')} flex items-center justify-center text-[10px] font-mono">
+                  <div class="w-6 h-6 rounded-full ${isConfirmed ? 'bg-emerald-600 text-white' : (isSetup ? 'bg-white border-2 border-emerald-600 text-emerald-700 ring-[4px] ring-emerald-100' : 'bg-[#FAF7F4] border border-[#E9E3DD] text-stone-400')} flex items-center justify-center text-xs font-mono">
                     ${isConfirmed ? '<span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>' : '4'}
                   </div>
-                  <span class="text-[10px] font-medium ${isSetup ? 'text-blue-700 font-bold' : 'text-stone-400'} mt-1">Setup</span>
+                  <span class="text-[11px] sm:text-xs font-medium ${isSetup ? 'text-emerald-700 font-semibold' : 'text-stone-500'} mt-2">Setup</span>
                 </div>
 
                 <!-- 5. Ready -->
                 <div class="relative z-10 flex flex-col items-center">
-                  <div class="w-7 h-7 rounded-full ${isConfirmed ? 'bg-emerald-600 text-white' : 'bg-[#FAF7F4] border border-[#E9E3DD] text-stone-400'} flex items-center justify-center text-[10px] font-mono">
+                  <div class="w-6 h-6 rounded-full ${isConfirmed ? 'bg-emerald-600 text-white' : 'bg-[#FAF7F4] border border-[#E9E3DD] text-stone-400'} flex items-center justify-center text-xs font-mono">
                     ${isConfirmed ? '<span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>' : '5'}
                   </div>
-                  <span class="text-[10px] font-medium ${isConfirmed ? 'text-emerald-700 font-bold' : 'text-stone-400'} mt-1">Ready</span>
+                  <span class="text-[11px] sm:text-xs font-medium ${isConfirmed ? 'text-emerald-700 font-semibold' : 'text-stone-500'} mt-2">Ready</span>
                 </div>
               </div>
             </div>

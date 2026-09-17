@@ -928,75 +928,75 @@ class ITQueueView {
 
     return `
       <div class="flex-1 min-h-[112px] flex items-center py-2">
-      <div class="relative w-full pt-0.5 pb-1">
-        <!-- Connecting Line Background & Progress (Center at 10px, matches center of 20px nodes) -->
-        <div class="absolute top-[10px] ${lineBoundsClass} h-[2px] bg-[#E7DFD7] rounded-full z-0 pointer-events-none">
-          <div class="h-full bg-[#991B1B] rounded-full transition-all duration-300" style="width: ${progressPercent};"></div>
-        </div>
+        <div class="relative w-full pt-0.5 pb-1">
+          <!-- Connecting Line Background & Progress (Center at 11px, matches center of 24px nodes) -->
+          <div class="absolute top-[11px] ${lineBoundsClass} h-[2px] bg-[#E7DFD7] rounded-full z-0 pointer-events-none">
+            <div class="h-full bg-emerald-600 rounded-full transition-all duration-300" style="width: ${progressPercent};"></div>
+          </div>
 
-        <!-- Stepper Nodes Track (Matches My Bookings line 1092) -->
-        <div class="relative z-10 flex items-start justify-between w-full">
-          <!-- Step 1: Received -->
-          <div class="flex flex-col items-center text-center flex-1 min-w-0">
-            <div class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs shrink-0" style="width: 20px; height: 20px;">
-              <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+          <!-- Stepper Nodes Track (Matches My Bookings line 1092) -->
+          <div class="relative z-10 flex items-start justify-between w-full">
+            <!-- Step 1: Received -->
+            <div class="flex flex-col items-center text-center flex-1 min-w-0">
+              <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
+                <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">1. Received</span>
             </div>
-            <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">1. Received</span>
-          </div>
 
-          <!-- Step 2: Staff Assigned -->
-          <div class="flex flex-col items-center text-center flex-1 min-w-0">
-            ${isAssigned || isConfirmed ? `
-              <div class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs shrink-0" style="width: 20px; height: 20px;">
-                <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
-              </div>
-              <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">2. Staff Assigned</span>
-            ` : `
-              <div class="w-5 h-5 rounded-full bg-[#991B1B] ring-[3px] ring-rose-100 flex items-center justify-center shadow-xs shrink-0" style="width: 20px; height: 20px;">
-                <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
-              </div>
-              <span class="text-[11px] sm:text-xs font-semibold text-[#991B1B] mt-2 whitespace-nowrap">2. Staff Assigned</span>
-            `}
-          </div>
+            <!-- Step 2: Staff Assigned -->
+            <div class="flex flex-col items-center text-center flex-1 min-w-0">
+              ${isAssigned || isConfirmed ? `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
+                  <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">2. Staff Assigned</span>
+              ` : `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 ring-[4px] ring-emerald-100 flex items-center justify-center shadow-xs shrink-0">
+                  <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2 whitespace-nowrap">2. Staff Assigned</span>
+              `}
+            </div>
 
-          <!-- Step 3: Setting Up -->
-          <div class="flex flex-col items-center text-center flex-1 min-w-0">
-            ${isConfirmed ? `
-              <div class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs shrink-0" style="width: 20px; height: 20px;">
-                <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
-              </div>
-              <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">3. Setting Up</span>
-            ` : (isAssigned ? `
-              <div class="w-5 h-5 rounded-full bg-blue-600 ring-[3px] ring-blue-100 flex items-center justify-center shadow-xs shrink-0" style="width: 20px; height: 20px;">
-                <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
-              </div>
-              <span class="text-[11px] sm:text-xs font-semibold text-blue-700 mt-2 whitespace-nowrap">3. Setting Up</span>
-              <span class="text-[10px] sm:text-xs font-normal text-blue-600 mt-0.5 whitespace-nowrap">Setting Up</span>
-            ` : `
-              <div class="w-5 h-5 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs shrink-0" style="width: 20px; height: 20px;">
-                <span>3</span>
-              </div>
-              <span class="text-[11px] sm:text-xs font-medium text-stone-500 mt-2 whitespace-nowrap">3. Setting Up</span>
-            `)}
-          </div>
+            <!-- Step 3: Setting Up -->
+            <div class="flex flex-col items-center text-center flex-1 min-w-0">
+              ${isConfirmed ? `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
+                  <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">3. Setting Up</span>
+              ` : (isAssigned ? `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 ring-[4px] ring-emerald-100 flex items-center justify-center shadow-xs shrink-0">
+                  <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2 whitespace-nowrap">3. Setting Up</span>
+                <span class="text-[10px] sm:text-xs font-normal text-emerald-700 mt-0.5 whitespace-nowrap">Setting Up</span>
+              ` : `
+                <div class="w-6 h-6 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs shrink-0">
+                  <span>3</span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-medium text-stone-500 mt-2 whitespace-nowrap">3. Setting Up</span>
+              `)}
+            </div>
 
-          <!-- Step 4: Ready -->
-          <div class="flex flex-col items-center text-center flex-1 min-w-0">
-            ${isConfirmed ? `
-              <div class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shadow-2xs shrink-0" style="width: 20px; height: 20px;">
-                <span class="iconify text-xs text-white" data-icon="lucide:check-check" data-stroke-width="2.5"></span>
-              </div>
-              <span class="text-[11px] sm:text-xs font-semibold text-stone-900 mt-2 whitespace-nowrap">4. Ready</span>
-              <span class="text-[10px] sm:text-xs font-medium text-emerald-700 mt-0.5 whitespace-nowrap">Ready</span>
-            ` : `
-              <div class="w-5 h-5 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs shrink-0" style="width: 20px; height: 20px;">
-                <span>4</span>
-              </div>
-              <span class="text-[11px] sm:text-xs font-medium text-stone-500 mt-2 whitespace-nowrap">4. Ready</span>
-            `}
+            <!-- Step 4: Ready -->
+            <div class="flex flex-col items-center text-center flex-1 min-w-0">
+              ${isConfirmed ? `
+                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
+                  <span class="iconify text-xs text-white" data-icon="lucide:check-check" data-stroke-width="2.5"></span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-semibold text-stone-900 mt-2 whitespace-nowrap">4. Ready</span>
+                <span class="text-[10px] sm:text-xs font-medium text-emerald-700 mt-0.5 whitespace-nowrap">Ready</span>
+              ` : `
+                <div class="w-6 h-6 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs shrink-0">
+                  <span>4</span>
+                </div>
+                <span class="text-[11px] sm:text-xs font-medium text-stone-400 mt-2 whitespace-nowrap">4. Ready</span>
+              `}
+            </div>
           </div>
         </div>
-      </div>
       </div>
     `;
   }

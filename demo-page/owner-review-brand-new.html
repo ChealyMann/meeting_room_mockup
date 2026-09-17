@@ -224,48 +224,48 @@
           </div>
 
           <div class="relative flex items-center justify-between text-center" id="stepper-track">
-            <div class="absolute left-3 right-3 top-3.5 h-0.5 bg-[#E9E3DD] -z-0">
-              <div id="stepper-progress-fill" class="h-full bg-[#991B1B] w-1/2 transition-all duration-300"></div>
+            <div class="absolute left-3 right-3 top-[11px] h-[2px] bg-[#E9E3DD] -z-0">
+              <div id="stepper-progress-fill" class="h-full bg-emerald-600 w-1/2 transition-all duration-300"></div>
             </div>
 
             <!-- 1. Sent -->
             <div class="relative z-10 flex flex-col items-center">
-              <div class="w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center text-xs shadow-2xs">
+              <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs shadow-2xs">
                 <span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
               </div>
-              <span class="text-[10px] font-semibold text-stone-700 mt-1">Sent</span>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2">Sent</span>
             </div>
 
             <!-- 2. Pitika -->
             <div class="relative z-10 flex flex-col items-center">
-              <div class="w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center text-xs shadow-2xs">
+              <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs shadow-2xs">
                 <span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
               </div>
-              <span class="text-[10px] font-semibold text-stone-700 mt-1">Pitika</span>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2">Pitika</span>
             </div>
 
             <!-- 3. Owner (Active initially) -->
             <div class="relative z-10 flex flex-col items-center" id="step-node-owner">
-              <div id="step-circle-owner" class="w-7 h-7 rounded-full bg-white border-2 border-[#991B1B] text-[#991B1B] flex items-center justify-center text-xs ring-4 ring-[#991B1B]/10 shadow-2xs">
-                <span class="iconify text-[#991B1B] text-xs" data-icon="lucide:key" data-stroke-width="2"></span>
+              <div id="step-circle-owner" class="w-6 h-6 rounded-full bg-white border-2 border-emerald-600 text-emerald-700 flex items-center justify-center text-xs ring-[4px] ring-emerald-100 shadow-2xs">
+                <span class="iconify text-emerald-700 text-xs" data-icon="lucide:key" data-stroke-width="2"></span>
               </div>
-              <span class="text-[10px] font-bold text-[#991B1B] mt-1" id="step-label-owner">Owner</span>
+              <span class="text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2" id="step-label-owner">Owner</span>
             </div>
 
             <!-- 4. Setup -->
             <div class="relative z-10 flex flex-col items-center" id="step-node-setup">
-              <div id="step-circle-setup" class="w-7 h-7 rounded-full bg-[#FAF7F4] border border-[#E9E3DD] text-stone-400 flex items-center justify-center text-[10px] font-mono">
+              <div id="step-circle-setup" class="w-6 h-6 rounded-full bg-[#FAF7F4] border border-[#E9E3DD] text-stone-400 flex items-center justify-center text-xs font-mono">
                 4
               </div>
-              <span class="text-[10px] font-medium text-stone-400 mt-1" id="step-label-setup">Setup</span>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-400 mt-2" id="step-label-setup">Setup</span>
             </div>
 
             <!-- 5. Ready -->
             <div class="relative z-10 flex flex-col items-center" id="step-node-ready">
-              <div id="step-circle-ready" class="w-7 h-7 rounded-full bg-[#FAF7F4] border border-[#E9E3DD] text-stone-400 flex items-center justify-center text-[10px] font-mono">
+              <div id="step-circle-ready" class="w-6 h-6 rounded-full bg-[#FAF7F4] border border-[#E9E3DD] text-stone-400 flex items-center justify-center text-xs font-mono">
                 5
               </div>
-              <span class="text-[10px] font-medium text-stone-400 mt-1" id="step-label-ready">Ready</span>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-400 mt-2" id="step-label-ready">Ready</span>
             </div>
           </div>
         </div>
@@ -516,19 +516,19 @@
       document.getElementById('stepper-progress-fill').style.width = '100%';
 
       // Update Owner Node
-      document.getElementById('step-circle-owner').className = 'w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center text-xs shadow-2xs';
+      document.getElementById('step-circle-owner').className = 'w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs shadow-2xs';
       document.getElementById('step-circle-owner').innerHTML = '<span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>';
-      document.getElementById('step-label-owner').className = 'text-[10px] font-semibold text-stone-700 mt-1';
+      document.getElementById('step-label-owner').className = 'text-[11px] sm:text-xs font-medium text-stone-600 mt-2';
 
       // Update Setup Node
-      document.getElementById('step-circle-setup').className = 'w-7 h-7 rounded-full bg-[#991B1B] text-white flex items-center justify-center text-xs shadow-2xs';
+      document.getElementById('step-circle-setup').className = 'w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs shadow-2xs';
       document.getElementById('step-circle-setup').innerHTML = '<span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>';
-      document.getElementById('step-label-setup').className = 'text-[10px] font-semibold text-stone-700 mt-1';
+      document.getElementById('step-label-setup').className = 'text-[11px] sm:text-xs font-medium text-stone-600 mt-2';
 
       // Update Ready Node
-      document.getElementById('step-circle-ready').className = 'w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs shadow-2xs';
+      document.getElementById('step-circle-ready').className = 'w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs shadow-2xs';
       document.getElementById('step-circle-ready').innerHTML = '<span class="iconify text-white text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>';
-      document.getElementById('step-label-ready').className = 'text-[10px] font-bold text-emerald-700 mt-1';
+      document.getElementById('step-label-ready').className = 'text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2';
 
       // Hide Pending Form & Reveal Confirmed Dossier (ELIMINATING THE EMPTY SPACE!)
       document.getElementById('pending-controls-panel').classList.add('hidden');
