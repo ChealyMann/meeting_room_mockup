@@ -272,7 +272,11 @@ class BankBookingApp {
     const sidebar = document.getElementById('app-sidebar');
     if (!sidebar) return;
     const collapsed = sidebar.classList.toggle('sidebar-collapsed');
-    localStorage.setItem('nbc-sidebar-collapsed', String(collapsed));
+    localStorage.setItem('nbc-sidebar-collapsed-v2', String(collapsed));
+
+    document.querySelectorAll('.sidebar-toggle, .sidebar-desktop-collapse').forEach(button => {
+      button.setAttribute('aria-expanded', String(!collapsed));
+    });
   }
 
   showToast(title, message, type = 'info') {

@@ -20,6 +20,11 @@ class PitikaQueueView {
     this.approverTablePageSize = 6;
     this.approverCardsPageSize = 4;
     this.approverPageSize = 6;
+    this.approverLoadedBatches = 1;
+    this.approverBatchSize = 4;
+    this.approverIsLoadingMore = false;
+    this.approverAutoScrollEnabled = true;
+    this._cardsIntersectionObserver = null;
     this._currentPaginatedItems = [];
     this._pendingRejectTarget = null; // null or requestId
 
@@ -38,6 +43,9 @@ class PitikaQueueView {
           grid-template-columns: 1fr !important;
           gap: 0.875rem !important;
           width: 100% !important;
+        }
+        .pitika-queue-cards-grid.hidden {
+          display: none !important;
         }
         @media (min-width: 1400px) {
           .pitika-queue-cards-grid {
@@ -65,59 +73,59 @@ class PitikaQueueView {
       </div>
 
       <!-- Executive KPI Overview Strip (Interactive Filter Shortcuts) -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pb-3 border-b border-[#E9E3DD] shrink-0">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pb-2.5 border-b border-[#E9E3DD] shrink-0">
         <!-- Metric 1: Pending Review -->
-        <div onclick="app.filterApproverRequests('pending')" title="Filter by Pending Review" class="bg-white px-4 py-3.5 rounded-xl border border-[#E9E3DD] hover:border-amber-400 hover:shadow-xs transition flex items-center space-x-3.5 shadow-2xs cursor-pointer select-none">
-          <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
-            <span class="iconify text-lg text-amber-600" data-icon="lucide:clock" data-stroke-width="2"></span>
+        <div onclick="app.filterApproverRequests('pending')" title="Filter by Pending Review" class="bg-white px-3.5 py-2.5 sm:py-3 rounded-xl border border-[#E9E3DD] hover:border-amber-400 hover:shadow-xs transition flex items-center space-x-3 shadow-2xs cursor-pointer select-none">
+          <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-base text-amber-600" data-icon="lucide:clock" data-stroke-width="2"></span>
           </div>
           <div class="min-w-0">
-            <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-1">Action Required</span>
+            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block leading-none mb-1">Action Required</span>
             <div class="flex items-baseline space-x-1.5">
-              <span id="approver-kpi-pending" class="text-xl sm:text-2xl font-bold font-mono text-stone-900 leading-none">0</span>
-              <span class="text-xs text-stone-500">Pending</span>
+              <span id="approver-kpi-pending" class="text-lg sm:text-xl font-bold font-mono text-stone-900 leading-none">0</span>
+              <span class="text-xs text-stone-500 truncate">Pending</span>
             </div>
           </div>
         </div>
 
         <!-- Metric 2: Today's Requests -->
-        <div onclick="app.setApproverQuickDate('today')" title="Filter to Today's Requests" class="bg-white px-4 py-3.5 rounded-xl border border-[#E9E3DD] hover:border-sky-400 hover:shadow-xs transition flex items-center space-x-3.5 shadow-2xs cursor-pointer select-none">
-          <div class="w-11 h-11 rounded-xl bg-sky-50 flex items-center justify-center shrink-0">
-            <span class="iconify text-lg text-sky-600" data-icon="lucide:calendar" data-stroke-width="2"></span>
+        <div onclick="app.setApproverQuickDate('today')" title="Filter to Today's Requests" class="bg-white px-3.5 py-2.5 sm:py-3 rounded-xl border border-[#E9E3DD] hover:border-sky-400 hover:shadow-xs transition flex items-center space-x-3 shadow-2xs cursor-pointer select-none">
+          <div class="w-9 h-9 rounded-lg bg-sky-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-base text-sky-600" data-icon="lucide:calendar" data-stroke-width="2"></span>
           </div>
           <div class="min-w-0">
-            <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-1">Today's Requests</span>
+            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block leading-none mb-1">Today's Requests</span>
             <div class="flex items-baseline space-x-1.5">
-              <span id="approver-kpi-today" class="text-xl sm:text-2xl font-bold font-mono text-stone-900 leading-none">0</span>
-              <span class="text-xs text-stone-500">Scheduled</span>
+              <span id="approver-kpi-today" class="text-lg sm:text-xl font-bold font-mono text-stone-900 leading-none">0</span>
+              <span class="text-xs text-stone-500 truncate">Scheduled</span>
             </div>
           </div>
         </div>
 
         <!-- Metric 3: Approved -->
-        <div onclick="app.filterApproverRequests('approved')" title="Filter by Approved" class="bg-white px-4 py-3.5 rounded-xl border border-[#E9E3DD] hover:border-emerald-400 hover:shadow-xs transition flex items-center space-x-3.5 shadow-2xs cursor-pointer select-none">
-          <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
-            <span class="iconify text-lg text-emerald-600" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
+        <div onclick="app.filterApproverRequests('approved')" title="Filter by Approved" class="bg-white px-3.5 py-2.5 sm:py-3 rounded-xl border border-[#E9E3DD] hover:border-emerald-400 hover:shadow-xs transition flex items-center space-x-3 shadow-2xs cursor-pointer select-none">
+          <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-base text-emerald-600" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
           </div>
           <div class="min-w-0">
-            <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-1">Approved</span>
+            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block leading-none mb-1">Approved</span>
             <div class="flex items-baseline space-x-1.5">
-              <span id="approver-kpi-approved" class="text-xl sm:text-2xl font-bold font-mono text-stone-900 leading-none">0</span>
-              <span class="text-xs text-stone-500">This week</span>
+              <span id="approver-kpi-approved" class="text-lg sm:text-xl font-bold font-mono text-stone-900 leading-none">0</span>
+              <span class="text-xs text-stone-500 truncate">This week</span>
             </div>
           </div>
         </div>
 
         <!-- Metric 4: All Rooms In Facility -->
-        <div onclick="app.resetApproverFilters()" title="Reset all filters" class="bg-white px-4 py-3.5 rounded-xl border border-[#E9E3DD] hover:border-[#991B1B] hover:shadow-xs transition flex items-center space-x-3.5 shadow-2xs cursor-pointer select-none">
-          <div class="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
-            <span class="iconify text-lg text-[#991B1B]" data-icon="lucide:door-closed" data-stroke-width="2"></span>
+        <div onclick="app.resetApproverFilters()" title="Reset all filters" class="bg-white px-3.5 py-2.5 sm:py-3 rounded-xl border border-[#E9E3DD] hover:border-[#991B1B] hover:shadow-xs transition flex items-center space-x-3 shadow-2xs cursor-pointer select-none">
+          <div class="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-base text-[#991B1B]" data-icon="lucide:door-closed" data-stroke-width="2"></span>
           </div>
           <div class="min-w-0">
-            <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-1">Total Rooms</span>
+            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block leading-none mb-1">Total Rooms</span>
             <div class="flex items-baseline space-x-1.5">
-              <span id="approver-kpi-rooms" class="text-xl sm:text-2xl font-bold font-mono text-stone-900 leading-none">8</span>
-              <span class="text-xs text-stone-500">In Facility</span>
+              <span id="approver-kpi-rooms" class="text-lg sm:text-xl font-bold font-mono text-stone-900 leading-none">8</span>
+              <span class="text-xs text-stone-500 truncate">In Facility</span>
             </div>
           </div>
         </div>
@@ -308,6 +316,7 @@ class PitikaQueueView {
 
     this._updateViewModeButtons();
     this.approverCurrentPage = 0;
+    this.approverLoadedBatches = 1;
     this.renderApproverRequests();
   }
 
@@ -322,6 +331,8 @@ class PitikaQueueView {
     window.app.filterApproverRequests = (status) => this.filterApproverRequests(status);
     window.app.goToApproverPage = (page) => this.goToApproverPage(page);
     window.app.sortApproverBy = (column) => this.sortApproverBy(column);
+    window.app.loadNextApproverCardsBatch = () => this.loadNextApproverCardsBatch();
+    window.app.scrollApproverQueueToTop = () => this.scrollApproverQueueToTop();
     window.app.quickApproverApprove = (requestId) => this.quickApproverApprove(requestId);
     window.app.quickApproverReject = (requestId) => this.quickApproverReject(requestId);
     window.app.openApproverRejectModal = (requestId) => this.openApproverRejectModal(requestId);
@@ -345,8 +356,10 @@ class PitikaQueueView {
   }
 
   setApproverViewMode(mode) {
+    this._disconnectCardsObserver();
     this.approverViewMode = mode;
     this.approverCurrentPage = 0;
+    this.approverLoadedBatches = 1;
     this._updateViewModeButtons();
     this.renderApproverRequests();
   }
@@ -388,6 +401,8 @@ class PitikaQueueView {
     this.approverFilter = statusSelect?.value || 'all';
 
     this.approverCurrentPage = 0;
+    this.approverLoadedBatches = 1;
+    this._disconnectCardsObserver();
     this.renderApproverRequests();
   }
 
@@ -416,6 +431,8 @@ class PitikaQueueView {
       if (dateInput) dateInput.value = this.approverDateFilter;
     }
     this.approverCurrentPage = 0;
+    this.approverLoadedBatches = 1;
+    this._disconnectCardsObserver();
     this.renderApproverRequests();
   }
 
@@ -440,6 +457,8 @@ class PitikaQueueView {
     if (clearBtn) clearBtn.classList.add('hidden');
 
     this.approverCurrentPage = 0;
+    this.approverLoadedBatches = 1;
+    this._disconnectCardsObserver();
     this.renderApproverRequests();
   }
 
@@ -450,6 +469,8 @@ class PitikaQueueView {
       statusSelect.value = status;
     }
     this.approverCurrentPage = 0;
+    this.approverLoadedBatches = 1;
+    this._disconnectCardsObserver();
     this.renderApproverRequests();
   }
 
@@ -460,6 +481,8 @@ class PitikaQueueView {
       this.approverSortColumn = column;
       this.approverSortDirection = (column === 'id' || column === 'schedule') ? 'desc' : 'asc';
     }
+    this.approverLoadedBatches = 1;
+    this._disconnectCardsObserver();
     this.renderApproverRequests();
   }
 
@@ -690,6 +713,8 @@ class PitikaQueueView {
 
     // 4. Empty State
     if (filtered.length === 0) {
+      this._disconnectCardsObserver();
+      this._currentPaginatedItems = [];
       container.innerHTML = `
         <div class="bg-white rounded-2xl border border-[#E9E3DD] p-12 text-center flex flex-col items-center justify-center space-y-3 shadow-2xs flex-1">
           <div class="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400">
@@ -710,6 +735,7 @@ class PitikaQueueView {
 
     // 5. Route between Table and Card modes
     if (this.approverViewMode === 'table') {
+      this._disconnectCardsObserver();
       this._renderTableView(container, filtered);
     } else {
       this._renderCardsView(container, filtered);
@@ -958,52 +984,49 @@ class PitikaQueueView {
   }
 
   // =========================================================================
-  // RENDER MODE B: CARD VIEW (Matching owner-queue cards grid & typography)
+  // RENDER MODE B: CARD VIEW (Infinite Scroll matching owner-queue)
   // =========================================================================
   _renderCardsView(container, filtered) {
-    const pageSize = this.approverCardsPageSize || 4;
     const totalItems = filtered.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-    if (this.approverCurrentPage >= totalPages) this.approverCurrentPage = totalPages - 1;
-    if (this.approverCurrentPage < 0) this.approverCurrentPage = 0;
-    const startIdx = this.approverCurrentPage * pageSize;
-    const endIdx = startIdx + pageSize;
-    const paginatedItems = filtered.slice(startIdx, endIdx);
+    const currentlyDisplayedCount = Math.min(totalItems, this.approverLoadedBatches * this.approverBatchSize);
+    const displayedItems = filtered.slice(0, currentlyDisplayedCount);
+    this._currentPaginatedItems = displayedItems;
+    const hasMore = currentlyDisplayedCount < totalItems;
+    const remaining = Math.max(0, totalItems - currentlyDisplayedCount);
 
-    const cardsHtml = paginatedItems.map(req => {
-      return this._renderSinglePitikaCard(req);
+    const cardsHtml = displayedItems.map(req => {
+      return this._renderSinglePitikaCard(req, false);
     }).join('');
 
     let finalHtml = `
       <div class="flex flex-col flex-1 min-h-0">
-        <div class="flex-1 overflow-y-auto hide-scrollbar pb-4 pr-1">
-          <div class="pitika-queue-cards-grid">
+        <div id="approver-cards-scroll-container" class="flex-1 overflow-y-auto hide-scrollbar pt-1 pb-6 pr-1 relative">
+          <!-- Card Grid: Single-column on tablets & standard laptops, 2-col on ultra-wide screens (>=1400px) -->
+          <div id="approver-cards-grid" class="pitika-queue-cards-grid">
             ${cardsHtml}
           </div>
-        </div>
 
-        <!-- Pagination Controls for Card View -->
-        <div class="shrink-0 mt-auto pt-2 bg-[#F9F7F5] border-t border-[#E9E3DD]/60 flex items-center justify-between">
-          <span class="text-xs text-stone-500 font-medium">Showing <strong class="text-stone-800 font-semibold">${startIdx + 1}–${Math.min(endIdx, totalItems)}</strong> of <strong class="text-stone-800 font-semibold">${totalItems}</strong> requests</span>
-          <div class="flex items-center space-x-1.5">
-            <button type="button" onclick="app.goToApproverPage(${this.approverCurrentPage - 1})" ${this.approverCurrentPage === 0 ? 'disabled' : ''} aria-label="Previous page" class="px-2 py-1 text-xs font-medium flex items-center space-x-1 ${this.approverCurrentPage === 0 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-700 hover:text-stone-900 cursor-pointer'}">
-              <span class="iconify text-xs" data-icon="lucide:chevron-left" data-stroke-width="2"></span>
-              <span>Prev</span>
-            </button>
-            ${this._renderPagePills(totalPages)}
-            <button type="button" onclick="app.goToApproverPage(${this.approverCurrentPage + 1})" ${this.approverCurrentPage >= totalPages - 1 ? 'disabled' : ''} aria-label="Next page" class="px-2 py-1 text-xs font-semibold flex items-center space-x-1 ${this.approverCurrentPage >= totalPages - 1 ? 'text-stone-300 cursor-not-allowed' : 'text-stone-800 hover:text-black cursor-pointer'}">
-              <span>Next</span>
-              <span class="iconify text-xs" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
-            </button>
+          <!-- Skeleton Loading Slot for Zero-Shift Infinite Scroll -->
+          <div id="approver-cards-skeleton-slot" class="pitika-queue-cards-grid mt-3.5 ${this.approverIsLoadingMore && hasMore ? '' : 'hidden'}">
+            ${this.approverIsLoadingMore && hasMore ? this._renderCardSkeleton(Math.min(2, remaining)) : ''}
+          </div>
+
+          <!-- Sentinel trigger element for IntersectionObserver -->
+          <div id="approver-cards-infinite-sentinel" class="w-full h-2 pointer-events-none mt-2"></div>
+
+          <!-- Footer Status / Fallback Controls -->
+          <div id="approver-cards-footer-controls" class="w-full">
+            ${this._renderCardsFooterControls(totalItems, currentlyDisplayedCount, hasMore, remaining)}
           </div>
         </div>
       </div>
     `;
 
     container.innerHTML = finalHtml;
+    this._setupCardsInfiniteScrollObserver();
   }
 
-  _renderSinglePitikaCard(req) {
+  _renderSinglePitikaCard(req, isNew = false) {
     const isPending = req.status === 'Pending Review' || req.status === 'Pending Manager Review' || req.statusDisplay === 'Pending Review';
     const isOwnerPending = req.status === 'Pending Room Owner Approval';
     const isSetup = req.status === 'Approved - Setup In Progress' || req.statusDisplay === 'Setting Up';
@@ -1047,115 +1070,117 @@ class PitikaQueueView {
     const avatarUrl = req.requester?.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(requesterName) + '&background=f3e8ff&color=7e22ce';
 
     return `
-      <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-4.5 shadow-xs transition-all duration-150 hover:border-[#D8CFC7] hover:shadow-sm flex flex-col justify-between animate-card-fade-in">
-        <!-- Row 1: ID + Reference Code + Status Pill -->
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center space-x-2 min-w-0">
-            ${isPrivate ? `
-              <span class="text-amber-600 shrink-0" title="Private Executive Room">
-                <span class="iconify text-xs" data-icon="lucide:lock" data-stroke-width="2"></span>
-              </span>
-            ` : ''}
-            <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="font-mono font-bold text-xs text-[#991B1B] hover:underline cursor-pointer" title="Open Review Workspace">
-              ${req.id}
-            </button>
-            <span class="text-stone-300 font-light">•</span>
-            <button type="button" onclick="app.copyApproverReferenceCode('${refCode}')" title="Click to copy reference code" class="font-mono text-xs font-normal text-stone-500 hover:text-stone-800 flex items-center space-x-1 cursor-pointer">
-              <span>${refCode}</span>
-              <span class="iconify text-xs text-stone-400 hover:text-stone-600" data-icon="lucide:copy" data-stroke-width="2"></span>
-            </button>
-          </div>
-          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass} shrink-0">
-            <span class="iconify text-xs" data-icon="${statusIcon}" data-stroke-width="2"></span>
-            <span>${statusLabel}</span>
-          </div>
-        </div>
-
-        <!-- Row 2: Room Thumbnail + Meeting Specs + Services Tag -->
-        <div class="flex items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-3.5">
-          <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
-            <img src="${roomImgUrl}" class="rounded-xl object-cover border border-[#E9E3DD] shrink-0 w-[116px] sm:w-[124px] h-[74px] sm:h-[78px] shadow-2xs" alt="Room" />
-            <div class="min-w-0">
-              <h4 class="font-heading font-semibold text-sm text-stone-900 leading-snug truncate" title="${req.meetingTitle || ''}">${req.meetingTitle || req.meetingPurpose || 'Department Meeting'}</h4>
-              <div class="flex items-center space-x-1.5 text-xs text-stone-500 mt-1 font-normal">
-                <span class="iconify text-stone-400 text-xs shrink-0" data-icon="lucide:map-pin" data-stroke-width="2"></span>
-                <span>${floorShort} • ${roomShortName}</span>
-              </div>
-              <div class="flex items-center flex-wrap sm:flex-nowrap gap-x-2 gap-y-0.5 text-xs font-mono font-medium text-stone-600 mt-1.5">
-                <span class="inline-flex items-center space-x-1 text-stone-600 shrink-0">
-                  <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:calendar" data-stroke-width="2"></span>
-                  <span>${req.date}</span>
+      <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-4.5 shadow-xs transition-all duration-150 hover:border-[#D8CFC7] hover:shadow-sm flex flex-col justify-between ${isNew ? 'animate-card-fade-in' : ''}">
+        <div class="flex-1 min-w-0 flex flex-col justify-start">
+          <!-- Row 1: ID + Reference Code + Status Pill -->
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-2 min-w-0">
+              ${isPrivate ? `
+                <span class="text-amber-600 shrink-0" title="Private Executive Room">
+                  <span class="iconify text-xs" data-icon="lucide:lock" data-stroke-width="2"></span>
                 </span>
-                <span class="text-stone-300 font-light hidden sm:inline">•</span>
-                <span class="inline-flex items-center space-x-1 font-semibold text-stone-800 shrink-0">
-                  <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:clock" data-stroke-width="2"></span>
-                  <span>${req.startTime} – ${req.endTime}</span>
-                </span>
-              </div>
+              ` : ''}
+              <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="font-mono font-bold text-xs text-[#991B1B] hover:underline cursor-pointer" title="Open Review Workspace">
+                ${req.id}
+              </button>
+              <span class="text-stone-300 font-light">•</span>
+              <button type="button" onclick="app.copyApproverReferenceCode('${refCode}')" title="Click to copy reference code" class="font-mono text-xs font-normal text-stone-500 hover:text-stone-800 flex items-center space-x-1 cursor-pointer">
+                <span>${refCode}</span>
+                <span class="iconify text-xs text-stone-400 hover:text-stone-600" data-icon="lucide:copy" data-stroke-width="2"></span>
+              </button>
+            </div>
+            <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass} shrink-0">
+              <span class="iconify text-xs" data-icon="${statusIcon}" data-stroke-width="2"></span>
+              <span>${statusLabel}</span>
             </div>
           </div>
 
-          <!-- Services Tag (Right Side) -->
-          <div class="shrink-0 flex items-center space-x-2 text-xs font-medium">
-            ${req.needsCatering ? `
-              <span class="flex items-center space-x-1 text-[#D97706]" title="Catering / Food">
-                <span class="iconify text-sm text-[#D97706]" data-icon="lucide:utensils" data-stroke-width="2"></span>
-                <span>Food</span>
-              </span>
-            ` : ''}
-            ${req.needsIT ? `
-              <span class="flex items-center space-x-1 text-[#991B1B]" title="IT Setup">
-                <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:headset" data-stroke-width="2"></span>
-                <span>IT</span>
-              </span>
-            ` : ''}
-          </div>
-        </div>
+          <!-- Row 2: Room Thumbnail + Meeting Specs + Services Tag -->
+          <div class="flex items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-3.5">
+            <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
+              <img src="${roomImgUrl}" class="rounded-xl object-cover border border-[#E9E3DD] shrink-0 w-[116px] sm:w-[124px] h-[74px] sm:h-[78px] shadow-2xs" alt="Room" />
+              <div class="min-w-0">
+                <h4 class="font-heading font-semibold text-sm text-stone-900 leading-snug truncate" title="${req.meetingTitle || ''}">${req.meetingTitle || req.meetingPurpose || 'Department Meeting'}</h4>
+                <div class="flex items-center space-x-1.5 text-xs text-stone-500 mt-1 font-normal">
+                  <span class="iconify text-stone-400 text-xs shrink-0" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+                  <span>${floorShort} • ${roomShortName}</span>
+                </div>
+                <div class="flex items-center flex-wrap sm:flex-nowrap gap-x-2 gap-y-0.5 text-xs font-mono font-medium text-stone-600 mt-1.5">
+                  <span class="inline-flex items-center space-x-1 text-stone-600 shrink-0">
+                    <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:calendar" data-stroke-width="2"></span>
+                    <span>${req.date}</span>
+                  </span>
+                  <span class="text-stone-300 font-light hidden sm:inline">•</span>
+                  <span class="inline-flex items-center space-x-1 font-semibold text-stone-800 shrink-0">
+                    <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:clock" data-stroke-width="2"></span>
+                    <span>${req.startTime} – ${req.endTime}</span>
+                  </span>
+                </div>
+              </div>
+            </div>
 
-        <!-- Row 3: Requester Metadata Strip -->
-        <div class="flex items-center justify-between gap-2 py-2 px-3 mb-2 rounded-xl bg-stone-50 border border-stone-200/70 text-xs">
-          <div class="flex items-center space-x-2 min-w-0">
-            <img src="${avatarUrl}" class="w-5 h-5 rounded-full object-cover border border-[#E9E3DD] shrink-0" alt="Requester" />
-            <span class="font-semibold text-stone-800 truncate">${requesterName}</span>
-            <span class="text-stone-400 hidden sm:inline">•</span>
-            <span class="text-stone-500 truncate hidden sm:inline">${req.requester?.department || 'NBC Operations'}</span>
+            <!-- Services Tag (Right Side) -->
+            <div class="shrink-0 flex items-center space-x-2 text-xs font-medium">
+              ${req.needsCatering ? `
+                <span class="flex items-center space-x-1 text-[#D97706]" title="Catering / Food">
+                  <span class="iconify text-sm text-[#D97706]" data-icon="lucide:utensils" data-stroke-width="2"></span>
+                  <span>Food</span>
+                </span>
+              ` : ''}
+              ${req.needsIT ? `
+                <span class="flex items-center space-x-1 text-[#991B1B]" title="IT Setup">
+                  <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:headset" data-stroke-width="2"></span>
+                  <span>IT</span>
+                </span>
+              ` : ''}
+            </div>
           </div>
-          <div class="flex items-center space-x-1.5 shrink-0">
-            ${isPrivate ? `
-              <span class="inline-flex items-center space-x-1 text-[11px] font-medium text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                <span class="iconify text-xs text-amber-700" data-icon="lucide:lock" data-stroke-width="2"></span>
-                <span>Private Room</span>
-              </span>
-            ` : `
-              <span class="inline-flex items-center space-x-1 text-[11px] font-medium text-stone-600 bg-stone-100 px-2 py-0.5 rounded border border-stone-200">
-                <span class="iconify text-xs text-stone-500" data-icon="lucide:users" data-stroke-width="2"></span>
-                <span>${req.attendees || 8} Attendees</span>
-              </span>
-            `}
+
+          <!-- Row 3: Requester Metadata Strip -->
+          <div class="flex items-center justify-between gap-2 py-2 px-3 mb-2 rounded-xl bg-stone-50 border border-stone-200/70 text-xs">
+            <div class="flex items-center space-x-2 min-w-0">
+              <img src="${avatarUrl}" class="w-5 h-5 rounded-full object-cover border border-[#E9E3DD] shrink-0" alt="Requester" />
+              <span class="font-semibold text-stone-800 truncate">${requesterName}</span>
+              <span class="text-stone-400 hidden sm:inline">•</span>
+              <span class="text-stone-500 truncate hidden sm:inline">${req.requester?.department || 'NBC Operations'}</span>
+            </div>
+            <div class="flex items-center space-x-1.5 shrink-0">
+              ${isPrivate ? `
+                <span class="inline-flex items-center space-x-1 text-[11px] font-medium text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  <span class="iconify text-xs text-amber-700" data-icon="lucide:lock" data-stroke-width="2"></span>
+                  <span>Private Room</span>
+                </span>
+              ` : `
+                <span class="inline-flex items-center space-x-1 text-[11px] font-medium text-stone-600 bg-stone-100 px-2 py-0.5 rounded border border-stone-200">
+                  <span class="iconify text-xs text-stone-500" data-icon="lucide:users" data-stroke-width="2"></span>
+                  <span>${req.attendees || 8} Attendees</span>
+                </span>
+              `}
+            </div>
           </div>
         </div>
 
         <!-- Stepper: Visual Approval Progress -->
         ${this._renderApproverBookingStepper(req)}
 
-        <!-- Row 5: Action Buttons (Consistently h-[36px] rounded-xl) -->
-        <div class="mt-3.5 flex items-center gap-2 sm:gap-2.5">
+        <!-- Row 5: Action Buttons (Consistently strict h-9 rounded-xl matching my-bookings) -->
+        <div class="mt-3.5 flex items-center gap-2">
           ${isPending ? `
-            <button type="button" onclick="app.quickApproverApprove('${req.id}')" title="Approve request" class="btn-primary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-bold text-white flex items-center justify-center space-x-1.5 shadow-2xs transition cursor-pointer active:scale-[0.98]">
-              <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
-              <span class="text-white">Approve</span>
+            <button type="button" onclick="app.quickApproverApprove('${req.id}')" title="Approve request" class="btn-primary h-9 px-3.5 shrink-0 rounded-xl border border-[#991B1B] text-xs font-semibold inline-flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer active:scale-[0.98] select-none">
+              <span class="iconify text-sm text-white shrink-0" data-icon="lucide:check" data-stroke-width="2"></span>
+              <span class="text-white leading-none">Approve</span>
             </button>
-            <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" title="Open Review Workspace" class="flex-1 btn-secondary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
-              <span class="iconify text-xs text-stone-600" data-icon="lucide:file-text" data-stroke-width="2"></span>
-              <span>Review</span>
+            <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" title="Open Review Workspace" class="flex-1 btn-secondary h-9 px-3.5 rounded-xl border border-[#E9E3DD] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none">
+              <span class="iconify text-sm text-stone-500 shrink-0" data-icon="lucide:file-text" data-stroke-width="2"></span>
+              <span class="leading-none text-stone-800">Review</span>
             </button>
-            <button type="button" onclick="app.quickApproverReject('${req.id}')" title="Decline reservation" class="w-9 h-9 shrink-0 rounded-xl bg-white hover:bg-rose-50 text-[#991B1B] border border-rose-200 transition flex items-center justify-center cursor-pointer active:scale-[0.98]">
-              <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:x" data-stroke-width="2"></span>
+            <button type="button" onclick="app.quickApproverReject('${req.id}')" title="Decline reservation" class="w-9 h-9 shrink-0 rounded-xl bg-white hover:bg-rose-50 text-[#991B1B] border border-rose-200 hover:border-rose-300 transition inline-flex items-center justify-center cursor-pointer active:scale-[0.98] select-none">
+              <span class="iconify text-sm text-[#991B1B] shrink-0" data-icon="lucide:x" data-stroke-width="2"></span>
             </button>
           ` : `
-            <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="w-full btn-secondary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
-              <span class="iconify text-xs text-stone-600" data-icon="lucide:eye" data-stroke-width="2"></span>
-              <span>View Workspace & Decision</span>
+            <button type="button" onclick="app.openPitikaReviewWorkspace('${req.id}')" class="w-full btn-secondary h-9 px-3.5 rounded-xl border border-[#E9E3DD] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none">
+              <span class="iconify text-sm text-stone-500 shrink-0" data-icon="lucide:eye" data-stroke-width="2"></span>
+              <span class="leading-none text-stone-800">View Workspace & Decision</span>
             </button>
           `}
         </div>
@@ -1364,6 +1389,221 @@ class PitikaQueueView {
       `;
     }
     return pills;
+  }
+
+  _renderCardsFooterControls(totalItems, currentlyDisplayedCount, hasMore, remaining) {
+    if (this.approverIsLoadingMore) {
+      return `
+        <div class="py-5 flex items-center justify-center space-x-2 text-xs font-semibold text-stone-500 animate-pulse">
+          <span class="iconify animate-spin text-sm text-[#991B1B]" data-icon="lucide:loader-2" data-stroke-width="2"></span>
+          <span>Loading more manager review requests...</span>
+        </div>
+      `;
+    }
+
+    if (hasMore) {
+      return `
+        <div class="py-5 flex flex-col items-center justify-center space-y-2">
+          <button type="button" onclick="app.loadNextApproverCardsBatch()" class="h-9 px-5 rounded-xl bg-white hover:bg-stone-50 text-stone-800 border border-[#E9E3DD] text-xs font-bold transition-all shadow-2xs hover:shadow-xs flex items-center space-x-2 cursor-pointer active:scale-[0.98]">
+            <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:arrow-down-circle" data-stroke-width="2"></span>
+            <span>Load More Requests</span>
+            <span class="text-xs text-stone-500 font-normal">(${remaining} remaining)</span>
+          </button>
+          <span class="text-xs text-stone-400">Scroll down to auto-load</span>
+        </div>
+      `;
+    }
+
+    // End of data: subtle warm divider + Back to Top
+    return `
+      <div class="py-7 flex flex-col items-center justify-center space-y-2.5">
+        <div class="flex items-center space-x-3 w-full max-w-md px-4">
+          <div class="flex-1 h-[1px] bg-[#E9E3DD]"></div>
+          <div class="flex items-center space-x-1.5 text-xs font-semibold text-[#7D6857] shrink-0">
+            <span class="iconify text-sm text-emerald-600" data-icon="lucide:check-circle" data-stroke-width="2"></span>
+            <span>All ${totalItems} manager review requests loaded</span>
+          </div>
+          <div class="flex-1 h-[1px] bg-[#E9E3DD]"></div>
+        </div>
+        <button type="button" onclick="app.scrollApproverQueueToTop()" class="btn-secondary h-7 px-3 rounded-lg text-xs font-bold text-stone-700 flex items-center space-x-1.5 transition active:scale-[0.98] shadow-2xs hover:border-stone-300 cursor-pointer">
+          <span class="iconify text-xs text-stone-500" data-icon="lucide:arrow-up" data-stroke-width="2"></span>
+          <span>Back to Top</span>
+        </button>
+      </div>
+    `;
+  }
+
+  _renderCardSkeleton(count = 2) {
+    let skeletons = '';
+    for (let i = 0; i < count; i++) {
+      skeletons += `
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-4.5 shadow-xs flex flex-col justify-between animate-pulse">
+          <!-- Row 1: Header shimmer -->
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-2">
+              <div class="w-24 h-4 rounded-md bg-stone-200"></div>
+              <div class="w-2 h-2 rounded-full bg-stone-200"></div>
+              <div class="w-20 h-4 rounded-md bg-stone-100"></div>
+            </div>
+            <div class="w-20 h-6 rounded-full bg-stone-100 border border-stone-200"></div>
+          </div>
+
+          <!-- Row 2: Room Info shimmer -->
+          <div class="flex items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-3.5">
+            <div class="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
+              <div class="w-[116px] sm:w-[124px] h-[74px] sm:h-[78px] rounded-xl bg-stone-200 shrink-0"></div>
+              <div class="min-w-0 flex-1 space-y-2">
+                <div class="w-3/4 h-4 rounded-md bg-stone-200"></div>
+                <div class="w-1/3 h-3 rounded-md bg-stone-100"></div>
+                <div class="w-1/2 h-3 rounded-md bg-stone-100"></div>
+              </div>
+            </div>
+            <div class="w-12 h-5 rounded-md bg-stone-100"></div>
+          </div>
+
+          <!-- Row 3: Requester Strip shimmer -->
+          <div class="w-full h-8 rounded-xl bg-stone-100 mb-2"></div>
+
+          <!-- Stepper shimmer -->
+          <div class="relative w-full my-3.5 pt-0.5 pb-1">
+            <div class="absolute top-[10px] left-[8%] right-[8%] sm:left-[10%] sm:right-[10%] h-[2px] bg-stone-200 rounded-full"></div>
+            <div class="relative z-10 flex items-center justify-between w-full">
+              <div class="flex flex-col items-center space-y-2 flex-1">
+                <div class="w-5 h-5 rounded-full bg-stone-200"></div>
+                <div class="w-12 h-2.5 rounded bg-stone-100"></div>
+              </div>
+              <div class="flex flex-col items-center space-y-2 flex-1">
+                <div class="w-5 h-5 rounded-full bg-stone-200"></div>
+                <div class="w-12 h-2.5 rounded bg-stone-100"></div>
+              </div>
+              <div class="flex flex-col items-center space-y-2 flex-1">
+                <div class="w-5 h-5 rounded-full bg-stone-200"></div>
+                <div class="w-14 h-2.5 rounded bg-stone-100"></div>
+              </div>
+              <div class="flex flex-col items-center space-y-2 flex-1">
+                <div class="w-5 h-5 rounded-full bg-stone-200"></div>
+                <div class="w-12 h-2.5 rounded bg-stone-100"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 5: Buttons shimmer -->
+          <div class="mt-3.5 flex items-center gap-2 sm:gap-2.5">
+            <div class="w-24 h-[36px] rounded-xl bg-stone-200"></div>
+            <div class="flex-1 h-[36px] rounded-xl bg-stone-100 border border-stone-200"></div>
+            <div class="w-9 h-9 rounded-xl bg-stone-50 border border-stone-200"></div>
+          </div>
+        </div>
+      `;
+    }
+    return skeletons;
+  }
+
+  _setupCardsInfiniteScrollObserver() {
+    this._disconnectCardsObserver();
+
+    const sentinel = document.getElementById('approver-cards-infinite-sentinel');
+    const scrollContainer = document.getElementById('approver-cards-scroll-container');
+    if (!sentinel || !scrollContainer) return;
+
+    if (typeof IntersectionObserver === 'undefined') return;
+
+    this._cardsIntersectionObserver = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      if (entry && entry.isIntersecting && !this.approverIsLoadingMore && this.approverAutoScrollEnabled) {
+        this.loadNextApproverCardsBatch();
+      }
+    }, {
+      root: scrollContainer,
+      rootMargin: '120px',
+      threshold: 0.1
+    });
+
+    this._cardsIntersectionObserver.observe(sentinel);
+  }
+
+  _disconnectCardsObserver() {
+    if (this._cardsIntersectionObserver) {
+      this._cardsIntersectionObserver.disconnect();
+      this._cardsIntersectionObserver = null;
+    }
+  }
+
+  loadNextApproverCardsBatch() {
+    if (this.approverIsLoadingMore) return;
+
+    const filtered = this._getFilteredApproverRequests();
+    const totalItems = filtered.length;
+    const currentDisplayed = this.approverLoadedBatches * this.approverBatchSize;
+
+    if (currentDisplayed >= totalItems) {
+      return;
+    }
+
+    this.approverIsLoadingMore = true;
+
+    const skeletonSlot = document.getElementById('approver-cards-skeleton-slot');
+    const footerControls = document.getElementById('approver-cards-footer-controls');
+    const remainingAfter = totalItems - currentDisplayed;
+    const nextBatchSize = Math.min(this.approverBatchSize, remainingAfter);
+
+    if (skeletonSlot) {
+      skeletonSlot.innerHTML = this._renderCardSkeleton(Math.min(2, nextBatchSize));
+      skeletonSlot.classList.remove('hidden');
+    }
+    if (footerControls) {
+      footerControls.innerHTML = this._renderCardsFooterControls(totalItems, currentDisplayed, true, remainingAfter);
+    }
+
+    // 400ms micro-latency for smooth skeleton experience
+    setTimeout(() => {
+      const nextBatchItems = filtered.slice(currentDisplayed, currentDisplayed + nextBatchSize);
+      this.approverLoadedBatches++;
+
+      const grid = document.getElementById('approver-cards-grid');
+      if (grid && nextBatchItems.length > 0) {
+        const newCardsHtml = nextBatchItems.map(req => {
+          return this._renderSinglePitikaCard(req, true);
+        }).join('');
+        grid.insertAdjacentHTML('beforeend', newCardsHtml);
+      }
+
+      if (skeletonSlot) {
+        skeletonSlot.innerHTML = '';
+        skeletonSlot.classList.add('hidden');
+      }
+
+      const newDisplayed = this.approverLoadedBatches * this.approverBatchSize;
+      const newHasMore = newDisplayed < totalItems;
+      const newRemaining = Math.max(0, totalItems - newDisplayed);
+
+      this.approverIsLoadingMore = false;
+
+      if (footerControls) {
+        footerControls.innerHTML = this._renderCardsFooterControls(totalItems, Math.min(totalItems, newDisplayed), newHasMore, newRemaining);
+      }
+
+      if (newHasMore) {
+        const sentinel = document.getElementById('approver-cards-infinite-sentinel');
+        if (sentinel && this._cardsIntersectionObserver) {
+          this._cardsIntersectionObserver.unobserve(sentinel);
+          this._cardsIntersectionObserver.observe(sentinel);
+        }
+      } else {
+        this._disconnectCardsObserver();
+      }
+    }, 400);
+  }
+
+  scrollApproverQueueToTop() {
+    const scrollContainer = document.getElementById('approver-cards-scroll-container');
+    if (scrollContainer) {
+      scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  cleanup() {
+    this._disconnectCardsObserver();
   }
 }
 

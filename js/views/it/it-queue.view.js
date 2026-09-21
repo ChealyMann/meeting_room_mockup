@@ -681,7 +681,7 @@ class ITQueueView {
     const activeTab = userSelectedTab || 'meeting-info';
 
     return `
-      <div class="w-full max-w-full min-h-[395px] bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-4.5 lg:p-5 shadow-xs transition-all duration-150 hover:border-[#D8CFC7] hover:shadow-sm flex flex-col justify-between overflow-hidden ${isNew ? 'animate-card-fade-in' : ''}">
+      <div class="w-full max-w-full bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-4.5 shadow-xs transition-all duration-150 hover:border-[#D8CFC7] hover:shadow-sm flex flex-col justify-between overflow-hidden ${isNew ? 'animate-card-fade-in' : ''}">
         
         <!-- Row 1: ID + Reference Code + Status Pill (Matches My Bookings line 827) -->
         <div class="flex items-center justify-between mb-3 sm:mb-3.5 flex-wrap gap-2">
@@ -732,17 +732,18 @@ class ITQueueView {
           </button>
         </div>
 
-        <!-- Row 3: Card Body (Shared stable height container with room to breathe matching My Bookings) -->
-        <div class="flex-1 min-h-[230px] sm:min-h-[240px] flex flex-col justify-between">
+        <!-- Row 3: Card Body (Shared stable height container matching My Bookings) -->
+        <div class="flex-1 flex flex-col justify-between">
           
           <!-- TAB 1: Meeting Info (Room, Specs, Booker, Stepper) -->
-          <div id="it-panel-meeting-${ticket.id}" class="flex-1 flex flex-col transition-opacity duration-150 ${activeTab === 'meeting-info' ? '' : 'hidden'}">
-            <!-- Room Thumbnail + Meeting Specs + Contact Booker (Matches My Bookings lines 845-867) -->
-            <div class="flex items-center justify-between gap-3 sm:gap-4 mb-1">
-              <div class="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
-                <img src="${roomImgUrl}" class="rounded-xl object-cover border border-[#E9E3DD] shrink-0 w-[116px] sm:w-[124px] h-[74px] sm:h-[78px] shadow-2xs" alt="Room" />
-                <div class="min-w-0 flex-1">
-                  <h4 class="font-heading font-semibold text-sm text-stone-900 leading-snug truncate" title="${ticket.meetingTitle || ''}">
+          <div id="it-panel-meeting-${ticket.id}" class="flex-1 flex flex-col justify-between transition-opacity duration-150 ${activeTab === 'meeting-info' ? '' : 'hidden'}">
+            <div class="flex-1 min-w-0 flex flex-col justify-start">
+              <!-- Room Thumbnail + Meeting Specs + Contact Booker (Matches My Bookings lines 845-867) -->
+              <div class="flex items-center justify-between gap-3 sm:gap-4 mb-1">
+                <div class="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
+                  <img src="${roomImgUrl}" class="rounded-xl object-cover border border-[#E9E3DD] shrink-0 w-[116px] sm:w-[124px] h-[74px] sm:h-[78px] shadow-2xs" alt="Room" />
+                  <div class="min-w-0 flex-1">
+                    <h4 class="font-heading font-semibold text-sm text-stone-900 leading-snug truncate" title="${ticket.meetingTitle || ''}">
                     ${ticket.meetingTitle || 'Meeting'}
                   </h4>
                   <div class="flex items-center space-x-1.5 text-xs text-stone-500 mt-1 font-normal">
@@ -791,10 +792,11 @@ class ITQueueView {
                 </div>
               </div>
             </div>
-
-            <!-- Stepper: Visual Progress (Matches My Bookings line 1085: sits directly on card canvas) -->
-            ${this._renderITStepper(ticket)}
           </div>
+
+          <!-- Stepper: Visual Progress (Matches My Bookings line 1085: sits directly on card canvas) -->
+          ${this._renderITStepper(ticket)}
+        </div>
 
           <!-- TAB 2: Other Details (Flat, Airy, Uncluttered - Matches My Bookings) -->
           <div id="it-panel-details-${ticket.id}" class="flex-1 flex flex-col justify-center space-y-3 sm:space-y-3.5 transition-opacity duration-150 ${activeTab === 'other-details' ? '' : 'hidden'}">
@@ -887,24 +889,24 @@ class ITQueueView {
           </div>
         </div>
 
-        <!-- Row 4: Action Buttons Row (Matches My Bookings line 909: flex-1 for View Details, 36px height) -->
-        <div class="mt-3.5 sm:mt-4 pt-3 border-t border-[#E9E3DD] flex items-center justify-end gap-2 sm:gap-2.5">
+        <!-- Row 4: Action Buttons Row (Matches My Bookings: strict h-9 rounded-xl, 1px border) -->
+        <div class="mt-3.5 flex items-center gap-2">
           <!-- View Details Button -->
-          <button type="button" onclick="app.openBookingDetailsPage('${ticket.id}')" class="flex-1 btn-secondary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
-            <span class="iconify text-xs text-stone-600" data-icon="lucide:eye" data-stroke-width="2"></span>
-            <span>View Details</span>
+          <button type="button" onclick="app.openBookingDetailsPage('${ticket.id}')" class="flex-1 btn-secondary h-9 px-3.5 rounded-xl border border-[#E9E3DD] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none">
+            <span class="iconify text-sm text-stone-500 shrink-0" data-icon="lucide:eye" data-stroke-width="2"></span>
+            <span class="leading-none text-stone-800">View Details</span>
           </button>
 
           ${isAssigned && !isConfirmed ? `
-            <button type="button" onclick="window.NBC.views['it-queue'].markSetupComplete('${ticket.id}')" class="min-h-[36px] h-[36px] px-4 rounded-xl text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
-              <span class="iconify text-xs text-white" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
-              <span class="text-white">Confirm Ready</span>
+            <button type="button" onclick="window.NBC.views['it-queue'].markSetupComplete('${ticket.id}')" class="h-9 px-3.5 shrink-0 rounded-xl text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white border border-emerald-700 inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none shadow-xs">
+              <span class="iconify text-sm text-white shrink-0" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
+              <span class="text-white leading-none">Confirm Ready</span>
             </button>
           ` : ''}
 
-          <button type="button" onclick="app.openITAssignPage('${ticket.id}')" class="btn-primary min-h-[36px] h-[36px] px-4 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
-            <span class="iconify text-xs text-white" data-icon="${isAssigned ? 'lucide:user-cog' : 'lucide:user-plus'}" data-stroke-width="2"></span>
-            <span class="text-white">${isAssigned ? 'Change Staff' : 'Assign Staff'}</span>
+          <button type="button" onclick="app.openITAssignPage('${ticket.id}')" class="btn-primary h-9 px-3.5 shrink-0 rounded-xl border border-[#991B1B] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none shadow-xs">
+            <span class="iconify text-sm text-white shrink-0" data-icon="${isAssigned ? 'lucide:user-cog' : 'lucide:user-plus'}" data-stroke-width="2"></span>
+            <span class="text-white leading-none">${isAssigned ? 'Change Staff' : 'Assign Staff'}</span>
           </button>
         </div>
 
@@ -927,74 +929,72 @@ class ITQueueView {
     const lineBoundsClass = 'left-[10%] right-[10%] sm:left-[12.5%] sm:right-[12.5%]';
 
     return `
-      <div class="flex-1 min-h-[112px] flex items-center py-2">
-        <div class="relative w-full pt-0.5 pb-1">
-          <!-- Connecting Line Background & Progress (Center at 11px, matches center of 24px nodes) -->
-          <div class="absolute top-[11px] ${lineBoundsClass} h-[2px] bg-[#E7DFD7] rounded-full z-0 pointer-events-none">
-            <div class="h-full bg-emerald-600 rounded-full transition-all duration-300" style="width: ${progressPercent};"></div>
+      <div class="relative w-full my-3.5 pt-0.5 pb-1">
+        <!-- Connecting Line Background & Progress (Center at 11px, matches center of 24px nodes) -->
+        <div class="absolute top-[11px] ${lineBoundsClass} h-[2px] bg-[#E7DFD7] rounded-full z-0 pointer-events-none">
+          <div class="h-full bg-emerald-600 rounded-full transition-all duration-300" style="width: ${progressPercent};"></div>
+        </div>
+
+        <!-- Stepper Nodes Track (Matches My Bookings line 1092) -->
+        <div class="relative z-10 flex items-start justify-between w-full">
+          <!-- Step 1: Received -->
+          <div class="flex flex-col items-center text-center flex-1 min-w-0">
+            <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
+              <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+            </div>
+            <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">1. Received</span>
           </div>
 
-          <!-- Stepper Nodes Track (Matches My Bookings line 1092) -->
-          <div class="relative z-10 flex items-start justify-between w-full">
-            <!-- Step 1: Received -->
-            <div class="flex flex-col items-center text-center flex-1 min-w-0">
+          <!-- Step 2: Staff Assigned -->
+          <div class="flex flex-col items-center text-center flex-1 min-w-0">
+            ${isAssigned || isConfirmed ? `
               <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
                 <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
               </div>
-              <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">1. Received</span>
-            </div>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">2. Staff Assigned</span>
+            ` : `
+              <div class="w-6 h-6 rounded-full bg-emerald-600 ring-[4px] ring-emerald-100 flex items-center justify-center shadow-xs shrink-0">
+                <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2 whitespace-nowrap">2. Staff Assigned</span>
+            `}
+          </div>
 
-            <!-- Step 2: Staff Assigned -->
-            <div class="flex flex-col items-center text-center flex-1 min-w-0">
-              ${isAssigned || isConfirmed ? `
-                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
-                  <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
-                </div>
-                <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">2. Staff Assigned</span>
-              ` : `
-                <div class="w-6 h-6 rounded-full bg-emerald-600 ring-[4px] ring-emerald-100 flex items-center justify-center shadow-xs shrink-0">
-                  <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                </div>
-                <span class="text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2 whitespace-nowrap">2. Staff Assigned</span>
-              `}
-            </div>
+          <!-- Step 3: Setting Up -->
+          <div class="flex flex-col items-center text-center flex-1 min-w-0">
+            ${isConfirmed ? `
+              <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
+                <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">3. Setting Up</span>
+            ` : (isAssigned ? `
+              <div class="w-6 h-6 rounded-full bg-emerald-600 ring-[4px] ring-emerald-100 flex items-center justify-center shadow-xs shrink-0">
+                <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2 whitespace-nowrap">3. Setting Up</span>
+              <span class="text-[10px] sm:text-xs font-normal text-emerald-700 mt-0.5 whitespace-nowrap">Setting Up</span>
+            ` : `
+              <div class="w-6 h-6 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs shrink-0">
+                <span>3</span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-500 mt-2 whitespace-nowrap">3. Setting Up</span>
+            `)}
+          </div>
 
-            <!-- Step 3: Setting Up -->
-            <div class="flex flex-col items-center text-center flex-1 min-w-0">
-              ${isConfirmed ? `
-                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
-                  <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2"></span>
-                </div>
-                <span class="text-[11px] sm:text-xs font-medium text-stone-600 mt-2 whitespace-nowrap">3. Setting Up</span>
-              ` : (isAssigned ? `
-                <div class="w-6 h-6 rounded-full bg-emerald-600 ring-[4px] ring-emerald-100 flex items-center justify-center shadow-xs shrink-0">
-                  <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
-                </div>
-                <span class="text-[11px] sm:text-xs font-semibold text-emerald-700 mt-2 whitespace-nowrap">3. Setting Up</span>
-                <span class="text-[10px] sm:text-xs font-normal text-emerald-700 mt-0.5 whitespace-nowrap">Setting Up</span>
-              ` : `
-                <div class="w-6 h-6 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs shrink-0">
-                  <span>3</span>
-                </div>
-                <span class="text-[11px] sm:text-xs font-medium text-stone-500 mt-2 whitespace-nowrap">3. Setting Up</span>
-              `)}
-            </div>
-
-            <!-- Step 4: Ready -->
-            <div class="flex flex-col items-center text-center flex-1 min-w-0">
-              ${isConfirmed ? `
-                <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
-                  <span class="iconify text-xs text-white" data-icon="lucide:check-check" data-stroke-width="2.5"></span>
-                </div>
-                <span class="text-[11px] sm:text-xs font-semibold text-stone-900 mt-2 whitespace-nowrap">4. Ready</span>
-                <span class="text-[10px] sm:text-xs font-medium text-emerald-700 mt-0.5 whitespace-nowrap">Ready</span>
-              ` : `
-                <div class="w-6 h-6 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs shrink-0">
-                  <span>4</span>
-                </div>
-                <span class="text-[11px] sm:text-xs font-medium text-stone-400 mt-2 whitespace-nowrap">4. Ready</span>
-              `}
-            </div>
+          <!-- Step 4: Ready -->
+          <div class="flex flex-col items-center text-center flex-1 min-w-0">
+            ${isConfirmed ? `
+              <div class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-2xs shrink-0">
+                <span class="iconify text-xs text-white" data-icon="lucide:check-check" data-stroke-width="2.5"></span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-semibold text-stone-900 mt-2 whitespace-nowrap">4. Ready</span>
+              <span class="text-[10px] sm:text-xs font-medium text-emerald-700 mt-0.5 whitespace-nowrap">Ready</span>
+            ` : `
+              <div class="w-6 h-6 rounded-full bg-white border border-stone-300 text-stone-500 text-xs font-semibold flex items-center justify-center shadow-2xs shrink-0">
+                <span>4</span>
+              </div>
+              <span class="text-[11px] sm:text-xs font-medium text-stone-400 mt-2 whitespace-nowrap">4. Ready</span>
+            `}
           </div>
         </div>
       </div>

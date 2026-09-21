@@ -158,6 +158,25 @@ window.NBC.views['book-room'] = {
           return 'lucide:sparkles';
         };
 
+        const getPrimaryFeature = (room) => {
+          if (!room || !Array.isArray(room.features) || room.features.length === 0) {
+            return { label: 'Screen / VC', icon: 'lucide:monitor' };
+          }
+          const displayFeat = room.features.find(f => {
+            const s = String(f).toLowerCase();
+            return s.includes('screen') || s.includes('tv') || s.includes('display') || s.includes('video') || s.includes('vc');
+          });
+          if (displayFeat) {
+            let label = 'Screen / VC';
+            if (/4k/i.test(displayFeat)) label = '4K Screen / VC';
+            else if (/dual/i.test(displayFeat)) label = 'Dual Display';
+            else if (/projector/i.test(displayFeat)) label = 'Projector';
+            return { label, icon: 'lucide:monitor' };
+          }
+          const first = room.features[0];
+          return { label: first, icon: getFeatureIcon(first) };
+        };
+
         const getRoomBorderClass = (room) => {
           const isOther = isOtherPrivate(room);
           const isAvailable = (room.status || 'Available').toLowerCase() === 'available';
@@ -274,7 +293,7 @@ window.NBC.views['book-room'] = {
           { id: 'private', label: 'Private Only', icon: 'lucide:lock' }
         ];
 
-        // Grouped Hierarchy Sections to Display (Option A: Floor-Grouped Structure)
+        // Grouped Hierarchy Sections to Display (Minimal Location Hierarchy - No Floor Subheaders)
         const displayedSections = computed(() => {
           const groups = currentBuildingFilter.value === 'all'
             ? hierarchyGroups
@@ -284,34 +303,21 @@ window.NBC.views['book-room'] = {
             const groupRooms = matchingRooms.value.filter(r => group.matches(r));
             if (groupRooms.length === 0) return null;
 
-            // Group rooms by floor (sorted descending by floor number, then capacity)
-            const floorMap = {};
-            groupRooms.forEach(room => {
-              const fLabel = formatFloorShort(room.floor);
-              if (!floorMap[fLabel]) {
-                floorMap[fLabel] = {
-                  floorNumber: getFloorNumber(room.floor),
-                  floor: fLabel,
-                  rooms: []
-                };
+            // Sort rooms by floor number descending, then capacity descending
+            const sortedRooms = [...groupRooms].sort((a, b) => {
+              const floorA = getFloorNumber(a.floor);
+              const floorB = getFloorNumber(b.floor);
+              if (floorB !== floorA) {
+                return floorB - floorA;
               }
-              floorMap[fLabel].rooms.push(room);
-            });
-
-            // Sort floor groups descending (highest floor first, down to Ground Floor)
-            const floorGroups = Object.values(floorMap).sort((a, b) => b.floorNumber - a.floorNumber);
-
-            // Sort rooms within each floor group by capacity descending
-            floorGroups.forEach(fg => {
-              fg.rooms.sort((a, b) => (b.capacity || 0) - (a.capacity || 0));
+              return (b.capacity || 0) - (a.capacity || 0);
             });
 
             return {
               id: group.id,
               title: group.title,
               pillIcon: group.pillIcon,
-              rooms: groupRooms,
-              floorGroups
+              rooms: sortedRooms
             };
           }).filter(Boolean);
         });
@@ -435,6 +441,7 @@ window.NBC.views['book-room'] = {
           isOtherPrivate,
           getMapInfo,
           getFeatureIcon,
+          getPrimaryFeature,
           getRoomBorderClass,
           getRoomTypeIcon,
           getRoomTypeIconColor,
@@ -453,375 +460,116 @@ window.NBC.views['book-room'] = {
       },
 
       template: `
-        <div>
-          <!-- Fixed/Sticky Search & Filter Navbar (z-40 Above All Room Cards and Content) -->
-          <div
-            class="sticky-catalog-navbar -mx-3.5 sm:-mx-5 lg:-mx-6 xl:-mx-8 px-3.5 sm:px-5 lg:px-6 xl:px-8 -mt-3.5 sm:-mt-5 lg:-mt-6 xl:-mt-6 pt-3.5 sm:pt-5 lg:pt-6 xl:pt-6 pb-3 border-b border-[#E9E3DD]/80"
-            style="position: sticky; z-index: 40; background-color: #F9F7F5;"
-          >
-            <div class="space-y-3">
-              
-              <!-- Top Responsive Command Grid: Search (7 cols) + Date Range (5 cols) -->
+        <div class="space-y-5">
+          <section class="sticky-catalog-navbar -mx-3.5 sm:-mx-5 lg:-mx-6 xl:-mx-8 px-3.5 sm:px-5 lg:px-6 xl:px-8 -mt-3.5 sm:-mt-5 lg:-mt-6 xl:-mt-6 pt-3.5 sm:pt-5 lg:pt-6 xl:pt-6 pb-4 border-b border-[#E9E3DD]/80" aria-label="Room search and filters">
+            <div class="bg-white rounded-2xl border border-[#E9E3DD] shadow-xs p-4 sm:p-5 space-y-4">
               <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-end">
-                
-                <!-- Main Search Input with Clear Button (md:col-span-7) -->
                 <div class="md:col-span-7">
-                  <label for="room-search-input" class="block text-xs font-semibold text-[#6F5849] mb-1.5">
-                    Search Rooms
-                  </label>
+                  <label for="room-search-input" class="block text-sm font-semibold text-[#6F5849] mb-1.5">Search rooms</label>
                   <div class="relative">
                     <app-icon icon="lucide:search" class-name="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7D6857] text-base pointer-events-none" />
-                    <input
-                      type="text"
-                      v-model="searchQuery"
-                      id="room-search-input"
-                      placeholder="Search rooms by name, floor, amenities, or department..."
-                      class="w-full h-11 pl-10 pr-9 bg-white hover:bg-[#FAF7F4] focus:bg-white text-[#1C1917] text-xs sm:text-sm font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none"
-                    />
-                    <!-- Clear Button (X) -->
-                    <transition name="fade-scale">
-                      <button
-                        v-if="searchQuery.trim().length > 0"
-                        @click="clearSearch"
-                        id="room-search-clear"
-                        class="search-clear-btn"
-                        title="Clear search"
-                        aria-label="Clear search"
-                        type="button"
-                      >
-                        <app-icon icon="lucide:x" class-name="text-xs" />
+                    <input type="search" v-model="searchQuery" id="room-search-input" placeholder="Name, floor, amenity, or department" autocomplete="off" class="w-full h-11 pl-10 pr-10 bg-[#FAF7F4] hover:bg-white focus:bg-white text-[#1C1917] text-sm font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none" />
+                    <button v-if="searchQuery.trim().length > 0" @click="clearSearch" id="room-search-clear" class="search-clear-btn" title="Clear search" aria-label="Clear search" type="button"><app-icon icon="lucide:x" class-name="text-xs" /></button>
+                  </div>
+                </div>
+
+                <div class="md:col-span-5 grid grid-cols-2 gap-2.5">
+                  <div>
+                    <label for="catalog-date-from" class="block text-sm font-semibold text-[#6F5849] mb-1.5">From</label>
+                    <input id="catalog-date-from" type="date" v-model="rangeStart" :min="todayString" aria-label="Availability start date" class="w-full h-11 px-3 bg-[#FAF7F4] hover:bg-white focus:bg-white text-[#3E2B1E] font-mono text-xs font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none cursor-pointer" />
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                      <label for="catalog-date-to" class="block text-sm font-semibold text-[#6F5849]">To</label>
+                      <button v-if="rangeStart || rangeEnd" @click="clearDateRange" type="button" class="text-xs font-semibold text-[#991B1B] hover:text-[#7F1D1D] hover:underline">Clear</button>
+                    </div>
+                    <input id="catalog-date-to" type="date" v-model="rangeEnd" :min="rangeStart || todayString" aria-label="Availability end date" class="w-full h-11 px-3 bg-[#FAF7F4] hover:bg-white focus:bg-white text-[#3E2B1E] font-mono text-xs font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none cursor-pointer" />
+                  </div>
+                </div>
+              </div>
+
+              <p v-if="dateRangeError" class="text-xs font-semibold text-[#991B1B]" role="alert">{{ dateRangeError }}</p>
+
+              <div class="flex items-center justify-between gap-3 pt-3 border-t border-[#E9E3DD]/80 overflow-x-auto no-scrollbar">
+                <div class="flex items-center gap-2 flex-nowrap shrink-0">
+                  <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-[#A8988B]">Location</span>
+                  <div id="building-pills-track" role="group" aria-label="Location">
+                    <button v-for="p in buildingPills" :key="p.id" :id="'pill-btn-' + p.id" @click="setBuildingFilter(p.id)" class="glider-pill-btn" :class="{ active: currentBuildingFilter === p.id }" :aria-pressed="currentBuildingFilter === p.id" type="button"><app-icon :icon="p.icon" class-name="text-sm" /><span>{{ p.label }}</span></button>
+                  </div>
+                  <div class="h-5 w-px bg-[#E9E3DD] mx-1 shrink-0"></div>
+                  <div class="flex items-center gap-1.5 flex-nowrap" role="group" aria-label="Room type and availability">
+                    <button v-for="s in statusChips" :key="s.id" :id="'status-chip-' + s.id" @click="setStatusFilter(s.id)" class="status-chip" :class="{ active: currentStatusFilter === s.id }" :aria-pressed="currentStatusFilter === s.id" type="button"><app-icon :icon="s.icon" class-name="text-sm" /><span>{{ s.label.replace(' Now', '') }}</span></button>
+                  </div>
+                </div>
+                <button v-if="hasActiveFilters" @click="resetAllFilters" class="text-xs font-semibold text-[#991B1B] hover:text-[#7F1D1D] flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-[#FEF2F2] transition cursor-pointer shrink-0" type="button"><app-icon icon="lucide:rotate-ccw" class-name="text-xs" /><span>Reset filters</span></button>
+              </div>
+            </div>
+          </section>
+
+          <div class="flex items-center justify-between px-1 text-sm text-[#6F5849]" aria-live="polite">
+            <strong class="font-semibold text-[#3E2B1E]">{{ matchingRooms.length }} {{ matchingRooms.length === 1 ? 'room' : 'rooms' }} available</strong>
+            <span class="font-mono text-xs">{{ dateRangeLabel || 'Across NBC locations' }}</span>
+          </div>
+
+          <div v-if="matchingRooms.length === 0" class="animate-empty-state py-12 px-6 text-center bg-white rounded-2xl border border-[#E9E3DD] shadow-xs space-y-3.5 max-w-xl mx-auto my-6" role="status">
+            <div class="w-14 h-14 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 mx-auto flex items-center justify-center"><app-icon icon="lucide:search-x" class-name="text-2xl text-amber-700" :stroke-width="1.8" /></div>
+            <h2 class="text-lg font-heading font-bold text-[#3E2B1E]">No matching rooms found</h2>
+            <p class="text-sm text-[#6F5849] max-w-sm mx-auto leading-relaxed">{{ dateRangeError || (hasDateRange ? 'No room is available for every day in the selected range.' : searchQuery.trim() ? 'Try a different search term.' : 'Try a different location or room type.') }}</p>
+            <button @click="resetAllFilters" class="px-4 py-2.5 bg-[#991B1B] hover:bg-[#7F1D1D] text-white font-bold text-sm rounded-xl transition shadow-xs inline-flex items-center gap-2 cursor-pointer" type="button"><app-icon icon="lucide:rotate-ccw" class-name="text-sm text-white" /><span>Reset filters</span></button>
+          </div>
+
+          <div v-else :key="currentBuildingFilter + '-' + currentStatusFilter" class="catalog-view-container space-y-9 flex flex-col pt-1">
+            <section v-for="group in displayedSections" :key="group.id" class="space-y-5" :data-building-id="group.id">
+              <!-- Sleek Pure Editorial Typography Location Header: No icons, clean bold heading + subtle count -->
+              <div class="flex items-center justify-between pb-2.5 border-b border-[#E9E3DD]">
+                <h2 class="font-heading font-bold text-base sm:text-lg text-[#3E2B1E] tracking-tight truncate">{{ group.title }}</h2>
+                <span class="font-mono text-xs font-medium text-[#7D6857] shrink-0 ml-3">{{ group.rooms.length }} {{ group.rooms.length === 1 ? 'room' : 'rooms' }}</span>
+              </div>
+
+              <!-- Flat Room Cards Grid (Floor hierarchy completely removed) -->
+              <div class="rooms-section-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                <article v-for="room in group.rooms" :key="room.id" class="catalog-room-card bg-white rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition flex flex-col group" :class="getRoomBorderClass(room)">
+                  <!-- Image Header -->
+                  <div class="relative h-44 bg-[#F4EFEA] overflow-hidden">
+                    <img :src="room.image || 'assets/rooms/boardroom-alpha.jpg'" :alt="room.name || 'Meeting Room'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" @error="handleImgError" />
+                    <div class="absolute top-3 left-3 bg-[#260707]/80 backdrop-blur-xs text-white text-xs font-mono px-2.5 py-1 rounded-lg">
+                      {{ formatFloorShort(room.floor) }}
+                    </div>
+                    <div class="absolute top-3 right-3 text-xs font-semibold px-2.5 py-1 rounded-lg" :class="room.isPrivate ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'">
+                      {{ room.isPrivate ? 'Private' : 'Shared' }}
+                    </div>
+                  </div>
+
+                  <!-- Card Content -->
+                  <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+                    <div>
+                      <h3 class="text-base font-bold text-[#3E2B1E] leading-snug line-clamp-1" :title="room.name || 'Untitled Room'">{{ room.name || 'Untitled Room' }}</h3>
+                      <p class="text-xs text-[#6F5849] mt-0.5 truncate" :title="room.location || ''">{{ room.location || 'Headquarters' }}</p>
+
+                      <div class="flex items-center gap-4 text-xs font-medium text-[#6F5849] mt-3 pt-2 border-t border-[#E9E3DD]/60">
+                        <span class="flex items-center gap-1.5 shrink-0">
+                          <app-icon icon="lucide:users" class-name="text-[#7D6857]" />
+                          {{ Number(room.capacity) || 0 }} Seats
+                        </span>
+                        <span class="flex items-center gap-1.5 min-w-0" :title="getPrimaryFeature(room).label">
+                          <app-icon :icon="getPrimaryFeature(room).icon" class-name="text-[#7D6857] shrink-0" />
+                          <span class="truncate">{{ getPrimaryFeature(room).label }}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Card Actions -->
+                    <div class="pt-2 flex items-center gap-2">
+                      <button @click="handleDetails(room)" class="flex-1 h-9 rounded-xl border border-[#E9E3DD] hover:bg-[#FAF7F4] active:bg-[#E9E3DD] text-xs font-semibold text-[#3E2B1E] transition cursor-pointer" type="button">
+                        View Details
                       </button>
-                    </transition>
-                  </div>
-                </div>
-
-                <!-- Date Range Availability: From & To with External Labels (md:col-span-5) -->
-                <div class="md:col-span-5">
-                  <div class="grid grid-cols-2 gap-2.5">
-                    <!-- From Date with External Label -->
-                    <div>
-                      <label for="catalog-date-from" class="block text-xs font-semibold text-[#6F5849] mb-1.5">
-                        From
-                      </label>
-                      <input
-                        id="catalog-date-from"
-                        type="date"
-                        v-model="rangeStart"
-                        :min="todayString"
-                        class="w-full h-11 px-3 bg-white hover:bg-[#FAF7F4] focus:bg-white text-[#3E2B1E] font-mono text-xs font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none cursor-pointer"
-                        aria-label="Availability start date"
-                      />
-                    </div>
-
-                    <!-- To Date with External Label -->
-                    <div>
-                      <div class="flex items-center justify-between mb-1.5">
-                        <label for="catalog-date-to" class="block text-xs font-semibold text-[#6F5849]">
-                          To
-                        </label>
-                        <button
-                          v-if="hasDateRange"
-                          @click="clearDateRange"
-                          type="button"
-                          class="text-[11px] font-semibold text-[#991B1B] hover:text-[#7F1D1D] hover:underline cursor-pointer"
-                        >
-                          Clear
-                        </button>
-                      </div>
-                      <input
-                        id="catalog-date-to"
-                        type="date"
-                        v-model="rangeEnd"
-                        :min="rangeStart || todayString"
-                        class="w-full h-11 px-3 bg-white hover:bg-[#FAF7F4] focus:bg-white text-[#3E2B1E] font-mono text-xs font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none cursor-pointer"
-                        aria-label="Availability end date"
-                      />
+                      <button @click="handleProceed(room)" class="flex-1 h-9 rounded-xl bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs" type="button">
+                        <app-icon icon="lucide:calendar" class-name="text-white text-xs" />
+                        <span>{{ isOtherPrivate(room) ? 'Request' : 'Book' }}</span>
+                      </button>
                     </div>
                   </div>
-                  <!-- Error Notice if Date Range Invalid -->
-                  <div v-if="dateRangeError" class="text-[11px] font-semibold text-red-700 mt-1">
-                    {{ dateRangeError }}
-                  </div>
-                </div>
-              </div>
-
-              <!-- Smart Quick-Filter Chips Bar with Segmented Glider Track -->
-              <div class="flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
-                <div class="flex items-center gap-2 flex-nowrap py-0.5 shrink-0">
-                  <!-- Clean Location Filter Track -->
-                  <div id="building-pills-track">
-                    <button
-                      v-for="p in buildingPills"
-                      :key="p.id"
-                      :id="'pill-btn-' + p.id"
-                      @click="setBuildingFilter(p.id)"
-                      class="glider-pill-btn"
-                      :class="{ active: currentBuildingFilter === p.id }"
-                      type="button"
-                    >
-                      <app-icon :icon="p.icon" class-name="text-sm" />
-                      <span>{{ p.label }}</span>
-                    </button>
-                  </div>
-
-                  <div class="h-4 w-px bg-stone-300 mx-1 shrink-0"></div>
-
-                  <!-- Status Toggle Chips -->
-                  <div class="flex items-center gap-1.5 flex-nowrap">
-                    <button
-                      v-for="s in statusChips"
-                      :key="s.id"
-                      :id="'status-chip-' + s.id"
-                      @click="setStatusFilter(s.id)"
-                      class="status-chip"
-                      :class="{ active: currentStatusFilter === s.id }"
-                      type="button"
-                    >
-                      <app-icon :icon="s.icon" class-name="text-sm" />
-                      <span>{{ s.label }}</span>
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Reset Filter Button (Shown when filters active) -->
-                <transition name="fade-scale">
-                  <div v-if="hasActiveFilters" class="shrink-0">
-                    <button
-                      @click="resetAllFilters"
-                      class="text-xs font-semibold text-[#991B1B] hover:text-[#7F1D1D] flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-[#FEF2F2] transition cursor-pointer"
-                      type="button"
-                    >
-                      <app-icon icon="lucide:rotate-ccw" class-name="text-xs" />
-                      <span>Reset</span>
-                    </button>
-                  </div>
-                </transition>
-              </div>
-            </div>
-          </div>
-
-          <!-- Live Results Summary Info -->
-          <div class="flex items-center justify-between px-1 text-xs text-[#7D6857] my-2">
-            <span class="font-medium transition-opacity duration-200">
-              Showing {{ matchingRooms.length }} {{ matchingRooms.length === 1 ? 'room' : 'rooms' }}<span v-if="dateRangeLabel"> available from {{ dateRangeLabel }}</span><span v-else> across NBC</span>
-            </span>
-          </div>
-
-          <!-- Empty State (when 0 rooms match) -->
-          <transition name="fade-scale">
-            <div
-              v-if="matchingRooms.length === 0"
-              class="animate-empty-state py-12 px-6 text-center bg-white rounded-2xl border border-[#E9E3DD] shadow-xs space-y-3.5 max-w-xl mx-auto my-6"
-            >
-              <div class="w-14 h-14 rounded-full bg-amber-50 text-amber-700 border border-amber-200 mx-auto flex items-center justify-center">
-                <app-icon icon="lucide:search-x" class-name="text-2xl text-amber-700" :stroke-width="1.8" />
-              </div>
-                <div class="space-y-1">
-                  <h4 class="text-base font-heading font-bold text-stone-900">No matching rooms found</h4>
-                  <p class="text-xs text-stone-500 max-w-sm mx-auto leading-relaxed">
-                    <span v-if="dateRangeError">{{ dateRangeError }}</span>
-                    <span v-else-if="hasDateRange">No room is available for every day in the selected range.</span>
-                    <span v-else-if="searchQuery.trim()">No rooms match &ldquo;<strong>{{ searchQuery.trim() }}</strong>&rdquo;.</span>
-                    <span v-else>No rooms match your selected filters.</span>
-                  </p>
-                </div>
-              <div class="pt-2">
-                <button
-                  @click="resetAllFilters"
-                  class="px-4 py-2.5 bg-[#991B1B] hover:bg-[#7F1D1D] text-white font-bold text-xs rounded-xl transition shadow-xs inline-flex items-center gap-2 cursor-pointer"
-                  type="button"
-                >
-                  <app-icon icon="lucide:rotate-ccw" class-name="text-sm text-white" />
-                  <span>Reset All Filters</span>
-                </button>
-              </div>
-            </div>
-          </transition>
-
-          <!-- Hierarchy Sections and Floor-Grouped Card Grid (Option A: Floor-Grouped Structure) -->
-          <div
-            v-if="matchingRooms.length > 0"
-            :key="currentBuildingFilter + '-' + currentStatusFilter"
-            class="catalog-view-container space-y-10 flex flex-col pt-1"
-          >
-            <section
-              v-for="group in displayedSections"
-              :key="group.id"
-              class="space-y-5"
-              :data-building-id="group.id"
-            >
-              <!-- Clean Building Header: Icon + Concise Name + Clean Monospace Room Count (NO BADGES) -->
-              <div class="flex items-center justify-between pb-3 border-b border-[#E9E3DD]">
-                <div class="flex items-center gap-2.5">
-                  <span class="w-8 h-8 rounded-lg bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center shrink-0">
-                    <app-icon :icon="group.pillIcon" class-name="text-base text-[#991B1B]" :stroke-width="1.8" />
-                  </span>
-                  <h3 class="font-heading font-bold text-lg text-[#3E2B1E] tracking-tight">
-                    {{ group.title }}
-                  </h3>
-                </div>
-                <!-- Clean typographic count, zero badges -->
-                <span class="font-mono text-xs font-semibold text-[#6F5849]">
-                  {{ group.rooms.length }} {{ group.rooms.length === 1 ? 'room' : 'rooms' }}
-                </span>
-              </div>
-
-              <!-- Floor Sub-Sections inside Building -->
-              <div class="space-y-6">
-                <div
-                  v-for="floorGroup in group.floorGroups"
-                  :key="floorGroup.floor"
-                  class="space-y-3.5"
-                >
-                  <!-- Floor Divider & Sub-Header -->
-                  <div class="flex items-center gap-3">
-                    <span class="text-xs font-bold text-[#6F5849] uppercase tracking-wider flex items-center gap-1.5 shrink-0">
-                      <app-icon icon="lucide:layers" class-name="text-stone-400 text-xs" :stroke-width="2" />
-                      <span>{{ floorGroup.floor }}</span>
-                    </span>
-                    <div class="h-px bg-[#E9E3DD] flex-1"></div>
-                    <span class="text-[11px] font-mono text-stone-400 shrink-0">
-                      {{ floorGroup.rooms.length }} {{ floorGroup.rooms.length === 1 ? 'room' : 'rooms' }}
-                    </span>
-                  </div>
-
-                  <!-- Room Cards Grid -->
-                  <div
-                    class="rooms-section-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5"
-                  >
-                    <div
-                      v-for="room in floorGroup.rooms"
-                      :key="room.id"
-                      class="catalog-room-card bg-white rounded-2xl overflow-hidden flex flex-col justify-between group transition-[border-color,box-shadow] duration-200"
-                      :class="getRoomBorderClass(room)"
-                    >
-                      <!-- Top Image with Room Type Pill, Map Button and Clean Title -->
-                      <div class="relative h-44 sm:h-48 bg-stone-900 overflow-hidden">
-                        <img
-                          :src="room.image || 'assets/rooms/boardroom-alpha.jpg'"
-                          :alt="room.name || 'Meeting Room'"
-                          loading="lazy"
-                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          @error="handleImgError"
-                        />
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none"></div>
-
-                        <!-- Top-Left Room Type Pill (NBC Dark Red Heritage) -->
-                        <div class="absolute top-2.5 left-2.5 flex items-center gap-1 z-10">
-                          <span class="px-2.5 py-0.5 rounded-lg text-[11px] font-mono font-medium bg-[#260707]/90 text-white shadow-xs flex items-center gap-1.5 backdrop-blur-md border border-white/20">
-                            <app-icon :icon="getRoomTypeIcon(room)" class-name="text-xs text-white" :stroke-width="1.8" />
-                            <span>{{ getRoomTypeLabel(room) }}</span>
-                          </span>
-                        </div>
-
-                        <!-- Top-Right Map Button -->
-                        <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10">
-                          <a
-                            :href="getMapInfo(room).externalUrl"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            @click.stop
-                            class="px-2.5 py-0.5 rounded-lg text-[11px] font-mono font-medium bg-[#260707]/90 hover:bg-[#380B0B] text-white shadow-xs flex items-center gap-1.5 backdrop-blur-md transition cursor-pointer border border-white/20"
-                            :title="'Open Google Maps for ' + (getMapInfo(room).building || 'Location')"
-                          >
-                            <app-icon icon="lucide:map-pin" class-name="text-white text-xs" :stroke-width="1.8" />
-                            <span>Map</span>
-                          </a>
-                        </div>
-
-                        <!-- Clean Bold Room Name (NO redundant placeholder subtitles) -->
-                        <div class="absolute bottom-3 left-3.5 right-3.5 text-white pointer-events-none z-10">
-                          <h3 class="font-heading font-bold text-base sm:text-[17px] text-white leading-tight drop-shadow-sm line-clamp-1">
-                            {{ room.name || 'Untitled Room' }}
-                          </h3>
-                        </div>
-                      </div>
-
-                      <!-- Card Body Content -->
-                      <div class="p-3.5 sm:p-4 flex-1 flex flex-col justify-between space-y-3">
-                        <div class="space-y-2.5">
-                          <!-- Room Status & Capacity Capsule -->
-                          <div class="bg-[#F9F7F5] border border-[#E9E3DD] rounded-xl py-1 px-1 flex items-center min-h-[32px]">
-                            <div class="flex-1 relative flex items-center justify-center min-h-[28px] px-1">
-                              <div
-                                class="absolute left-1 w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-2xs shrink-0 border border-[#E9E3DD]"
-                                :class="getRoomTypeIconColor(room)"
-                              >
-                                <app-icon :icon="getRoomTypeIcon(room)" class-name="text-xs" />
-                              </div>
-                              <span class="font-bold text-xs text-center" :class="getRoomTypeTextColor(room)">
-                                {{ getRoomTypeLabel(room) }}
-                              </span>
-                            </div>
-
-                            <div class="h-4 w-px bg-[#E9E3DD] shrink-0"></div>
-
-                            <div class="flex-1 relative flex items-center justify-center min-h-[28px] px-1">
-                              <div class="absolute left-1 w-6 h-6 rounded-full bg-white flex items-center justify-center text-[#6F5849] shadow-2xs shrink-0 border border-[#E9E3DD]">
-                                <app-icon icon="lucide:users" class-name="text-xs" />
-                              </div>
-                              <span class="font-bold text-[#3E2B1E] text-xs text-center font-mono">
-                                {{ Number(room.capacity) || 0 }} Seats
-                              </span>
-                            </div>
-                          </div>
-
-                          <!-- Amenities -->
-                          <div class="space-y-1.5">
-                            <div class="flex items-center justify-between">
-                              <h4 class="font-bold text-[#3E2B1E] text-xs tracking-tight">Amenities</h4>
-                              <span
-                                v-if="(room.features || []).length > 3"
-                                class="bg-[#E9E3DD] text-[#6F5849] text-[10px] font-semibold px-2 py-0.5 rounded-full border border-[#D8CFC7]"
-                              >
-                                +{{ (room.features || []).length - 3 }} more
-                              </span>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-1.5">
-                              <template v-if="(room.features || []).length > 0">
-                                <div
-                                  v-for="(f, fIdx) in (room.features || []).slice(0, 3)"
-                                  :key="fIdx"
-                                  class="bg-[#F9F7F5] hover:bg-[#F4EFEA] border border-[#E9E3DD] rounded-lg py-1 px-1.5 flex items-center gap-1.5 text-[#3E2B1E] text-[11px] font-medium min-w-0 transition"
-                                  :title="f"
-                                >
-                                  <app-icon :icon="getFeatureIcon(f)" class-name="text-[#7D6857] text-xs shrink-0" />
-                                  <span class="truncate whitespace-nowrap">{{ f }}</span>
-                                </div>
-                              </template>
-                              <div v-else class="col-span-2 text-[11px] text-[#A8988B] py-1 italic">
-                                Standard meeting room equipment
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Bottom Action Buttons: NBC Crimson Action -->
-                        <div class="pt-2.5 border-t border-[#E9E3DD]/80 grid grid-cols-2 gap-2 items-stretch">
-                          <button
-                            @click="handleDetails(room)"
-                            class="h-9 sm:h-10 px-2 rounded-xl text-xs font-bold bg-white hover:bg-[#F4EFEA] active:bg-[#E9E3DD] text-[#1C1917] border border-[#D8CFC7] hover:border-[#991B1B]/50 transition flex items-center justify-center gap-1 shadow-2xs cursor-pointer"
-                            type="button"
-                          >
-                            <app-icon icon="lucide:file-text" class-name="text-sm text-[#78716C] shrink-0" />
-                            <span>Details</span>
-                          </button>
-
-                          <button
-                            @click="handleProceed(room)"
-                            class="h-9 sm:h-10 px-2 rounded-xl text-xs font-bold bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
-                            type="button"
-                          >
-                            <app-icon icon="lucide:calendar" class-name="text-sm text-white shrink-0" />
-                            <span>{{ isOtherPrivate(room) ? 'Request' : 'Book Room' }}</span>
-                            <app-icon icon="lucide:arrow-right" class-name="text-sm text-white shrink-0" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                </article>
               </div>
             </section>
           </div>

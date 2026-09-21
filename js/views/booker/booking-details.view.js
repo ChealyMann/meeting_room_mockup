@@ -103,10 +103,17 @@
        statusToneClass = 'text-stone-600';
      }
 
-     const roomObj = bookingStore.getRoomById(req.room?.id) || req.room || {};
-     const roomImgUrl = roomObj.image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80';
-     const floorShort = (roomObj.floor || 'Level 18').split('(')[0].trim();
-     const doorAccess = bookingStore.getDoorAccessState
+      const roomObj = bookingStore.getRoomById(req.room?.id) || req.room || {};
+      const roomImgUrl = roomObj.image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80';
+      const formatFloorShort = (floorStr) => {
+        if (!floorStr) return 'Ground Floor';
+        const match = String(floorStr).match(/(?:Level|Floor)\s*(\d+)/i);
+        if (match) return `Floor ${match[1]}`;
+        if (/ground/i.test(floorStr)) return 'Ground Floor';
+        return String(floorStr).split('(')[0].split('-')[0].trim().replace(/level/i, 'Floor');
+      };
+      const floorShort = formatFloorShort(roomObj.floor || 'Floor 18');
+      const doorAccess = bookingStore.getDoorAccessState
        ? bookingStore.getDoorAccessState(req)
        : { code: req.doorPasscode || req.referenceCode, expiresAt: null, isExpired: false };
 
@@ -156,7 +163,7 @@
           </span>
           ${isConfirmed ? `
             <button type="button" onclick="app.openReceiptPage('${req.id}', 'booking-details')" class="btn-primary min-h-[44px] px-4 py-2 rounded-lg text-xs font-bold shadow-xs flex items-center gap-1.5 transition cursor-pointer active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#991B1B]">
-              <span class="iconify text-sm text-white" data-icon="lucide:receipt" data-stroke-width="1.8"></span>
+              <span class="iconify text-sm text-white" data-icon="lucide:file-text" data-stroke-width="1.8"></span>
               <span class="text-white">Booking Receipt</span>
             </button>
           ` : ''}
@@ -554,7 +561,7 @@
       `DTEND:${cleanDate}T${endTimeClean}`,
       `SUMMARY:${req.meetingTitle}`,
       `DESCRIPTION:National Bank of Cambodia meeting room booking. Reference Code: ${req.referenceCode}. Notes: ${req.meetingPurpose || 'None'}`,
-      `LOCATION:${req.room?.name || 'Meeting Room'}, ${req.room?.floor || 'Level 18'}`,
+        `LOCATION:${req.room?.name || 'Meeting Room'}, ${req.room?.floor || 'Floor 18'}`,
       'STATUS:CONFIRMED',
       'END:VEVENT',
       'END:VCALENDAR'

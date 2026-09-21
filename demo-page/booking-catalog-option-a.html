@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBC Booking Catalog - Option A</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+  <link rel="stylesheet" href="navigation-mockups.css" />
+  <link rel="stylesheet" href="booking-catalog.css" />
+</head>
+<body>
+  <div class="demo-shell">
+    <header class="demo-bar">
+      <div class="demo-title">
+        <span class="demo-title-mark"><span class="iconify" data-icon="lucide:layout-grid" data-stroke-width="2"></span></span>
+        <span><span class="demo-kicker">Booking Catalog Study</span><span class="demo-name">Option A: Command Catalog</span></span>
+      </div>
+      <nav class="demo-switcher" aria-label="Related navigation work">
+        <a href="navigation-option-a.html"><span class="iconify" data-icon="lucide:panel-left" data-stroke-width="2"></span><span>Sidebar</span></a>
+        <a href="booking-catalog-option-a.html" aria-current="page"><span class="iconify" data-icon="lucide:layout-grid" data-stroke-width="2"></span><span>Catalog</span></a>
+      </nav>
+      <a class="back-link" href="../index.html"><span class="iconify" data-icon="lucide:arrow-left" data-stroke-width="2"></span><span>Back to app</span></a>
+    </header>
+
+    <div class="mockup-frame">
+      <aside class="nav-sidebar sidebar-a" aria-label="Primary navigation">
+        <div class="sidebar-header">
+          <a class="brand-lockup" href="#catalog" aria-label="Open Find a Room">
+            <img class="brand-logo" src="../assets/nbc-logo.png" alt="National Bank of Cambodia" />
+            <span><span class="brand-name">NBC Bank MRMS</span><span class="brand-office">National Bank of Cambodia</span></span>
+          </a>
+          <button class="collapse-button" type="button" aria-label="Collapse navigation"><span class="iconify" data-icon="lucide:panel-left-close" data-stroke-width="2"></span></button>
+        </div>
+
+        <nav class="nav-scroll no-scrollbar" aria-label="Primary navigation">
+          <section class="nav-group">
+            <span class="nav-label">Booker</span>
+            <a class="ledger-link active" aria-current="page" href="#catalog"><span class="iconify" data-icon="lucide:door-open" data-stroke-width="2"></span><span>Find a Room</span></a>
+            <a class="ledger-link" href="#bookings"><span class="iconify" data-icon="lucide:calendar-check-2" data-stroke-width="2"></span><span>My Bookings</span><span class="nav-count">7</span></a>
+          </section>
+          <section class="nav-group">
+            <span class="nav-label">Manager</span>
+            <a class="ledger-link" href="#review"><span class="iconify" data-icon="lucide:clipboard-check" data-stroke-width="2"></span><span>Review Requests</span><span class="nav-count attention">3</span></a>
+            <a class="ledger-link" href="#availability"><span class="iconify" data-icon="lucide:calendar-range" data-stroke-width="2"></span><span>Room Availability</span></a>
+          </section>
+          <section class="nav-group">
+            <span class="nav-label">Room Owner</span>
+            <a class="ledger-link" href="#private"><span class="iconify" data-icon="lucide:shield-check" data-stroke-width="2"></span><span>Private Requests</span></a>
+          </section>
+          <section class="nav-group">
+            <span class="nav-label">IT Support</span>
+            <a class="ledger-link" href="#it"><span class="iconify" data-icon="lucide:headset" data-stroke-width="2"></span><span>IT Support Queue</span><span class="nav-count attention">4</span></a>
+          </section>
+          <section class="nav-group">
+            <span class="nav-label">Admin</span>
+            <a class="ledger-link" href="#rooms"><span class="iconify" data-icon="lucide:circle-plus" data-stroke-width="2"></span><span>Add Room</span></a>
+          </section>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="profile-button" type="button">
+            <span class="profile-avatar">SC</span>
+            <span class="profile-copy"><strong>Sokha Chan</strong><span>Facilities Office</span></span>
+            <span class="iconify" data-icon="lucide:chevrons-up-down" data-stroke-width="2"></span>
+          </button>
+        </div>
+      </aside>
+
+      <main class="catalog-main" id="catalog">
+        <header class="catalog-topbar">
+          <h1>Find a Meeting Room</h1>
+          <div class="catalog-topbar-right">
+            <span class="catalog-result-total" id="catalog-top-count">7 rooms</span>
+            <button class="icon-button" type="button" aria-label="Open notifications"><span class="iconify" data-icon="lucide:bell" data-stroke-width="2"></span></button>
+          </div>
+        </header>
+
+        <div class="catalog-scroll no-scrollbar">
+          <section class="catalog-command" aria-label="Room search and filters">
+            <div class="catalog-command-row">
+              <div class="catalog-field">
+                <label class="catalog-label" for="catalog-search">Search rooms</label>
+                <div class="catalog-input-wrap">
+                  <span class="iconify catalog-input-icon" data-icon="lucide:search" data-stroke-width="2" aria-hidden="true"></span>
+                  <input id="catalog-search" class="catalog-input" type="search" placeholder="Name, floor, amenity, or department" autocomplete="off" />
+                  <button id="catalog-clear" class="catalog-clear" type="button" aria-label="Clear search" hidden><span class="iconify" data-icon="lucide:x" data-stroke-width="2"></span></button>
+                </div>
+              </div>
+              <div class="catalog-field">
+                <label class="catalog-label" for="catalog-from">From</label>
+                <input id="catalog-from" class="catalog-date" type="date" aria-label="Availability start date" />
+              </div>
+              <div class="catalog-field">
+                <label class="catalog-label" for="catalog-to">To</label>
+                <input id="catalog-to" class="catalog-date" type="date" aria-label="Availability end date" />
+              </div>
+              <button id="catalog-reset" class="catalog-reset" type="button" hidden><span class="iconify" data-icon="lucide:rotate-ccw" data-stroke-width="2"></span>Reset</button>
+            </div>
+            <p id="catalog-date-error" class="catalog-error" role="alert" hidden></p>
+
+            <div class="catalog-filter-row" aria-label="Room filters">
+              <div class="catalog-filter-group" role="group" aria-label="Location">
+                <span class="catalog-filter-label">Location</span>
+                <button class="catalog-filter active" type="button" data-location="all" aria-pressed="true"><span class="iconify" data-icon="lucide:layout-grid" data-stroke-width="2"></span>All</button>
+                <button class="catalog-filter" type="button" data-location="hq" aria-pressed="false"><span class="iconify" data-icon="lucide:landmark" data-stroke-width="2"></span>HQ</button>
+                <button class="catalog-filter" type="button" data-location="it" aria-pressed="false"><span class="iconify" data-icon="lucide:cpu" data-stroke-width="2"></span>IT</button>
+                <button class="catalog-filter" type="button" data-location="branch" aria-pressed="false"><span class="iconify" data-icon="lucide:building-2" data-stroke-width="2"></span>Branch</button>
+                <button class="catalog-filter" type="button" data-location="provinces" aria-pressed="false"><span class="iconify" data-icon="lucide:map-pin" data-stroke-width="2"></span>Provinces</button>
+              </div>
+              <div class="catalog-filter-group" role="group" aria-label="Room type and availability">
+                <span class="catalog-filter-label">Show</span>
+                <button class="catalog-filter active" type="button" data-status="all" aria-pressed="true">All rooms</button>
+                <button class="catalog-filter" type="button" data-status="available" aria-pressed="false"><span class="iconify" data-icon="lucide:circle-check" data-stroke-width="2"></span>Available</button>
+                <button class="catalog-filter" type="button" data-status="shared" aria-pressed="false"><span class="iconify" data-icon="lucide:globe-2" data-stroke-width="2"></span>Shared</button>
+                <button class="catalog-filter" type="button" data-status="private" aria-pressed="false"><span class="iconify" data-icon="lucide:lock" data-stroke-width="2"></span>Private</button>
+              </div>
+            </div>
+          </section>
+
+          <div class="catalog-results-summary">
+            <strong id="catalog-results-label">Available rooms</strong>
+            <span id="catalog-results-context">Across NBC locations</span>
+          </div>
+
+          <div id="catalog-results" aria-live="polite"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="room-dialog" class="catalog-dialog" aria-labelledby="dialog-title">
+    <div class="catalog-dialog-inner">
+      <div class="catalog-dialog-head">
+        <h2 id="dialog-title">Room details</h2>
+        <button class="catalog-dialog-close" type="button" aria-label="Close room details"><span class="iconify" data-icon="lucide:x" data-stroke-width="2"></span></button>
+      </div>
+      <div id="dialog-grid" class="catalog-dialog-grid"></div>
+      <div class="catalog-dialog-actions">
+        <button id="dialog-secondary" class="catalog-action secondary" type="button">Close</button>
+        <button id="dialog-primary" class="catalog-action primary" type="button"><span class="iconify" data-icon="lucide:calendar-plus" data-stroke-width="2"></span>Book room</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="catalog-toast" class="catalog-toast" role="status" aria-live="polite"><span class="iconify" data-icon="lucide:check-circle-2" data-stroke-width="2"></span><span id="catalog-toast-text"></span></div>
+
+  <script>
+    const rooms = [
+      { id: 'ROOM-101', name: 'Executive Boardroom Alpha', locationId: 'hq', location: 'Headquarters · Wat Phnom', floor: 'Floor 18', floorNumber: 18, capacity: 24, type: 'private', status: 'available', image: '../assets/rooms/boardroom-alpha.jpg', features: ['Video conferencing', 'Presentation wall', 'Coffee service'] },
+      { id: 'ROOM-102', name: 'Policy & Research Amphitheater', locationId: 'hq', location: 'Headquarters · Wat Phnom', floor: 'Floor 12', floorNumber: 12, capacity: 45, type: 'shared', status: 'available', image: '../assets/rooms/summit-suite.jpg', features: ['Tiered seating', 'Display wall', 'Wi-Fi'] },
+      { id: 'ROOM-103', name: 'Internal Audit Strategy Suite', locationId: 'hq', location: 'Headquarters · Wat Phnom', floor: 'Floor 5', floorNumber: 5, capacity: 14, type: 'private', status: 'busy', image: '../assets/rooms/focus-room.jpg', features: ['Video conferencing', 'Whiteboard', 'Privacy glass'] },
+      { id: 'ROOM-105', name: 'Bakong FinTech Innovation Lab', locationId: 'it', location: 'IT Department Building', floor: 'Floor 3', floorNumber: 3, capacity: 30, type: 'shared', status: 'available', image: '../assets/rooms/innovation-hub.jpg', features: ['Interactive display', 'Flexible seating', 'Power outlets'] },
+      { id: 'ROOM-109', name: 'Cybersecurity War Room', locationId: 'it', location: 'IT Department Building', floor: 'Floor 3', floorNumber: 3, capacity: 12, type: 'shared', status: 'available', image: '../assets/rooms/tech-studio.jpg', features: ['Multi-screen display', 'Secure network', 'Video conferencing'] },
+      { id: 'ROOM-106', name: 'Phnom Penh Operations Hall', locationId: 'branch', location: 'Phnom Penh Branch · Daun Penh', floor: 'Ground Floor', floorNumber: 0, capacity: 50, type: 'shared', status: 'available', image: '../assets/rooms/ground-briefing.jpg', features: ['Large display', 'Flexible seating', 'Coffee service'] },
+      { id: 'ROOM-107', name: 'Siem Reap Regional Conference Room', locationId: 'provinces', location: 'Siem Reap Provincial Branch', floor: 'Floor 2', floorNumber: 2, capacity: 20, type: 'shared', status: 'available', image: '../assets/rooms/summit-suite.jpg', features: ['Video conferencing', 'Display wall', 'Wi-Fi'] }
+    ];
+
+    const locations = {
+      hq: { title: 'Headquarters (Wat Phnom)', icon: 'lucide:landmark' },
+      it: { title: 'IT Department Building', icon: 'lucide:cpu' },
+      branch: { title: 'Phnom Penh Branch', icon: 'lucide:building-2' },
+      provinces: { title: 'Regional Provincial Branches', icon: 'lucide:map-pin' }
+    };
+
+    const state = { query: '', location: 'all', status: 'all', from: '', to: '' };
+    const els = {
+      search: document.getElementById('catalog-search'),
+      clear: document.getElementById('catalog-clear'),
+      from: document.getElementById('catalog-from'),
+      to: document.getElementById('catalog-to'),
+      reset: document.getElementById('catalog-reset'),
+      error: document.getElementById('catalog-date-error'),
+      results: document.getElementById('catalog-results'),
+      resultsLabel: document.getElementById('catalog-results-label'),
+      resultsContext: document.getElementById('catalog-results-context'),
+      topCount: document.getElementById('catalog-top-count'),
+      dialog: document.getElementById('room-dialog'),
+      dialogTitle: document.getElementById('dialog-title'),
+      dialogGrid: document.getElementById('dialog-grid'),
+      dialogPrimary: document.getElementById('dialog-primary'),
+      toast: document.getElementById('catalog-toast'),
+      toastText: document.getElementById('catalog-toast-text')
+    };
+
+    const icon = (name, className = '') => `<span class="iconify ${className}" data-icon="${name}" data-stroke-width="2" aria-hidden="true"></span>`;
+    const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+    const today = new Date();
+    const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    els.from.min = todayString;
+    els.to.min = todayString;
+
+    function getDateError() {
+      if (state.from && state.from < todayString) return 'Choose today or a future date.';
+      if (state.to && state.to < todayString) return 'Choose today or a future date.';
+      if (state.from && state.to && state.to < state.from) return 'The end date must be on or after the start date.';
+      return '';
+    }
+
+    function filteredRooms() {
+      const query = state.query.trim().toLowerCase();
+      const dateError = getDateError();
+      return rooms.filter((room) => {
+        if (state.location !== 'all' && room.locationId !== state.location) return false;
+        if (state.status === 'available' && room.status !== 'available') return false;
+        if (state.status === 'shared' && room.type !== 'shared') return false;
+        if (state.status === 'private' && room.type !== 'private') return false;
+        if (dateError && (state.from || state.to)) return false;
+        if (!query) return true;
+        const searchable = [room.name, room.location, room.floor, ...room.features].join(' ').toLowerCase();
+        return searchable.includes(query);
+      });
+    }
+
+    function roomCard(room) {
+      const isBusy = room.status !== 'available';
+      const typeLabel = room.type === 'private' ? 'Private room' : 'Shared room';
+      return `
+        <article class="catalog-card">
+          <div class="catalog-card-image">
+            <img src="${room.image}" alt="${escapeHtml(room.name)}" loading="lazy" onerror="this.src='../assets/rooms/boardroom-alpha.jpg'" />
+            <div class="catalog-image-meta">${icon(room.type === 'private' ? 'lucide:lock' : 'lucide:globe-2')}<span>${typeLabel}</span></div>
+            <button class="catalog-image-action" type="button" data-map="${room.id}" aria-label="Show map for ${escapeHtml(room.name)}">${icon('lucide:map-pin')}Map</button>
+          </div>
+          <div class="catalog-card-body">
+            <h3 class="catalog-card-title">${escapeHtml(room.name)}</h3>
+            <div class="catalog-card-meta">
+              <span>${icon('lucide:users')}${room.capacity} seats</span>
+              <span>${icon('lucide:layers')}${escapeHtml(room.floor)}</span>
+            </div>
+            <div class="catalog-card-status ${isBusy ? 'busy' : 'available'}"><span class="catalog-status-dot ${isBusy ? 'busy' : ''}"></span>${isBusy ? 'In use today' : 'Available to book'}</div>
+            <div class="catalog-amenities">${room.features.slice(0, 2).map((feature) => `<span>${escapeHtml(feature)}</span>`).join('')}</div>
+            <div class="catalog-actions">
+              <button class="catalog-action secondary" type="button" data-details="${room.id}">${icon('lucide:file-text')}Details</button>
+              <button class="catalog-action primary" type="button" data-book="${room.id}">${icon('lucide:calendar-plus')}Book room</button>
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function render() {
+      const error = getDateError();
+      const matches = filteredRooms();
+      const dateText = state.from && state.to && !error ? `${state.from} → ${state.to}` : 'Across NBC locations';
+      els.error.textContent = error;
+      els.error.hidden = !error;
+      els.clear.hidden = !state.query;
+      els.reset.hidden = !(state.query || state.location !== 'all' || state.status !== 'all' || state.from || state.to);
+      els.topCount.textContent = `${matches.length} ${matches.length === 1 ? 'room' : 'rooms'}`;
+      els.resultsLabel.textContent = matches.length ? 'Available rooms' : 'No rooms found';
+      els.resultsContext.textContent = dateText;
+
+      if (!matches.length) {
+        els.results.innerHTML = `<div class="catalog-empty">${icon('lucide:search-x', 'catalog-empty-icon')}<h2>No rooms match these filters</h2><p>Try a different location, room type, search term, or date range.</p><button class="catalog-reset" type="button" data-empty-reset>${icon('lucide:rotate-ccw')}Reset filters</button></div>`;
+        return;
+      }
+
+      const visibleLocations = Object.entries(locations).filter(([id]) => state.location === 'all' || state.location === id);
+      els.results.innerHTML = visibleLocations.map(([locationId, location]) => {
+        const locationRooms = matches.filter((room) => room.locationId === locationId);
+        if (!locationRooms.length) return '';
+        const floors = [...new Set(locationRooms.map((room) => room.floor))].map((floor) => ({ floor, rooms: locationRooms.filter((room) => room.floor === floor).sort((a, b) => b.capacity - a.capacity) })).sort((a, b) => (b.rooms[0].floorNumber || 0) - (a.rooms[0].floorNumber || 0));
+        return `<section class="catalog-location"><div class="catalog-location-head"><div class="catalog-location-name"><span class="catalog-location-icon">${icon(location.icon)}</span><h2>${location.title}</h2></div><span class="catalog-location-count">${locationRooms.length} ${locationRooms.length === 1 ? 'room' : 'rooms'}</span></div>${floors.map((group) => `<div class="catalog-floor"><div class="catalog-floor-head"><span>${escapeHtml(group.floor)}</span><span class="catalog-floor-count">${group.rooms.length} ${group.rooms.length === 1 ? 'room' : 'rooms'}</span></div><div class="catalog-room-grid">${group.rooms.map(roomCard).join('')}</div></div>`).join('')}</section>`;
+      }).join('');
+    }
+
+    function setFilter(type, value) {
+      state[type] = value;
+      document.querySelectorAll(`[data-${type}]`).forEach((button) => {
+        const active = button.dataset[type] === value;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
+      render();
+    }
+
+    function resetFilters() {
+      state.query = ''; state.location = 'all'; state.status = 'all'; state.from = ''; state.to = '';
+      els.search.value = ''; els.from.value = ''; els.to.value = '';
+      setFilter('location', 'all');
+      setFilter('status', 'all');
+    }
+
+    function showToast(message) {
+      els.toastText.textContent = message;
+      els.toast.classList.add('visible');
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => els.toast.classList.remove('visible'), 2600);
+    }
+
+    function openDetails(room) {
+      els.dialogTitle.textContent = room.name;
+      els.dialogGrid.innerHTML = `<div class="catalog-dialog-item"><span>Location</span><strong>${escapeHtml(room.location)}</strong></div><div class="catalog-dialog-item"><span>Capacity</span><strong>${room.capacity} seats</strong></div><div class="catalog-dialog-item"><span>Room type</span><strong>${room.type === 'private' ? 'Private room' : 'Shared room'}</strong></div><div class="catalog-dialog-item"><span>Availability</span><strong>${room.status === 'available' ? 'Available to book' : 'In use today'}</strong></div>`;
+      els.dialogPrimary.dataset.book = room.id;
+      els.dialog.showModal();
+    }
+
+    els.search.addEventListener('input', (event) => { state.query = event.target.value; render(); });
+    els.from.addEventListener('change', (event) => { state.from = event.target.value; els.to.min = state.from || todayString; render(); });
+    els.to.addEventListener('change', (event) => { state.to = event.target.value; render(); });
+    els.clear.addEventListener('click', () => { state.query = ''; els.search.value = ''; els.search.focus(); render(); });
+    els.reset.addEventListener('click', resetFilters);
+    document.querySelectorAll('[data-location]').forEach((button) => button.addEventListener('click', () => setFilter('location', button.dataset.location)));
+    document.querySelectorAll('[data-status]').forEach((button) => button.addEventListener('click', () => setFilter('status', button.dataset.status)));
+    document.querySelectorAll('.ledger-link').forEach((link) => link.addEventListener('click', (event) => { event.preventDefault(); document.querySelectorAll('.ledger-link').forEach((item) => item.classList.remove('active')); link.classList.add('active'); }));
+    document.querySelectorAll('.catalog-dialog-close, #dialog-secondary').forEach((button) => button.addEventListener('click', () => els.dialog.close()));
+    els.dialog.addEventListener('click', (event) => { if (event.target === els.dialog) els.dialog.close(); });
+    els.results.addEventListener('click', (event) => {
+      const detailButton = event.target.closest('[data-details]');
+      const bookButton = event.target.closest('[data-book]');
+      const mapButton = event.target.closest('[data-map]');
+      if (detailButton) openDetails(rooms.find((room) => room.id === detailButton.dataset.details));
+      if (bookButton) { const room = rooms.find((item) => item.id === bookButton.dataset.book); if (room) showToast(`Booking flow opened for ${room.name}`); }
+      if (mapButton) { const room = rooms.find((item) => item.id === mapButton.dataset.map); if (room) showToast(`Map preview opened for ${room.location}`); }
+      if (event.target.closest('[data-empty-reset]')) resetFilters();
+    });
+    els.dialogPrimary.addEventListener('click', () => { const room = rooms.find((item) => item.id === els.dialogPrimary.dataset.book); if (room) { els.dialog.close(); showToast(`Booking flow opened for ${room.name}`); } });
+    render();
+  </script>
+</body>
+</html>

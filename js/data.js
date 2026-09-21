@@ -126,11 +126,11 @@ const NBC_PROVINCES = [
           "Financial Intelligence Unit - CAFIU (អង្គភាពស៊ើបការណ៍ហិរញ្ញវត្ថុ)"
         ],
         floors: [
-          "Level 18 (Floor 18) - Executive Suite",
-          "Level 12 (Floor 12) - Banking Studies & Policy",
-          "Level 5 (Floor 5) - Finance & Audit",
-          "Level 3 (Floor 3) - Board & Cabinet",
-          "Level 1 (Ground Floor) - Visitors & Public"
+          "Floor 18 - Executive Suite",
+          "Floor 12 - Banking Studies & Policy",
+          "Floor 5 - Finance & Audit",
+          "Floor 3 - Board & Cabinet",
+          "Ground Floor - Visitors & Public"
         ]
       },
       {
@@ -312,7 +312,7 @@ const INITIAL_ROOMS_DATA = [
     location: "National Bank of Cambodia - Headquarters",
     branch: "Phnom Penh",
     department: "Board of Directors & Cabinet (ក្រុមប្រឹក្សាភិបាល)",
-    floor: "Level 18 (Floor 18) - Executive Suite",
+    floor: "Floor 18 - Executive Suite",
     capacity: 28,
     size: "95 sq m",
     category: "Executive Room",
@@ -352,7 +352,7 @@ const INITIAL_ROOMS_DATA = [
     location: "National Bank of Cambodia - Headquarters",
     branch: "Phnom Penh",
     department: "Monetary Policy & Research (គោលនយោបាយរូបិយវត្ថុ & ស្រាវជ្រាវ)",
-    floor: "Level 12 (Floor 12) - Banking Studies & Policy",
+    floor: "Floor 12 - Banking Studies & Policy",
     capacity: 18,
     size: "60 sq m",
     category: "Team Room",
@@ -384,7 +384,7 @@ const INITIAL_ROOMS_DATA = [
     location: "National Bank of Cambodia - Headquarters",
     branch: "Phnom Penh",
     department: "Internal Audit (សវនកម្មផ្ទៃក្នុង)",
-    floor: "Level 5 (Floor 5) - Finance & Audit",
+    floor: "Floor 5 - Finance & Audit",
     capacity: 6,
     size: "22 sq m",
     category: "Small Room",
@@ -423,7 +423,7 @@ const INITIAL_ROOMS_DATA = [
     location: "National Bank of Cambodia - Headquarters",
     branch: "Phnom Penh",
     department: "General Secretariat (អគ្គលេខាធិការដ្ឋាន)",
-    floor: "Level 18 (Floor 18) - Executive Suite",
+    floor: "Floor 18 - Executive Suite",
     capacity: 60,
     size: "180 sq m",
     category: "Grand Hall",
@@ -517,7 +517,7 @@ const INITIAL_ROOMS_DATA = [
     location: "National Bank of Cambodia - Headquarters",
     branch: "Phnom Penh",
     department: "Board of Directors & Cabinet (ក្រុមប្រឹក្សាភិបាល)",
-    floor: "Level 5 (Floor 5) - Finance & Audit",
+    floor: "Floor 5 - Finance & Audit",
     capacity: 8,
     size: "32 sq m",
     category: "Private Office",

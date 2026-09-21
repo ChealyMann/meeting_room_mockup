@@ -73,59 +73,59 @@ class RoomOwnerQueueView {
       </div>
 
       <!-- Executive KPI Overview Strip (Interactive Filter Shortcuts) -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pb-3 border-b border-[#E9E3DD]">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pb-2.5 border-b border-[#E9E3DD] shrink-0">
         <!-- Metric 1: Pending Owner Review -->
-        <div onclick="app.filterOwnerRequests('pending')" title="Filter by Pending Review" class="bg-white px-4 py-3.5 rounded-xl border border-[#E9E3DD] hover:border-amber-400 hover:shadow-xs transition flex items-center space-x-3.5 shadow-2xs cursor-pointer select-none">
-          <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
-            <span class="iconify text-lg text-amber-600" data-icon="lucide:clock" data-stroke-width="2"></span>
+        <div onclick="app.filterOwnerRequests('pending')" title="Filter by Pending Review" class="bg-white px-3.5 py-2.5 sm:py-3 rounded-xl border border-[#E9E3DD] hover:border-amber-400 hover:shadow-xs transition flex items-center space-x-3 shadow-2xs cursor-pointer select-none">
+          <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-base text-amber-600" data-icon="lucide:clock" data-stroke-width="2"></span>
           </div>
           <div class="min-w-0">
-            <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-1">Action Required</span>
+            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block leading-none mb-1">Action Required</span>
             <div class="flex items-baseline space-x-1.5">
-              <span id="owner-kpi-pending" class="text-xl sm:text-2xl font-bold font-mono text-stone-900 leading-none">0</span>
-              <span class="text-xs text-stone-500">Pending</span>
+              <span id="owner-kpi-pending" class="text-lg sm:text-xl font-bold font-mono text-stone-900 leading-none">0</span>
+              <span class="text-xs text-stone-500 truncate">Pending</span>
             </div>
           </div>
         </div>
 
         <!-- Metric 2: Today's Sessions -->
-        <div onclick="app.setOwnerQuickDate('today')" title="Filter to Today's Requests" class="bg-white px-4 py-3.5 rounded-xl border border-[#E9E3DD] hover:border-sky-400 hover:shadow-xs transition flex items-center space-x-3.5 shadow-2xs cursor-pointer select-none">
-          <div class="w-11 h-11 rounded-xl bg-sky-50 flex items-center justify-center shrink-0">
-            <span class="iconify text-lg text-sky-600" data-icon="lucide:calendar" data-stroke-width="2"></span>
+        <div onclick="app.setOwnerQuickDate('today')" title="Filter to Today's Requests" class="bg-white px-3.5 py-2.5 sm:py-3 rounded-xl border border-[#E9E3DD] hover:border-sky-400 hover:shadow-xs transition flex items-center space-x-3 shadow-2xs cursor-pointer select-none">
+          <div class="w-9 h-9 rounded-lg bg-sky-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-base text-sky-600" data-icon="lucide:calendar" data-stroke-width="2"></span>
           </div>
           <div class="min-w-0">
-            <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-1">Today's Requests</span>
+            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block leading-none mb-1">Today's Requests</span>
             <div class="flex items-baseline space-x-1.5">
-              <span id="owner-kpi-today" class="text-xl sm:text-2xl font-bold font-mono text-stone-900 leading-none">0</span>
-              <span class="text-xs text-stone-500">Scheduled</span>
+              <span id="owner-kpi-today" class="text-lg sm:text-xl font-bold font-mono text-stone-900 leading-none">0</span>
+              <span class="text-xs text-stone-500 truncate">Scheduled</span>
             </div>
           </div>
         </div>
 
         <!-- Metric 3: Confirmed / Approved -->
-        <div onclick="app.filterOwnerRequests('approved')" title="Filter by Approved" class="bg-white px-4 py-3.5 rounded-xl border border-[#E9E3DD] hover:border-emerald-400 hover:shadow-xs transition flex items-center space-x-3.5 shadow-2xs cursor-pointer select-none">
-          <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
-            <span class="iconify text-lg text-emerald-600" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
+        <div onclick="app.filterOwnerRequests('approved')" title="Filter by Approved" class="bg-white px-3.5 py-2.5 sm:py-3 rounded-xl border border-[#E9E3DD] hover:border-emerald-400 hover:shadow-xs transition flex items-center space-x-3 shadow-2xs cursor-pointer select-none">
+          <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-base text-emerald-600" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
           </div>
           <div class="min-w-0">
-            <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-1">Approved</span>
+            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block leading-none mb-1">Approved</span>
             <div class="flex items-baseline space-x-1.5">
-              <span id="owner-kpi-approved" class="text-xl sm:text-2xl font-bold font-mono text-stone-900 leading-none">0</span>
-              <span class="text-xs text-stone-500">This week</span>
+              <span id="owner-kpi-approved" class="text-lg sm:text-xl font-bold font-mono text-stone-900 leading-none">0</span>
+              <span class="text-xs text-stone-500 truncate">This week</span>
             </div>
           </div>
         </div>
 
         <!-- Metric 4: Executive Rooms Under Management -->
-        <div onclick="app.resetOwnerFilters()" title="Reset all filters to view all private rooms" class="bg-white px-4 py-3.5 rounded-xl border border-[#E9E3DD] hover:border-[#991B1B] hover:shadow-xs transition flex items-center space-x-3.5 shadow-2xs cursor-pointer select-none">
-          <div class="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
-            <span class="iconify text-lg text-[#991B1B]" data-icon="lucide:door-closed" data-stroke-width="2"></span>
+        <div onclick="app.resetOwnerFilters()" title="Reset all filters to view all private rooms" class="bg-white px-3.5 py-2.5 sm:py-3 rounded-xl border border-[#E9E3DD] hover:border-[#991B1B] hover:shadow-xs transition flex items-center space-x-3 shadow-2xs cursor-pointer select-none">
+          <div class="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-base text-[#991B1B]" data-icon="lucide:door-closed" data-stroke-width="2"></span>
           </div>
           <div class="min-w-0">
-            <span class="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-1">Private Rooms</span>
+            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block leading-none mb-1">Private Rooms</span>
             <div class="flex items-baseline space-x-1.5">
-              <span id="owner-kpi-rooms" class="text-xl sm:text-2xl font-bold font-mono text-stone-900 leading-none">3</span>
-              <span class="text-xs text-stone-500">In Facility</span>
+              <span id="owner-kpi-rooms" class="text-lg sm:text-xl font-bold font-mono text-stone-900 leading-none">3</span>
+              <span class="text-xs text-stone-500 truncate">In Facility</span>
             </div>
           </div>
         </div>
@@ -1416,120 +1416,122 @@ class RoomOwnerQueueView {
 
     return `
       <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-4.5 shadow-xs transition-all duration-150 hover:border-[#D8CFC7] hover:shadow-sm flex flex-col justify-between ${isNew ? 'animate-card-fade-in' : ''}">
-        <!-- Row 1: ID + Reference Code + Status Pill -->
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center space-x-2 min-w-0">
-            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" class="font-mono font-bold text-xs text-[#991B1B] hover:underline cursor-pointer" title="Open Review Workspace">
-              ${req.id}
-            </button>
-            <span class="text-stone-300 font-light">•</span>
-            <button type="button" onclick="app.copyOwnerReferenceCode('${refCode}')" title="Click to copy reference code" class="font-mono text-xs font-normal text-stone-500 hover:text-stone-800 flex items-center space-x-1 cursor-pointer">
-              <span>${refCode}</span>
-              <span class="iconify text-xs text-stone-400 hover:text-stone-600" data-icon="lucide:copy" data-stroke-width="2"></span>
-            </button>
-          </div>
-          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass} shrink-0">
-            <span class="iconify text-xs" data-icon="${statusIcon}" data-stroke-width="2"></span>
-            <span>${statusLabel}</span>
-          </div>
-        </div>
-
-        <!-- Row 2: Room Thumbnail + Meeting Specs + Services Tag -->
-        <div class="flex items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-3.5">
-          <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
-            <img src="${roomImgUrl}" class="rounded-xl object-cover border border-[#E9E3DD] shrink-0 w-[116px] sm:w-[124px] h-[74px] sm:h-[78px] shadow-2xs" alt="Room" />
-            <div class="min-w-0">
-              <h4 class="font-heading font-semibold text-sm text-stone-900 leading-snug truncate" title="${req.meetingTitle || ''}">${req.meetingTitle || 'Private Board Meeting'}</h4>
-              <div class="flex items-center space-x-1.5 text-xs text-stone-500 mt-1 font-normal">
-                <span class="iconify text-stone-400 text-xs shrink-0" data-icon="lucide:map-pin" data-stroke-width="2"></span>
-                <span>${floorShort} • ${roomShortName}</span>
-              </div>
-              <div class="flex items-center flex-wrap sm:flex-nowrap gap-x-2 gap-y-0.5 text-xs font-mono font-medium text-stone-600 mt-1.5">
-                <span class="inline-flex items-center space-x-1 text-stone-600 shrink-0">
-                  <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:calendar" data-stroke-width="2"></span>
-                  <span>${req.date}</span>
-                </span>
-                <span class="text-stone-300 font-light hidden sm:inline">•</span>
-                <span class="inline-flex items-center space-x-1 font-semibold text-stone-800 shrink-0">
-                  <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:clock" data-stroke-width="2"></span>
-                  <span>${req.startTime} – ${req.endTime}</span>
-                </span>
-              </div>
+        <div class="flex-1 min-w-0 flex flex-col justify-start">
+          <!-- Row 1: ID + Reference Code + Status Pill -->
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-2 min-w-0">
+              <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" class="font-mono font-bold text-xs text-[#991B1B] hover:underline cursor-pointer" title="Open Review Workspace">
+                ${req.id}
+              </button>
+              <span class="text-stone-300 font-light">•</span>
+              <button type="button" onclick="app.copyOwnerReferenceCode('${refCode}')" title="Click to copy reference code" class="font-mono text-xs font-normal text-stone-500 hover:text-stone-800 flex items-center space-x-1 cursor-pointer">
+                <span>${refCode}</span>
+                <span class="iconify text-xs text-stone-400 hover:text-stone-600" data-icon="lucide:copy" data-stroke-width="2"></span>
+              </button>
+            </div>
+            <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass} shrink-0">
+              <span class="iconify text-xs" data-icon="${statusIcon}" data-stroke-width="2"></span>
+              <span>${statusLabel}</span>
             </div>
           </div>
 
-          <!-- Services Tag (Right Side) -->
-          <div class="shrink-0 flex items-center space-x-2 text-xs font-medium">
-            ${req.needsCatering ? `
-              <span class="flex items-center space-x-1 text-[#D97706]" title="Catering / Food">
-                <span class="iconify text-sm text-[#D97706]" data-icon="lucide:utensils" data-stroke-width="2"></span>
-                <span>Food</span>
-              </span>
-            ` : ''}
-            ${req.needsIT ? `
-              <span class="flex items-center space-x-1 text-[#991B1B]" title="IT Setup">
-                <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:headset" data-stroke-width="2"></span>
-                <span>IT</span>
-              </span>
-            ` : ''}
-          </div>
-        </div>
+          <!-- Row 2: Room Thumbnail + Meeting Specs + Services Tag -->
+          <div class="flex items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-3.5">
+            <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
+              <img src="${roomImgUrl}" class="rounded-xl object-cover border border-[#E9E3DD] shrink-0 w-[116px] sm:w-[124px] h-[74px] sm:h-[78px] shadow-2xs" alt="Room" />
+              <div class="min-w-0">
+                <h4 class="font-heading font-semibold text-sm text-stone-900 leading-snug truncate" title="${req.meetingTitle || ''}">${req.meetingTitle || 'Private Board Meeting'}</h4>
+                <div class="flex items-center space-x-1.5 text-xs text-stone-500 mt-1 font-normal">
+                  <span class="iconify text-stone-400 text-xs shrink-0" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+                  <span>${floorShort} • ${roomShortName}</span>
+                </div>
+                <div class="flex items-center flex-wrap sm:flex-nowrap gap-x-2 gap-y-0.5 text-xs font-mono font-medium text-stone-600 mt-1.5">
+                  <span class="inline-flex items-center space-x-1 text-stone-600 shrink-0">
+                    <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:calendar" data-stroke-width="2"></span>
+                    <span>${req.date}</span>
+                  </span>
+                  <span class="text-stone-300 font-light hidden sm:inline">•</span>
+                  <span class="inline-flex items-center space-x-1 font-semibold text-stone-800 shrink-0">
+                    <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:clock" data-stroke-width="2"></span>
+                    <span>${req.startTime} – ${req.endTime}</span>
+                  </span>
+                </div>
+              </div>
+            </div>
 
-        <!-- Row 3: Requester Metadata Strip (Approver View) -->
-        <div class="flex items-center justify-between gap-2 py-2 px-3 mb-2 rounded-xl bg-stone-50 border border-stone-200/70 text-xs">
-          <div class="flex items-center space-x-2 min-w-0">
-            <img src="${avatarUrl}" class="w-5 h-5 rounded-full object-cover border border-[#E9E3DD] shrink-0" alt="Requester" />
-            <span class="font-semibold text-stone-800 truncate">${requesterName}</span>
-            <span class="text-stone-400 hidden sm:inline">•</span>
-            <span class="text-stone-500 truncate hidden sm:inline">${req.requester?.department || 'Executive Office'}</span>
+            <!-- Services Tag (Right Side) -->
+            <div class="shrink-0 flex items-center space-x-2 text-xs font-medium">
+              ${req.needsCatering ? `
+                <span class="flex items-center space-x-1 text-[#D97706]" title="Catering / Food">
+                  <span class="iconify text-sm text-[#D97706]" data-icon="lucide:utensils" data-stroke-width="2"></span>
+                  <span>Food</span>
+                </span>
+              ` : ''}
+              ${req.needsIT ? `
+                <span class="flex items-center space-x-1 text-[#991B1B]" title="IT Setup">
+                  <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:headset" data-stroke-width="2"></span>
+                  <span>IT</span>
+                </span>
+              ` : ''}
+            </div>
           </div>
-          <div class="flex items-center space-x-1.5 shrink-0">
-            <span class="inline-flex items-center space-x-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-              <span class="iconify text-xs text-emerald-600" data-icon="lucide:shield-check" data-stroke-width="2"></span>
-              <span>Pitika Endorsed</span>
-            </span>
-            ${isConflict ? `
-              <span class="inline-flex items-center space-x-1 text-[11px] font-medium text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
-                <span class="iconify text-xs text-rose-600" data-icon="lucide:alert-triangle" data-stroke-width="2"></span>
-                <span>Conflict</span>
+
+          <!-- Row 3: Requester Metadata Strip (Approver View) -->
+          <div class="flex items-center justify-between gap-2 py-2 px-3 mb-2 rounded-xl bg-stone-50 border border-stone-200/70 text-xs">
+            <div class="flex items-center space-x-2 min-w-0">
+              <img src="${avatarUrl}" class="w-5 h-5 rounded-full object-cover border border-[#E9E3DD] shrink-0" alt="Requester" />
+              <span class="font-semibold text-stone-800 truncate">${requesterName}</span>
+              <span class="text-stone-400 hidden sm:inline">•</span>
+              <span class="text-stone-500 truncate hidden sm:inline">${req.requester?.department || 'Executive Office'}</span>
+            </div>
+            <div class="flex items-center space-x-1.5 shrink-0">
+              <span class="inline-flex items-center space-x-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                <span class="iconify text-xs text-emerald-600" data-icon="lucide:shield-check" data-stroke-width="2"></span>
+                <span>Pitika Endorsed</span>
               </span>
-            ` : ''}
+              ${isConflict ? `
+                <span class="inline-flex items-center space-x-1 text-[11px] font-medium text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                  <span class="iconify text-xs text-rose-600" data-icon="lucide:alert-triangle" data-stroke-width="2"></span>
+                  <span>Conflict</span>
+                </span>
+              ` : ''}
+            </div>
           </div>
         </div>
 
         <!-- Stepper: Visual Approval Progress (5 Steps) -->
         ${this._renderOwnerBookingStepper(req)}
 
-        <!-- Row 5: Action Buttons (Consistently h-[36px] rounded-xl) -->
-        <div class="mt-3.5 flex items-center gap-2 sm:gap-2.5">
+        <!-- Row 5: Action Buttons (Consistently strict h-9 rounded-xl matching my-bookings) -->
+        <div class="mt-3.5 flex items-center gap-2">
           ${isOwnerPending ? `
-            <button type="button" onclick="app.quickOwnerApprove('${req.id}')" title="Approve reservation" class="btn-primary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-bold text-white flex items-center justify-center space-x-1.5 shadow-2xs transition cursor-pointer active:scale-[0.98]">
-              <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
-              <span class="text-white">Approve</span>
+            <button type="button" onclick="app.quickOwnerApprove('${req.id}')" title="Approve reservation" class="btn-primary h-9 px-3.5 shrink-0 rounded-xl border border-[#991B1B] text-xs font-semibold text-white inline-flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer active:scale-[0.98] select-none">
+              <span class="iconify text-sm text-white shrink-0" data-icon="lucide:check" data-stroke-width="2"></span>
+              <span class="text-white leading-none">Approve</span>
             </button>
-            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" title="Open Review Workspace" class="flex-1 btn-secondary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
-              <span class="iconify text-xs text-stone-600" data-icon="lucide:file-text" data-stroke-width="2"></span>
-              <span>Review</span>
+            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" title="Open Review Workspace" class="flex-1 btn-secondary h-9 px-3.5 rounded-xl border border-[#E9E3DD] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none">
+              <span class="iconify text-sm text-stone-500 shrink-0" data-icon="lucide:file-text" data-stroke-width="2"></span>
+              <span class="leading-none text-stone-800">Review</span>
             </button>
-            <button type="button" onclick="app.quickOwnerReject('${req.id}')" title="Decline reservation" class="w-9 h-9 shrink-0 rounded-xl bg-white hover:bg-rose-50 text-[#991B1B] border border-rose-200 transition flex items-center justify-center cursor-pointer active:scale-[0.98]">
+            <button type="button" onclick="app.quickOwnerReject('${req.id}')" title="Decline reservation" class="w-9 h-9 shrink-0 rounded-xl bg-white hover:bg-rose-50 text-[#991B1B] border border-rose-200 hover:border-rose-300 transition inline-flex items-center justify-center cursor-pointer active:scale-[0.98] select-none">
               <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:x" data-stroke-width="2"></span>
             </button>
           ` : (isConflict ? `
-            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" title="Resolve Schedule Conflict" class="min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98] shadow-2xs">
-              <span class="iconify text-xs text-amber-700" data-icon="lucide:alert-circle" data-stroke-width="2"></span>
-              <span>Resolve Conflict</span>
+            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" title="Resolve Schedule Conflict" class="h-9 px-3.5 shrink-0 rounded-xl text-xs font-semibold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] shadow-2xs select-none">
+              <span class="iconify text-sm text-amber-700 shrink-0" data-icon="lucide:alert-circle" data-stroke-width="2"></span>
+              <span class="leading-none">Resolve Conflict</span>
             </button>
-            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" title="Open Review Workspace" class="flex-1 btn-secondary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
-              <span class="iconify text-xs text-stone-600" data-icon="lucide:file-text" data-stroke-width="2"></span>
-              <span>Review</span>
+            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" title="Open Review Workspace" class="flex-1 btn-secondary h-9 px-3.5 rounded-xl border border-[#E9E3DD] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none">
+              <span class="iconify text-sm text-stone-500 shrink-0" data-icon="lucide:file-text" data-stroke-width="2"></span>
+              <span class="leading-none text-stone-800">Review</span>
             </button>
-            <button type="button" onclick="app.quickOwnerReject('${req.id}')" title="Decline reservation" class="w-9 h-9 shrink-0 rounded-xl bg-white hover:bg-rose-50 text-[#991B1B] border border-rose-200 transition flex items-center justify-center cursor-pointer active:scale-[0.98]">
+            <button type="button" onclick="app.quickOwnerReject('${req.id}')" title="Decline reservation" class="w-9 h-9 shrink-0 rounded-xl bg-white hover:bg-rose-50 text-[#991B1B] border border-rose-200 hover:border-rose-300 transition inline-flex items-center justify-center cursor-pointer active:scale-[0.98] select-none">
               <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:x" data-stroke-width="2"></span>
             </button>
           ` : `
-            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" class="w-full btn-secondary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
-              <span class="iconify text-xs text-stone-600" data-icon="lucide:eye" data-stroke-width="2"></span>
-              <span>View Workspace & Decision</span>
+            <button type="button" onclick="app.openRoomOwnerReviewWorkspace('${req.id}')" class="w-full btn-secondary h-9 px-3.5 rounded-xl border border-[#E9E3DD] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none">
+              <span class="iconify text-sm text-stone-500 shrink-0" data-icon="lucide:eye" data-stroke-width="2"></span>
+              <span class="leading-none text-stone-800">View Workspace & Decision</span>
             </button>
           `)}
         </div>

@@ -34,8 +34,8 @@ class RoomAvailabilityView {
     if (!container) return;
     this._bindAppHandlers();
     container.innerHTML = `
-      <div id="view-room-availability-content" class="w-full h-[calc(100dvh-125px)] flex flex-col space-y-3 min-h-0">
-        <div class="shrink-0 space-y-3">
+      <div id="view-room-availability-content" class="w-full h-[calc(100dvh-160px)] flex flex-col space-y-2.5 min-h-0">
+        <div class="shrink-0 space-y-2.5">
           ${this._renderHeader()}
           ${this._renderSummaryCards()}
           ${this._renderFilterBar()}
@@ -43,7 +43,7 @@ class RoomAvailabilityView {
         <div class="flex-1 min-h-0 flex flex-col">
           ${this._renderTimelineTable()}
         </div>
-        <div class="shrink-0 pt-1 pb-1">
+        <div class="shrink-0 pt-0.5">
           ${this._renderLegend()}
         </div>
       </div>
@@ -58,6 +58,8 @@ class RoomAvailabilityView {
     window.app.setAvailabilityDate = (val) => this.setAvailabilityDate(val);
     window.app.handleAvailabilityFilterChange = () => this.handleAvailabilityFilterChange();
     window.app.resetAvailabilityFilters = () => this.resetAvailabilityFilters();
+    window.app.filterAvailabilityStatus = (status) => this.filterAvailabilityStatus(status);
+    window.app.clearAvailabilitySearch = () => this.clearAvailabilitySearch();
     window.app.openAvailabilitySlotModal = (slotId, roomId) => this.openAvailabilitySlotModal(slotId, roomId);
     window.app.closeAvailabilitySlotModal = () => this.closeAvailabilitySlotModal();
     window.app.openRoomDetailsModal = (roomId) => this.openRoomDetailsModal(roomId);
@@ -121,12 +123,40 @@ class RoomAvailabilityView {
     const typeSelect = document.getElementById('avail-type-filter');
     const floorSelect = document.getElementById('avail-floor-filter');
     const statusSelect = document.getElementById('avail-status-filter');
+    const searchClear = document.getElementById('avail-search-clear');
 
     this.searchTerm = (searchInput?.value || '').trim().toLowerCase();
     this.roomTypeFilter = typeSelect?.value || 'all';
     this.floorFilter = floorSelect?.value || 'all';
     this.statusFilter = statusSelect?.value || 'all';
 
+    if (searchClear) {
+      if (this.searchTerm) {
+        searchClear.classList.remove('hidden');
+      } else {
+        searchClear.classList.add('hidden');
+      }
+    }
+
+    this._refreshViewData();
+  }
+
+  clearAvailabilitySearch() {
+    this.searchTerm = '';
+    const searchInput = document.getElementById('avail-search-input');
+    if (searchInput) {
+      searchInput.value = '';
+      searchInput.focus();
+    }
+    const searchClear = document.getElementById('avail-search-clear');
+    if (searchClear) searchClear.classList.add('hidden');
+    this._refreshViewData();
+  }
+
+  filterAvailabilityStatus(status) {
+    this.statusFilter = status;
+    const statusSelect = document.getElementById('avail-status-filter');
+    if (statusSelect) statusSelect.value = status;
     this._refreshViewData();
   }
 
@@ -138,6 +168,8 @@ class RoomAvailabilityView {
 
     const searchInput = document.getElementById('avail-search-input');
     if (searchInput) searchInput.value = '';
+    const searchClear = document.getElementById('avail-search-clear');
+    if (searchClear) searchClear.classList.add('hidden');
     const typeSelect = document.getElementById('avail-type-filter');
     if (typeSelect) typeSelect.value = 'all';
     const floorSelect = document.getElementById('avail-floor-filter');
@@ -150,13 +182,13 @@ class RoomAvailabilityView {
 
   _renderHeader() {
     return `
-      <!-- Header Area -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-[#E9E3DD]">
+      <!-- Executive Header -->
+      <div class="flex items-center justify-between gap-2 pb-2 border-b border-[#E9E3DD]">
         <div>
-          <h2 class="font-heading font-bold text-xl sm:text-2xl text-stone-900 leading-tight">Today's Room Availability</h2>
+          <h2 class="font-heading font-bold text-xl text-stone-900 leading-tight">Today's Room Availability</h2>
         </div>
 
-        <!-- Date Controls -->
+        <!-- Date Controls & Action Buttons -->
         <div class="flex items-center space-x-2 shrink-0">
           <div class="relative">
             <input 
@@ -164,18 +196,32 @@ class RoomAvailabilityView {
               id="avail-date-picker" 
               value="${this.selectedDate}" 
               onchange="app.setAvailabilityDate(this.value)" 
-              class="bank-input bg-white text-xs font-semibold px-3 py-2 rounded-lg border border-[#E9E3DD] shadow-2xs text-stone-800 cursor-pointer focus:border-[#991B1B]" 
+              class="bank-input min-h-[34px] h-[34px] bg-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-[#E9E3DD] shadow-2xs text-stone-800 cursor-pointer focus:border-[#991B1B]" 
               aria-label="Select Date"
             />
           </div>
+
+          <!-- Reset Filters Button -->
+          <button 
+            id="avail-reset-btn" 
+            type="button" 
+            onclick="app.resetAvailabilityFilters()" 
+            title="Reset all filters" 
+            class="btn-secondary min-h-[34px] h-[34px] px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer shadow-2xs shrink-0"
+          >
+            <span class="iconify text-xs" data-icon="lucide:rotate-ccw" data-stroke-width="2"></span>
+            <span>Reset Filters</span>
+          </button>
+
+          <!-- Primary Jump to Today Action -->
           <button 
             type="button" 
             onclick="app.setAvailabilityDate('today')" 
-            class="btn-primary min-h-[36px] h-[36px] px-3.5 rounded-lg text-xs font-bold text-white shadow-2xs flex items-center space-x-1.5 cursor-pointer active:scale-[0.98] transition-all"
+            class="btn-primary min-h-[34px] h-[34px] px-3.5 py-1.5 rounded-lg text-xs font-bold text-white shadow-2xs flex items-center space-x-1.5 cursor-pointer active:scale-[0.98] transition-all"
             title="Jump to Today"
           >
-            <span class="iconify text-sm text-white" data-icon="lucide:calendar-days" data-stroke-width="2"></span>
-            <span>Today</span>
+            <span class="iconify text-xs text-white" data-icon="lucide:calendar" data-stroke-width="2"></span>
+            <span class="text-white">Today</span>
           </button>
         </div>
       </div>
@@ -184,38 +230,61 @@ class RoomAvailabilityView {
 
   _renderSummaryCards() {
     return `
-      <!-- Summary Cards Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <!-- 1. Total Rooms -->
-        <div class="bg-white p-4 rounded-xl border border-[#E9E3DD] shadow-2xs flex items-center space-x-3.5 transition">
-          <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center shrink-0 border border-amber-200/60">
-            <span class="iconify text-xl text-[#D97706]" data-icon="lucide:door-closed" data-stroke-width="2"></span>
+      <!-- Executive KPI Overview Strip (Interactive Filter Shortcuts) -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pb-2.5 border-b border-[#E9E3DD] shrink-0">
+        <!-- Metric 1: Total Rooms -->
+        <div onclick="app.filterAvailabilityStatus('all')" title="View All Rooms" class="bg-white px-3.5 py-2.5 sm:py-3 rounded-xl border border-[#E9E3DD] hover:border-[#991B1B] hover:shadow-xs transition flex items-center space-x-3 shadow-2xs cursor-pointer select-none">
+          <div class="w-9 h-9 rounded-lg bg-red-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-base text-[#991B1B]" data-icon="lucide:door-closed" data-stroke-width="2"></span>
           </div>
           <div class="min-w-0">
-            <div class="text-2xl sm:text-3xl font-bold font-mono text-stone-900 leading-none" id="avail-kpi-total">10</div>
-            <span class="text-xs font-semibold text-stone-500 mt-1 block">Total Rooms</span>
+            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block leading-none mb-1">Total Rooms</span>
+            <div class="flex items-baseline space-x-1.5">
+              <span id="avail-kpi-total" class="text-lg sm:text-xl font-bold font-mono text-stone-900 leading-none">10</span>
+              <span class="text-xs text-stone-500 truncate">In Facility</span>
+            </div>
           </div>
         </div>
 
-        <!-- 2. Available Rooms -->
-        <div class="bg-white p-4 rounded-xl border border-[#E9E3DD] shadow-2xs flex items-center space-x-3.5 transition">
-          <div class="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-200/60">
-            <span class="iconify text-xl text-emerald-600" data-icon="lucide:check-circle" data-stroke-width="2"></span>
+        <!-- Metric 2: Available Rooms -->
+        <div onclick="app.filterAvailabilityStatus('available')" title="Filter by Available Rooms" class="bg-white px-3.5 py-2.5 sm:py-3 rounded-xl border border-[#E9E3DD] hover:border-emerald-400 hover:shadow-xs transition flex items-center space-x-3 shadow-2xs cursor-pointer select-none">
+          <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-base text-emerald-600" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
           </div>
           <div class="min-w-0">
-            <div class="text-2xl sm:text-3xl font-bold font-mono text-stone-900 leading-none" id="avail-kpi-available">6</div>
-            <span class="text-xs font-semibold text-stone-500 mt-1 block">Available</span>
+            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block leading-none mb-1">Available</span>
+            <div class="flex items-baseline space-x-1.5">
+              <span id="avail-kpi-available" class="text-lg sm:text-xl font-bold font-mono text-stone-900 leading-none">6</span>
+              <span class="text-xs text-stone-500 truncate">Ready</span>
+            </div>
           </div>
         </div>
 
-        <!-- 3. Occupied Rooms -->
-        <div class="bg-white p-4 rounded-xl border border-[#E9E3DD] shadow-2xs flex items-center space-x-3.5 transition">
-          <div class="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center shrink-0 border border-red-200/60">
-            <span class="iconify text-xl text-red-600" data-icon="lucide:user-x" data-stroke-width="2"></span>
+        <!-- Metric 3: Occupied Rooms -->
+        <div onclick="app.filterAvailabilityStatus('occupied')" title="Filter by Occupied Rooms" class="bg-white px-3.5 py-2.5 sm:py-3 rounded-xl border border-[#E9E3DD] hover:border-rose-400 hover:shadow-xs transition flex items-center space-x-3 shadow-2xs cursor-pointer select-none">
+          <div class="w-9 h-9 rounded-lg bg-rose-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-base text-rose-600" data-icon="lucide:user-x" data-stroke-width="2"></span>
           </div>
           <div class="min-w-0">
-            <div class="text-2xl sm:text-3xl font-bold font-mono text-stone-900 leading-none" id="avail-kpi-occupied">3</div>
-            <span class="text-xs font-semibold text-stone-500 mt-1 block">Occupied</span>
+            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block leading-none mb-1">Occupied</span>
+            <div class="flex items-baseline space-x-1.5">
+              <span id="avail-kpi-occupied" class="text-lg sm:text-xl font-bold font-mono text-stone-900 leading-none">3</span>
+              <span class="text-xs text-stone-500 truncate">In Session</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric 4: Pending Approval -->
+        <div onclick="app.filterAvailabilityStatus('pending')" title="Filter by Pending Approval" class="bg-white px-3.5 py-2.5 sm:py-3 rounded-xl border border-[#E9E3DD] hover:border-amber-400 hover:shadow-xs transition flex items-center space-x-3 shadow-2xs cursor-pointer select-none">
+          <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+            <span class="iconify text-base text-amber-600" data-icon="lucide:clock" data-stroke-width="2"></span>
+          </div>
+          <div class="min-w-0">
+            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider block leading-none mb-1">Pending</span>
+            <div class="flex items-baseline space-x-1.5">
+              <span id="avail-kpi-pending" class="text-lg sm:text-xl font-bold font-mono text-stone-900 leading-none">1</span>
+              <span class="text-xs text-stone-500 truncate">In Review</span>
+            </div>
           </div>
         </div>
       </div>
@@ -224,28 +293,36 @@ class RoomAvailabilityView {
 
   _renderFilterBar() {
     return `
-      <!-- Filter Bar -->
-      <div class="grid grid-cols-2 sm:grid-cols-6 lg:grid-cols-12 gap-2.5 w-full items-center">
-        <!-- Search Input (Col 3) -->
-        <div class="col-span-2 sm:col-span-6 lg:col-span-3 relative w-full">
+      <!-- Productivity Filter Bar (Single-Row Streamlined Layout) -->
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 w-full items-center">
+        <!-- Search Input (4 cols) -->
+        <div class="sm:col-span-4 relative w-full">
           <span class="iconify absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 text-xs pointer-events-none" data-icon="lucide:search" data-stroke-width="2"></span>
           <input 
             type="text" 
             id="avail-search-input" 
             oninput="app.handleAvailabilityFilterChange()" 
-            placeholder="Search room name..." 
-            class="bank-input pl-8 pr-3 py-2 text-xs w-full bg-white transition border border-[#E9E3DD] rounded-lg shadow-2xs focus:border-[#991B1B]" 
+            placeholder="Search room name, floor..." 
+            class="bank-input pl-8 pr-7 py-1.5 text-xs w-full bg-white transition border border-[#E9E3DD] rounded-lg shadow-2xs focus:border-[#991B1B]" 
           />
+          <button 
+            id="avail-search-clear" 
+            onclick="app.clearAvailabilitySearch()" 
+            title="Clear search" 
+            class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-[#991B1B] p-0.5 rounded transition cursor-pointer"
+          >
+            <span class="iconify text-xs" data-icon="lucide:x" data-stroke-width="2"></span>
+          </button>
         </div>
 
-        <!-- Room Type (Col 2) -->
-        <div class="col-span-1 sm:col-span-2 lg:col-span-2 relative w-full">
+        <!-- Room Type (2 cols) -->
+        <div class="relative sm:col-span-2 w-full">
           <span class="iconify absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 text-xs pointer-events-none" data-icon="lucide:building-2" data-stroke-width="2"></span>
           <select 
             id="avail-type-filter" 
             onchange="app.handleAvailabilityFilterChange()" 
             aria-label="Filter by Room Type" 
-            class="bank-input pl-8 pr-6 py-2 text-xs w-full bg-white transition cursor-pointer border border-[#E9E3DD] rounded-lg shadow-2xs"
+            class="bank-input pl-8 pr-6 py-1.5 text-xs w-full bg-white transition cursor-pointer border border-[#E9E3DD] rounded-lg shadow-2xs truncate focus:border-[#991B1B]"
           >
             <option value="all">All Room Types</option>
             <option value="shared">Shared Room</option>
@@ -253,27 +330,27 @@ class RoomAvailabilityView {
           </select>
         </div>
 
-        <!-- Floors (Col 3) -->
-        <div class="col-span-1 sm:col-span-2 lg:col-span-3 relative w-full">
+        <!-- Floors (3 cols) -->
+        <div class="relative sm:col-span-3 w-full">
           <span class="iconify absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 text-xs pointer-events-none" data-icon="lucide:layers" data-stroke-width="2"></span>
           <select 
             id="avail-floor-filter" 
             onchange="app.handleAvailabilityFilterChange()" 
             aria-label="Filter by Floor" 
-            class="bank-input pl-8 pr-6 py-2 text-xs w-full bg-white transition cursor-pointer border border-[#E9E3DD] rounded-lg shadow-2xs"
+            class="bank-input pl-8 pr-6 py-1.5 text-xs w-full bg-white transition cursor-pointer border border-[#E9E3DD] rounded-lg shadow-2xs truncate focus:border-[#991B1B]"
           >
             <option value="all">All Floors</option>
           </select>
         </div>
 
-        <!-- Status (Col 2) -->
-        <div class="col-span-1 sm:col-span-2 lg:col-span-2 relative w-full">
+        <!-- Status (2 cols) -->
+        <div class="relative sm:col-span-2 w-full">
           <span class="iconify absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400 text-xs pointer-events-none" data-icon="lucide:filter" data-stroke-width="2"></span>
           <select 
             id="avail-status-filter" 
             onchange="app.handleAvailabilityFilterChange()" 
             aria-label="Filter by Status" 
-            class="bank-input pl-8 pr-6 py-2 text-xs w-full bg-white transition cursor-pointer border border-[#E9E3DD] rounded-lg shadow-2xs"
+            class="bank-input pl-8 pr-6 py-1.5 text-xs w-full bg-white transition cursor-pointer border border-[#E9E3DD] rounded-lg shadow-2xs truncate focus:border-[#991B1B]"
           >
             <option value="all">All Status</option>
             <option value="available">Available</option>
@@ -282,16 +359,16 @@ class RoomAvailabilityView {
           </select>
         </div>
 
-        <!-- Reset Button (Col 2) -->
-        <div class="col-span-1 sm:col-span-2 lg:col-span-2 w-full">
+        <!-- Reset Button (1 col) -->
+        <div class="sm:col-span-1 w-full">
           <button 
             type="button" 
             onclick="app.resetAvailabilityFilters()" 
             title="Reset Filters" 
-            class="w-full bg-stone-100 hover:bg-stone-200 text-stone-700 h-[34px] px-3 rounded-lg text-xs font-semibold flex items-center justify-center space-x-1.5 transition-all cursor-pointer border border-[#E9E3DD] shadow-2xs active:scale-[0.98]"
+            class="btn-secondary w-full min-h-[34px] h-[34px] px-2 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-center space-x-1 transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
           >
             <span class="iconify text-xs" data-icon="lucide:rotate-ccw" data-stroke-width="2"></span>
-            <span>Reset</span>
+            <span class="sm:hidden xl:inline">Reset</span>
           </button>
         </div>
       </div>
@@ -341,15 +418,15 @@ class RoomAvailabilityView {
       <!-- Legend -->
       <div class="flex flex-wrap items-center gap-4 sm:gap-6 pt-1 text-xs text-stone-600 font-medium select-none">
         <div class="flex items-center space-x-2">
-          <span class="w-4 h-3 rounded bg-emerald-200 border border-emerald-400 inline-block"></span>
+          <span class="w-3.5 h-3.5 rounded bg-emerald-100 border border-emerald-400 inline-block"></span>
           <span>Available</span>
         </div>
         <div class="flex items-center space-x-2">
-          <span class="w-4 h-3 rounded bg-[#EF4444] border border-red-600 inline-block"></span>
+          <span class="w-3.5 h-3.5 rounded bg-[#EF4444] border border-red-600 inline-block"></span>
           <span>Occupied</span>
         </div>
         <div class="flex items-center space-x-2">
-          <span class="w-4 h-3 rounded bg-[#FBBF24] border border-amber-500 inline-block"></span>
+          <span class="w-3.5 h-3.5 rounded bg-[#FBBF24] border border-amber-500 inline-block"></span>
           <span>Pending Approval</span>
         </div>
       </div>
@@ -366,10 +443,14 @@ class RoomAvailabilityView {
     const kpiTotal = document.getElementById('avail-kpi-total');
     const kpiAvail = document.getElementById('avail-kpi-available');
     const kpiOcc = document.getElementById('avail-kpi-occupied');
+    const kpiPending = document.getElementById('avail-kpi-pending');
+
+    const pendingCount = data.rooms.filter(item => (item.blocks || []).some(b => b.type === 'pending')).length;
 
     if (kpiTotal) kpiTotal.innerText = data.summary.totalRooms;
     if (kpiAvail) kpiAvail.innerText = data.summary.available;
     if (kpiOcc) kpiOcc.innerText = data.summary.occupied;
+    if (kpiPending) kpiPending.innerText = pendingCount;
 
     // Filter rooms based on active criteria
     let filteredRooms = data.rooms.filter(item => {
@@ -409,15 +490,18 @@ class RoomAvailabilityView {
     if (filteredRooms.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="4" class="py-12 px-4 text-center text-stone-500">
-            <div class="w-12 h-12 rounded-full bg-stone-100 mx-auto flex items-center justify-center text-stone-400 mb-2">
-              <span class="iconify text-xl" data-icon="lucide:inbox"></span>
+          <td colspan="4" class="py-12 px-4 text-center">
+            <div class="w-12 h-12 rounded-full bg-stone-100 text-stone-500 mx-auto flex items-center justify-center mb-2">
+              <span class="iconify text-xl text-stone-400" data-icon="lucide:door-closed" data-stroke-width="1.8"></span>
             </div>
-            <p class="text-sm font-semibold text-stone-700">No rooms match your filters</p>
-            <p class="text-xs text-stone-400 mt-1">Try resetting the filters or choosing another date.</p>
-            <button onclick="app.resetAvailabilityFilters()" class="mt-3 px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold text-xs rounded-lg transition border border-stone-200 cursor-pointer">
-              Clear Filters
-            </button>
+            <h4 class="text-sm font-heading font-bold text-stone-900">No Rooms Found</h4>
+            <p class="text-xs text-stone-500 max-w-md mx-auto leading-relaxed mt-1">No meeting rooms match your active filters or selected date.</p>
+            <div class="flex items-center justify-center gap-2 pt-3">
+              <button type="button" onclick="app.resetAvailabilityFilters()" class="btn-secondary min-h-[34px] h-[34px] px-3.5 py-1.5 rounded-lg font-semibold text-xs transition-all shadow-2xs active:scale-[0.98] cursor-pointer flex items-center space-x-1.5">
+                <span class="iconify text-xs text-[#78716C]" data-icon="lucide:rotate-ccw" data-stroke-width="1.8"></span>
+                <span>Reset Filters</span>
+              </button>
+            </div>
           </td>
         </tr>
       `;
@@ -565,7 +649,7 @@ class RoomAvailabilityView {
       <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in">
         <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-[#E9E3DD] overflow-hidden">
           <!-- Modal Header -->
-          <div class="p-5 border-b border-[#E9E3DD] flex items-center justify-between bg-stone-50/50">
+          <div class="p-4 sm:p-5 border-b border-[#E9E3DD] flex items-center justify-between bg-stone-50/50">
             <div class="flex items-center space-x-2.5">
               <span class="font-mono font-bold text-xs text-[#991B1B] bg-red-50 border border-red-200 px-2 py-0.5 rounded">
                 ${req.id}
@@ -575,12 +659,12 @@ class RoomAvailabilityView {
               </span>
             </div>
             <button onclick="app.closeAvailabilitySlotModal()" class="p-1.5 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100 transition cursor-pointer">
-              <span class="iconify text-lg" data-icon="lucide:x"></span>
+              <span class="iconify text-lg" data-icon="lucide:x" data-stroke-width="2"></span>
             </button>
           </div>
 
           <!-- Modal Body -->
-          <div class="p-5 space-y-4 text-xs">
+          <div class="p-4 sm:p-5 space-y-4 text-xs">
             <div>
               <h3 class="font-heading font-bold text-stone-900 text-base leading-snug">${req.meetingTitle || 'Meeting Session'}</h3>
               <p class="text-xs text-stone-500 mt-0.5">${room.name} • ${room.floor ? room.floor.split('(')[0].trim() : ''}</p>
@@ -589,11 +673,11 @@ class RoomAvailabilityView {
             <!-- Schedule Card -->
             <div class="p-3 bg-stone-50 rounded-xl border border-stone-200/80 flex items-center justify-between">
               <div class="flex items-center space-x-2">
-                <span class="iconify text-base text-[#D97706]" data-icon="lucide:calendar"></span>
+                <span class="iconify text-base text-[#D97706]" data-icon="lucide:calendar" data-stroke-width="2"></span>
                 <span class="font-medium text-stone-700">${req.date || this.selectedDate}</span>
               </div>
               <div class="flex items-center space-x-2 font-mono font-semibold text-stone-900">
-                <span class="iconify text-base text-[#D97706]" data-icon="lucide:clock"></span>
+                <span class="iconify text-base text-[#D97706]" data-icon="lucide:clock" data-stroke-width="2"></span>
                 <span>${req.startTime} – ${req.endTime}</span>
               </div>
             </div>
@@ -610,16 +694,16 @@ class RoomAvailabilityView {
           </div>
 
           <!-- Modal Actions -->
-          <div class="p-4 bg-stone-50 border-t border-[#E9E3DD] flex items-center justify-between gap-2">
-            <button onclick="app.closeAvailabilitySlotModal()" class="btn-secondary px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer">
+          <div class="p-3.5 sm:p-4 bg-stone-50 border-t border-[#E9E3DD] flex items-center justify-between gap-2">
+            <button onclick="app.closeAvailabilitySlotModal()" class="btn-secondary min-h-[34px] h-[34px] px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shadow-2xs">
               Close
             </button>
             <button 
               onclick="app.closeAvailabilitySlotModal(); app.openPitikaReviewWorkspace('${req.id}');" 
-              class="btn-primary px-4 py-2 rounded-lg text-xs font-bold text-white shadow-2xs flex items-center space-x-1.5 cursor-pointer active:scale-[0.98]"
+              class="btn-primary min-h-[34px] h-[34px] px-3.5 py-1.5 rounded-lg text-xs font-bold text-white shadow-2xs flex items-center space-x-1.5 cursor-pointer active:scale-[0.98]"
             >
-              <span class="iconify text-xs text-white" data-icon="lucide:eye"></span>
-              <span>View in Review Workspace</span>
+              <span class="iconify text-xs text-white" data-icon="lucide:eye" data-stroke-width="2"></span>
+              <span class="text-white">View in Review Workspace</span>
             </button>
           </div>
         </div>
@@ -1068,21 +1152,21 @@ class RoomAvailabilityView {
           </div>
 
           <!-- Modal Footer -->
-          <div class="p-3 sm:p-4 bg-[#FAF7F4] border-t border-[#E9E3DD] flex items-center justify-end space-x-2.5 shrink-0">
+          <div class="p-3 sm:p-4 bg-[#FAF7F4] border-t border-[#E9E3DD] flex items-center justify-end space-x-2 shrink-0">
             <button 
               type="button" 
               onclick="app.closeRoomDetailsModal()" 
-              class="px-4 py-2 rounded-lg text-xs font-semibold text-stone-700 bg-white hover:bg-stone-100 border border-[#E9E3DD] shadow-2xs cursor-pointer transition"
+              class="btn-secondary min-h-[34px] h-[34px] px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer shadow-2xs transition"
             >
               Close
             </button>
             <button 
               type="button" 
               onclick="app.switchRoomDetailsTab('schedule')" 
-              class="btn-primary px-4 py-2 rounded-lg text-xs font-bold text-white shadow-2xs flex items-center space-x-1.5 cursor-pointer active:scale-[0.98] transition"
+              class="btn-primary min-h-[34px] h-[34px] px-3.5 py-1.5 rounded-lg text-xs font-bold text-white shadow-2xs flex items-center space-x-1.5 cursor-pointer active:scale-[0.98] transition"
             >
-              <span class="iconify text-sm text-white" data-icon="lucide:calendar" data-stroke-width="2"></span>
-              <span>View Today's Schedule</span>
+              <span class="iconify text-xs text-white" data-icon="lucide:calendar" data-stroke-width="2"></span>
+              <span class="text-white">View Today's Schedule</span>
             </button>
           </div>
         </div>

@@ -3,10 +3,13 @@
 
 class BankBookingStore {
   constructor() {
-    this.STORAGE_KEY = 'nbc_meeting_rooms_v17';
+    this.STORAGE_KEY = 'nbc_meeting_rooms_v20';
     this.listeners = [];
     // Clean up legacy storage versions
     try {
+      localStorage.removeItem('nbc_meeting_rooms_v19');
+      localStorage.removeItem('nbc_meeting_rooms_v18');
+      localStorage.removeItem('nbc_meeting_rooms_v17');
       localStorage.removeItem('nbc_meeting_rooms_v16');
       localStorage.removeItem('nbc_meeting_rooms_v15');
       localStorage.removeItem('nbc_meeting_rooms_v14');
@@ -108,7 +111,6 @@ class BankBookingStore {
     this.requests = [];
     this.notifications = [];
     this.itStaff = JSON.parse(JSON.stringify(INITIAL_IT_STAFF));
-    this.ensureSeedBookings();
     localStorage.removeItem(this.STORAGE_KEY);
     if (shouldNotify) {
       this.saveState();
@@ -1872,170 +1874,6 @@ class BankBookingStore {
 
   ensureSeedBookings() {
     if (!this.requests) this.requests = [];
-
-    const hasSeed = this.requests.some(r => r.id === 'REQ-2026-021');
-    if (hasSeed) return;
-
-    const seedRequests = [
-      {
-        id: 'REQ-2026-021',
-        referenceCode: 'NBC-81021',
-        meetingTitle: 'Executive Governance & Monetary Review',
-        meetingPurpose: 'Executive Governance & Monetary Review',
-        date: '2026-09-11',
-        startTime: '09:00',
-        endTime: '11:00',
-        room: this.getRoomById('ROOM-101') || { id: 'ROOM-101', name: 'ទន្លេមេគង្គ - Mekong River', isPrivate: true, floor: 'Level 18 (Floor 18) - Executive Suite' },
-        status: 'Approved - Confirmed',
-        statusDisplay: 'Approved',
-        requester: { name: 'Jonathan Vance', department: 'Board & Executive Office', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' },
-        attendees: 16,
-        isPrivateRequest: true,
-        needsIT: true,
-        needsCatering: false,
-        timeline: [
-          { step: 1, title: 'Sent', completed: true, time: '3 hours ago' },
-          { step: 2, title: 'Manager Review', completed: true, time: '2 hours ago' },
-          { step: 3, title: 'Room Owner', completed: true, time: '1 hour ago' },
-          { step: 4, title: 'IT Setup', completed: true, time: '30 mins ago' },
-          { step: 5, title: 'Ready', completed: true, time: 'Ready' }
-        ]
-      },
-      {
-        id: 'REQ-2026-022',
-        referenceCode: 'NBC-81022',
-        meetingTitle: 'Foreign Reserves Strategic Allocation',
-        meetingPurpose: 'Foreign Reserves Strategic Allocation',
-        date: '2026-09-11',
-        startTime: '14:00',
-        endTime: '16:00',
-        room: this.getRoomById('ROOM-101') || { id: 'ROOM-101', name: 'ទន្លេមេគង្គ - Mekong River', isPrivate: true, floor: 'Level 18 (Floor 18) - Executive Suite' },
-        status: 'Pending Review',
-        statusDisplay: 'Pending Review',
-        requester: { name: 'Serey Roth', department: 'Banking Operations', avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80' },
-        attendees: 12,
-        isPrivateRequest: true,
-        needsIT: false,
-        needsCatering: true,
-        timeline: [
-          { step: 1, title: 'Sent', completed: true, time: '40 mins ago' },
-          { step: 2, title: 'Manager Review', completed: false, time: 'Waiting' },
-          { step: 3, title: 'Room Owner', completed: false, time: 'Pending' }
-        ]
-      },
-      {
-        id: 'REQ-2026-023',
-        referenceCode: 'NBC-81023',
-        meetingTitle: 'Macroeconomic Policy Research Sync',
-        meetingPurpose: 'Macroeconomic Policy Research Sync',
-        date: '2026-09-11',
-        startTime: '10:00',
-        endTime: '12:00',
-        room: this.getRoomById('ROOM-102') || { id: 'ROOM-102', name: 'ទន្លេសាប - Tonle Sap River', isPrivate: false, floor: 'Level 12 (Floor 12) - Banking Studies & Policy' },
-        status: 'Approved - Confirmed',
-        statusDisplay: 'Approved',
-        requester: { name: 'Chan Bora', department: 'Monetary Policy & Research', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80' },
-        attendees: 10,
-        isPrivateRequest: false,
-        needsIT: true,
-        needsCatering: true,
-        timeline: [
-          { step: 1, title: 'Sent', completed: true, time: '4 hours ago' },
-          { step: 2, title: 'Auto Approved', completed: true, time: '4 hours ago' },
-          { step: 3, title: 'Ready', completed: true, time: 'Ready' }
-        ]
-      },
-      {
-        id: 'REQ-2026-024',
-        referenceCode: 'NBC-81024',
-        meetingTitle: 'Confidential Audit Committee Session',
-        meetingPurpose: 'Confidential Audit Committee Session',
-        date: '2026-09-11',
-        startTime: '13:00',
-        endTime: '15:30',
-        room: this.getRoomById('ROOM-103') || { id: 'ROOM-103', name: 'ទន្លេបាសាក់ - Bassac River', isPrivate: true, floor: 'Level 5 (Floor 5) - Finance & Audit' },
-        status: 'Approved - Confirmed',
-        statusDisplay: 'Approved',
-        requester: { name: 'Kimly Chea', department: 'Internal Audit', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80' },
-        attendees: 6,
-        isPrivateRequest: true,
-        needsIT: false,
-        needsCatering: false,
-        timeline: [
-          { step: 1, title: 'Sent', completed: true, time: '5 hours ago' },
-          { step: 2, title: 'Manager Review', completed: true, time: '4 hours ago' },
-          { step: 3, title: 'Room Owner', completed: true, time: '3 hours ago' },
-          { step: 4, title: 'Ready', completed: true, time: 'Ready' }
-        ]
-      },
-      {
-        id: 'REQ-2026-025',
-        referenceCode: 'NBC-81025',
-        meetingTitle: 'Bakong Settlement Protocol Engineering',
-        meetingPurpose: 'Bakong Settlement Protocol Engineering',
-        date: '2026-09-11',
-        startTime: '08:30',
-        endTime: '10:30',
-        room: this.getRoomById('ROOM-105') || { id: 'ROOM-105', name: 'ទន្លេសេសាន - Sesan River', isPrivate: false, floor: 'Floor 3 - Core Banking & Networks' },
-        status: 'Pending Review',
-        statusDisplay: 'Pending Review',
-        requester: { name: 'David Seng', department: 'Information Technology (IT)', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80' },
-        attendees: 8,
-        isPrivateRequest: false,
-        needsIT: true,
-        needsCatering: false,
-        timeline: [
-          { step: 1, title: 'Sent', completed: true, time: '30 mins ago' },
-          { step: 2, title: 'Manager Review', completed: false, time: 'Waiting' }
-        ]
-      },
-      {
-        id: 'REQ-2026-026',
-        referenceCode: 'NBC-81026',
-        meetingTitle: 'Fintech Innovation Sprint Architecture',
-        meetingPurpose: 'Fintech Innovation Sprint Architecture',
-        date: '2026-09-11',
-        startTime: '15:00',
-        endTime: '17:00',
-        room: this.getRoomById('ROOM-105') || { id: 'ROOM-105', name: 'ទន្លេសេសាន - Sesan River', isPrivate: false, floor: 'Floor 3 - Core Banking & Networks' },
-        status: 'Pending Review',
-        statusDisplay: 'Pending Review',
-        requester: { name: 'Piseth Meas', department: 'Information Technology (IT)', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80' },
-        attendees: 6,
-        isPrivateRequest: false,
-        needsIT: true,
-        needsCatering: true,
-        timeline: [
-          { step: 1, title: 'Sent', completed: true, time: '1 hour ago' },
-          { step: 2, title: 'Manager Review', completed: false, time: 'Waiting' }
-        ]
-      },
-      {
-        id: 'REQ-2026-027',
-        referenceCode: 'NBC-81027',
-        meetingTitle: 'Correspondent Banking Delegation Reception',
-        meetingPurpose: 'Correspondent Banking Delegation Reception',
-        date: '2026-09-11',
-        startTime: '11:00',
-        endTime: '13:00',
-        room: this.getRoomById('ROOM-106') || { id: 'ROOM-106', name: 'ទន្លេស្រែពក - Srepok River', isPrivate: false, floor: 'Ground Floor - Banking Hall & Tellers' },
-        status: 'Approved - Confirmed',
-        statusDisplay: 'Approved',
-        requester: { name: 'Sopheap Keo', department: 'Banking Operations', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80' },
-        attendees: 8,
-        isPrivateRequest: false,
-        needsIT: false,
-        needsCatering: true,
-        timeline: [
-          { step: 1, title: 'Sent', completed: true, time: '2 hours ago' },
-          { step: 2, title: 'Manager Review', completed: true, time: '1 hour ago' },
-          { step: 3, title: 'Ready', completed: true, time: 'Ready' }
-        ]
-      }
-    ];
-
-    this.requests.unshift(...seedRequests);
-    this.saveState();
   }
 
   getRoomAvailability(dateStr = null) {

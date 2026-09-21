@@ -85,7 +85,7 @@ class BookingFormView {
                 <img id="form-room-hero-img" src="assets/rooms/summit-suite.jpg" alt="Room" class="w-24 h-20 sm:w-28 sm:h-20 rounded-xl object-cover border border-[#E9E3DD] shadow-2xs shrink-0" />
                 <div class="min-w-0 flex-1">
                   <h3 id="form-room-hero-title" class="text-base sm:text-lg font-bold text-[#3E2B1E] font-heading leading-tight truncate">ទន្លេសេកុង - Sekong River</h3>
-                  <p id="form-room-hero-meta" class="text-xs text-stone-500 font-medium mt-0.5 truncate">Level 18 &bull; Executive Suite &bull; 60 seats</p>
+                  <p id="form-room-hero-meta" class="text-xs text-stone-500 font-medium mt-0.5 truncate">Floor 18 &bull; Executive Suite &bull; 60 seats</p>
                   <div id="form-room-hero-amenities" class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-2">
                     <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-[#F5F2EE] text-[#3E2B1E] border border-[#E9E3DD]">Standard</span>
                     <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-white text-stone-600 border border-[#E9E3DD]">

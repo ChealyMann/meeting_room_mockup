@@ -175,28 +175,30 @@ class MyBookingsView {
       </div>
 
       <!-- Custom In-App Modal for Cancelling Booking (No native prompt blocker) -->
-      <div id="my-bookings-cancel-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl border border-[#E9E3DD] w-full max-w-md shadow-2xl overflow-hidden flex flex-col animate-scale-in" onclick="event.stopPropagation()">
-          <div class="bg-[#2A0808] px-5 py-3.5 border-b border-[#450A0A] flex items-center justify-between text-white">
-            <div class="flex items-center space-x-2">
-              <span class="iconify text-base text-white" data-icon="lucide:ban" data-stroke-width="2"></span>
-              <h3 id="my-cancel-modal-title" class="font-heading font-bold text-sm text-white">Cancel Reservation</h3>
+      <div id="my-bookings-cancel-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity duration-150" onclick="app.closeMyBookingsCancelModal()">
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] w-full max-w-md shadow-2xl overflow-hidden flex flex-col animate-scale-up" onclick="event.stopPropagation()">
+          <div class="px-5 py-4 flex items-center justify-between border-b border-[#E9E3DD] bg-white">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center text-[#DC2626] shrink-0">
+                <span class="iconify text-base" data-icon="lucide:ban" data-stroke-width="2"></span>
+              </div>
+              <h3 id="my-cancel-modal-title" class="font-heading font-bold text-sm text-[#3E2B1E] leading-tight">Cancel Reservation</h3>
             </div>
-            <button type="button" onclick="app.closeMyBookingsCancelModal()" class="text-stone-400 hover:text-white p-1 rounded transition cursor-pointer">
+            <button type="button" onclick="app.closeMyBookingsCancelModal()" aria-label="Close cancellation dialog" class="w-8 h-8 rounded-xl border border-transparent hover:border-[#E9E3DD] hover:bg-[#FAF7F4] text-stone-400 hover:text-[#3E2B1E] flex items-center justify-center transition cursor-pointer active:scale-95">
               <span class="iconify text-base" data-icon="lucide:x" data-stroke-width="2"></span>
             </button>
           </div>
-          <div class="p-5 space-y-3">
+          <div class="p-5 space-y-4">
             <p id="my-cancel-modal-desc" class="text-xs text-stone-600 leading-relaxed">
               Are you sure you want to cancel this meeting room reservation? Any booked catering or IT equipment setup for this session will be released.
             </p>
-            <div class="flex items-center justify-end space-x-2 pt-2">
-              <button type="button" onclick="app.closeMyBookingsCancelModal()" class="px-4 py-2 rounded-lg text-xs font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 transition cursor-pointer">
+            <div class="flex items-center justify-end gap-2 pt-1">
+              <button type="button" onclick="app.closeMyBookingsCancelModal()" class="btn-secondary h-9 px-4 rounded-xl border border-[#E9E3DD] text-xs font-semibold text-stone-700 hover:bg-[#FAF7F4] transition cursor-pointer active:scale-[0.98] select-none">
                 Keep Booking
               </button>
-              <button type="button" id="my-confirm-cancel-btn" onclick="app.confirmMyBookingsCancellation()" class="px-4 py-2 rounded-lg text-xs font-bold bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white flex items-center space-x-1.5 shadow-2xs transition active:scale-[0.98] cursor-pointer">
+              <button type="button" id="my-confirm-cancel-btn" onclick="app.confirmMyBookingsCancellation()" class="btn-primary h-9 px-4 rounded-xl border border-[#991B1B] text-xs font-bold bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white flex items-center gap-1.5 shadow-xs transition active:scale-[0.98] cursor-pointer">
                 <span class="iconify text-xs text-white" data-icon="lucide:check" data-stroke-width="2.5"></span>
-                <span>Confirm Cancellation</span>
+                <span class="text-white">Confirm Cancellation</span>
               </button>
             </div>
           </div>
@@ -204,33 +206,57 @@ class MyBookingsView {
       </div>
 
       <!-- Progressive disclosure for sensitive door credentials -->
-      <div id="my-door-pass-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4" onclick="app.closeDoorPasscodeModal()">
-        <div class="bg-white rounded-2xl border border-[#E9E3DD] w-full max-w-sm shadow-2xl overflow-hidden" onclick="event.stopPropagation()">
-          <div class="bg-[#2A0808] px-5 py-3.5 border-b border-[#450A0A] flex items-center justify-between text-white">
-            <div class="flex items-center gap-2">
-              <span class="iconify text-base text-white" data-icon="lucide:key-round" data-stroke-width="1.8"></span>
-              <h3 class="font-heading font-bold text-sm text-white">Door Access</h3>
+      <div id="my-door-pass-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity duration-150" onclick="app.closeDoorPasscodeModal()">
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] w-full max-w-[420px] shadow-2xl overflow-hidden flex flex-col animate-scale-up" onclick="event.stopPropagation()">
+          <!-- Clean Warm Cafe Header (Zero heavy dark bars) -->
+          <div class="px-5 py-4 flex items-center justify-between border-b border-[#E9E3DD] bg-white">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-[#FEF2F2] border border-[#FEE2E2] flex items-center justify-center text-[#991B1B] shrink-0">
+                <span class="iconify text-base text-[#991B1B]" data-icon="lucide:key-round" data-stroke-width="2"></span>
+              </div>
+              <h3 class="font-heading font-bold text-sm text-[#3E2B1E] leading-tight">Door Access</h3>
             </div>
-            <button type="button" onclick="app.closeDoorPasscodeModal()" aria-label="Close door access dialog" class="text-stone-300 hover:text-white p-1 rounded transition cursor-pointer">
-              <span class="iconify text-base" data-icon="lucide:x" data-stroke-width="1.8"></span>
+            <button type="button" onclick="app.closeDoorPasscodeModal()" aria-label="Close door access dialog" class="w-8 h-8 rounded-xl border border-transparent hover:border-[#E9E3DD] hover:bg-[#FAF7F4] text-stone-400 hover:text-[#3E2B1E] flex items-center justify-center transition cursor-pointer active:scale-95">
+              <span class="iconify text-base" data-icon="lucide:x" data-stroke-width="2"></span>
             </button>
           </div>
-          <div class="p-5 space-y-4">
-            <div>
-              <p id="my-door-pass-room" class="font-heading font-bold text-sm text-stone-900 truncate">Meeting room</p>
-              <p id="my-door-pass-expiry" class="text-xs text-stone-600 mt-1">Use this passcode at the room door.</p>
+
+          <!-- Body Content -->
+          <div class="p-5 space-y-3.5">
+            <!-- Room & Validity Info Box -->
+            <div class="p-3 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD] space-y-1.5">
+              <div class="flex items-center gap-2">
+                <span class="iconify text-xs text-[#991B1B] shrink-0" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+                <span id="my-door-pass-room" class="font-heading font-bold text-xs text-[#3E2B1E] truncate">Meeting room</span>
+              </div>
+              <div class="flex items-center gap-2 text-stone-500 pl-0.5">
+                <span class="iconify text-[11px] text-stone-400 shrink-0" data-icon="lucide:clock" data-stroke-width="2"></span>
+                <span id="my-door-pass-expiry" class="text-xs text-stone-500 font-medium truncate">Use this passcode at the room door.</span>
+              </div>
             </div>
-            <div class="p-4 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD] flex items-center justify-between gap-3">
-              <strong id="my-door-passcode-value" class="font-mono text-lg tracking-[0.18em] text-[#991B1B] truncate">••••••••</strong>
-              <button type="button" id="my-door-pass-reveal" onclick="app.toggleDoorPasscode()" class="btn-secondary min-h-[40px] px-3 rounded-lg text-xs font-semibold shrink-0 inline-flex items-center gap-1.5">
-                <span class="iconify text-sm" data-icon="lucide:eye" data-stroke-width="1.8"></span>
-                <span>Reveal</span>
+
+            <!-- Passcode Display Box -->
+            <div class="p-3.5 bg-[#F5F2EE] rounded-xl border border-[#E9E3DD] flex items-center justify-between gap-3">
+              <div class="min-w-0 flex-1 pl-1">
+                <span class="text-[10px] uppercase font-bold tracking-wider text-stone-400 block mb-0.5">Keypad Passcode</span>
+                <strong id="my-door-passcode-value" class="font-mono text-lg sm:text-xl font-bold tracking-wider text-[#991B1B] block whitespace-nowrap select-all leading-tight">••••••••</strong>
+              </div>
+              <button type="button" id="my-door-pass-reveal" onclick="app.toggleDoorPasscode()" class="btn-secondary h-9 px-3.5 rounded-xl border border-[#E9E3DD] text-xs font-semibold shrink-0 inline-flex items-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none shadow-2xs hover:bg-white hover:border-stone-300">
+                <span class="iconify text-sm text-stone-600 shrink-0" data-icon="lucide:eye" data-stroke-width="2"></span>
+                <span class="leading-none text-stone-800">Reveal</span>
               </button>
             </div>
-            <button type="button" onclick="app.copyDoorPasscode()" class="btn-primary w-full min-h-[44px] px-4 rounded-lg text-xs font-bold flex items-center justify-center gap-2">
-              <span class="iconify text-sm text-white" data-icon="lucide:copy" data-stroke-width="1.8"></span>
-              <span class="text-white">Copy Passcode</span>
-            </button>
+
+            <!-- Action Buttons Row -->
+            <div class="pt-1 flex items-center gap-2">
+              <button type="button" onclick="app.closeDoorPasscodeModal()" class="btn-secondary h-9 px-4 rounded-xl border border-[#E9E3DD] text-xs font-semibold text-stone-700 hover:bg-[#FAF7F4] transition cursor-pointer active:scale-[0.98] select-none">
+                Close
+              </button>
+              <button type="button" onclick="app.copyDoorPasscode()" class="flex-1 btn-primary h-9 px-4 rounded-xl border border-[#991B1B] text-xs font-bold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none shadow-xs text-white">
+                <span class="iconify text-sm text-white shrink-0" data-icon="lucide:copy" data-stroke-width="2"></span>
+                <span class="text-white leading-none">Copy Passcode</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -321,6 +347,14 @@ class MyBookingsView {
     window.app.copyDoorPasscode = () => this.copyDoorPasscode();
   }
 
+  _formatFloorShort(floorStr) {
+    if (!floorStr) return 'Ground Floor';
+    const match = String(floorStr).match(/(?:Level|Floor)\s*(\d+)/i);
+    if (match) return `Floor ${match[1]}`;
+    if (/ground/i.test(floorStr)) return 'Ground Floor';
+    return String(floorStr).split('(')[0].split('-')[0].trim().replace(/level/i, 'Floor');
+  }
+
   _populateRoomDropdown() {
     const roomSelect = document.getElementById('my-room-filter');
     if (!roomSelect || typeof bookingStore === 'undefined') return;
@@ -329,7 +363,7 @@ class MyBookingsView {
     let optionsHtml = '<option value="all">All Meeting Rooms</option>';
     rooms.forEach(room => {
       const shortName = room.name.split(' - ')[0];
-      const floorShort = room.floor ? room.floor.split('(')[0].trim() : '';
+      const floorShort = this._formatFloorShort(room.floor);
       optionsHtml += `<option value="${room.id}">${shortName} (${floorShort})</option>`;
     });
     roomSelect.innerHTML = optionsHtml;
@@ -478,8 +512,8 @@ class MyBookingsView {
       revealBtn.disabled = state.isExpired;
       revealBtn.classList.toggle('opacity-50', state.isExpired);
       revealBtn.innerHTML = `
-        <span class="iconify text-sm" data-icon="lucide:${this._doorPasscodeRevealed ? 'eye-off' : 'eye'}" data-stroke-width="1.8"></span>
-        <span>${this._doorPasscodeRevealed ? 'Hide' : 'Reveal'}</span>
+        <span class="iconify text-sm text-stone-600 shrink-0" data-icon="lucide:${this._doorPasscodeRevealed ? 'eye-off' : 'eye'}" data-stroke-width="2"></span>
+        <span class="leading-none text-stone-800">${this._doorPasscodeRevealed ? 'Hide' : 'Reveal'}</span>
       `;
     }
   }
@@ -932,118 +966,120 @@ class MyBookingsView {
 
     const roomObj = bookingStore.getRoomById(req.room?.id) || req.room || {};
     const roomImgUrl = roomObj.image || 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80';
-    const floorShort = (roomObj.floor || 'Level 18').split('(')[0].trim();
+    const floorShort = this._formatFloorShort(roomObj.floor || 'Floor 18');
     const hasMultiSessions = req.sessions && req.sessions.length > 1;
     const doorAccess = bookingStore.getDoorAccessState
       ? bookingStore.getDoorAccessState(req)
       : { code: req.doorPasscode || req.referenceCode, isExpired: false };
 
+    // Format clean room name, location, and department (Minimal & Modern)
+    const rawRoomName = roomObj.name || req.room?.name || req.roomName || 'Meeting Room';
+    const roomName = rawRoomName.includes(' - ') ? rawRoomName.split(' - ')[1].trim() : rawRoomName;
+
+    const rawLocation = roomObj.location || req.room?.location || req.location || 'Headquarters';
+    const locationName = rawLocation
+      .replace(/^National Bank of Cambodia\s*[-–,]\s*/i, '')
+      .replace(/\(Phnom Penh branch\)/i, 'Phnom Penh Branch')
+      .replace(/Provincial Branch/i, 'Branch')
+      .replace(/\(.*\)/, '')
+      .trim() || 'Headquarters';
+
     return `
       <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 sm:p-4.5 shadow-xs transition-all duration-150 hover:border-[#D8CFC7] hover:shadow-sm flex flex-col justify-between ${isNew ? 'animate-card-fade-in' : ''}">
-        <!-- Row 1: ID + Reference Code + Status Pill -->
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center space-x-2">
-            <button type="button" onclick="app.openBookingDetailsPage('${req.id}')" class="font-mono font-bold text-xs text-[#991B1B] hover:underline cursor-pointer" title="Open Booking Details">
-              ${req.id}
-            </button>
-            <span class="text-stone-300 font-light">•</span>
-            <button type="button" onclick="app.copyReferenceCode('${req.referenceCode}')" title="Click to copy security code" class="font-mono text-xs font-normal text-stone-500 hover:text-stone-800 flex items-center space-x-1 cursor-pointer">
-              <span>${req.referenceCode}</span>
-              <span class="iconify text-xs text-stone-400 hover:text-stone-600" data-icon="lucide:copy" data-stroke-width="2"></span>
-            </button>
-          </div>
-          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass}">
-            <span class="iconify text-xs" data-icon="${statusIcon}" data-stroke-width="2"></span>
-            <span>${statusLabel}</span>
-          </div>
-        </div>
-
-        <!-- Row 2: Room Thumbnail + Meeting Specs + Services Tag -->
-        <div class="flex items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-3.5">
-          <div class="flex items-center gap-3 sm:gap-3.5 min-w-0">
-            <img src="${roomImgUrl}" class="rounded-xl object-cover border border-[#E9E3DD] shrink-0 w-[116px] sm:w-[124px] h-[74px] sm:h-[78px] shadow-2xs" alt="Room" />
-            <div class="min-w-0">
-              <h4 class="font-heading font-semibold text-sm text-stone-900 leading-snug truncate" title="${req.meetingTitle || ''}">${req.meetingTitle || 'Meeting'}</h4>
-              <div class="flex items-center space-x-1.5 text-xs text-stone-500 mt-1 font-normal">
-                <span class="iconify text-stone-400 text-xs shrink-0" data-icon="lucide:map-pin" data-stroke-width="2"></span>
-                <span>${floorShort}</span>
-              </div>
-              <div class="flex items-center flex-wrap sm:flex-nowrap gap-x-2 gap-y-0.5 text-xs font-mono font-medium text-stone-600 mt-1.5">
-                <span class="inline-flex items-center space-x-1 text-stone-600 shrink-0">
-                  <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:calendar" data-stroke-width="2"></span>
-                  <span>${req.date}</span>
-                </span>
-                <span class="text-stone-300 font-light hidden sm:inline">•</span>
-                <span class="inline-flex items-center space-x-1 font-semibold text-stone-800 shrink-0">
-                  <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:clock" data-stroke-width="2"></span>
-                  <span>${req.startTime} – ${req.endTime}</span>
-                </span>
-                ${hasMultiSessions ? `<span class="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-800 font-bold text-xs border border-emerald-200 shrink-0">+${req.sessions.length - 1}</span>` : ''}
-              </div>
+        <div class="flex-1 min-w-0 flex flex-col justify-start">
+          <!-- Row 1: ID + Reference Code + Status Pill -->
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-2">
+              <button type="button" onclick="app.openBookingDetailsPage('${req.id}')" class="font-mono font-bold text-xs text-[#991B1B] hover:underline cursor-pointer" title="Open Booking Details">
+                ${req.id}
+              </button>
+              <span class="text-stone-300 font-light">•</span>
+              <button type="button" onclick="app.copyReferenceCode('${req.referenceCode}')" title="Click to copy security code" class="font-mono text-xs font-normal text-stone-500 hover:text-stone-800 flex items-center space-x-1 cursor-pointer">
+                <span>${req.referenceCode}</span>
+                <span class="iconify text-xs text-stone-400 hover:text-stone-600" data-icon="lucide:copy" data-stroke-width="2"></span>
+              </button>
+            </div>
+            <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass}">
+              <span class="iconify text-xs" data-icon="${statusIcon}" data-stroke-width="2"></span>
+              <span>${statusLabel}</span>
             </div>
           </div>
 
-          <!-- Services Tag (Right Side) -->
-          <div class="shrink-0 flex items-center space-x-2 text-xs font-medium">
-            ${req.needsCatering ? `
-              <span class="flex items-center space-x-1 text-[#D97706]" title="Catering / Food">
-                <span class="iconify text-sm text-[#D97706]" data-icon="lucide:utensils" data-stroke-width="2"></span>
-                <span>Food</span>
-              </span>
-            ` : ''}
-            ${req.needsIT ? `
-              <span class="flex items-center space-x-1 text-[#991B1B]" title="IT Setup">
-                <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:headset" data-stroke-width="2"></span>
-                <span>IT</span>
-              </span>
-            ` : ''}
+          <!-- Row 2: Room Thumbnail + Meeting Specs + Services Tag -->
+          <div class="flex items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-3.5">
+            <div class="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1">
+              <img src="${roomImgUrl}" class="rounded-xl object-cover border border-[#E9E3DD] shrink-0 w-[116px] sm:w-[124px] h-[78px] sm:h-[82px] shadow-2xs" alt="${roomName}" />
+              <div class="min-w-0 flex-1">
+                <!-- Line 1: Meeting Title -->
+                <h4 class="font-heading font-semibold text-sm text-stone-900 leading-snug truncate" title="${req.meetingTitle || 'Meeting'}">${req.meetingTitle || 'Meeting'}</h4>
+                
+                <!-- Line 2: Venue Hierarchy (Room Name • Floor • Location) -->
+                <div class="flex items-center gap-1.5 text-xs text-stone-600 mt-1 font-normal truncate">
+                  <span class="iconify text-stone-400 text-xs shrink-0" data-icon="lucide:map-pin" data-stroke-width="2"></span>
+                  <span class="font-medium text-stone-900 truncate" title="${rawRoomName}">${roomName}</span>
+                  <span class="text-stone-300 font-light shrink-0">•</span>
+                  <span class="shrink-0 text-stone-600">${floorShort}</span>
+                  <span class="text-stone-300 font-light shrink-0">•</span>
+                  <span class="text-stone-500 truncate" title="${rawLocation}">${locationName}</span>
+                </div>
+
+                <!-- Line 3: Schedule (Date • Time) -->
+                <div class="flex items-center flex-wrap sm:flex-nowrap gap-x-2 gap-y-0.5 text-xs font-mono font-medium text-stone-600 mt-1.5">
+                  <span class="inline-flex items-center space-x-1 text-stone-600 shrink-0">
+                    <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:calendar" data-stroke-width="2"></span>
+                    <span>${req.date}</span>
+                  </span>
+                  <span class="text-stone-300 font-light hidden sm:inline">•</span>
+                  <span class="inline-flex items-center space-x-1 font-semibold text-stone-800 shrink-0">
+                    <span class="iconify text-xs text-[#991B1B]" data-icon="lucide:clock" data-stroke-width="2"></span>
+                    <span>${req.startTime} – ${req.endTime}</span>
+                  </span>
+                  ${hasMultiSessions ? `<span class="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-800 font-bold text-xs border border-emerald-200 shrink-0">+${req.sessions.length - 1}</span>` : ''}
+                </div>
+              </div>
+            </div>
+
+            <!-- Services Tag (Right Side) -->
+            <div class="shrink-0 flex items-center space-x-2 text-xs font-medium">
+              ${req.needsCatering ? `
+                <span class="flex items-center space-x-1 text-[#D97706]" title="Catering / Food">
+                  <span class="iconify text-sm text-[#D97706]" data-icon="lucide:utensils" data-stroke-width="2"></span>
+                  <span>Food</span>
+                </span>
+              ` : ''}
+              ${req.needsIT ? `
+                <span class="flex items-center space-x-1 text-[#991B1B]" title="IT Setup">
+                  <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:headset" data-stroke-width="2"></span>
+                  <span>IT</span>
+                </span>
+              ` : ''}
+            </div>
           </div>
         </div>
 
         <!-- Stepper: Visual Approval Progress -->
         ${this._renderBookingStepper(req)}
 
-        <!-- Row 3: Door access status with progressive disclosure -->
-        ${isConfirmed && !isCancelled ? `
-          <div class="mt-3 mb-1 p-2 sm:p-2.5 ${doorAccess.isExpired ? 'bg-stone-50 border-stone-200' : 'bg-emerald-50/70 border-emerald-200'} rounded-xl text-xs flex items-center justify-between gap-3">
-            <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
-              <span class="w-7 h-7 rounded-lg ${doorAccess.isExpired ? 'bg-stone-100 text-stone-500' : 'bg-emerald-100 text-emerald-800'} flex items-center justify-center shrink-0">
-                <span class="iconify text-sm" data-icon="lucide:${doorAccess.isExpired ? 'key-round' : 'key-round'}" data-stroke-width="1.8"></span>
-              </span>
-              <div class="min-w-0">
-                <span class="text-xs font-bold text-stone-800 block leading-tight">${doorAccess.isExpired ? 'Door access expired' : 'Door access ready'}</span>
-                <p class="text-[11px] text-stone-600 truncate">${doorAccess.isExpired ? 'This booking has ended.' : 'Passcode available when you need it.'}</p>
-              </div>
-            </div>
-            ${doorAccess.isExpired ? '' : `
-              <button type="button" onclick="app.openDoorPasscodeModal('${req.id}')" class="btn-secondary min-h-[36px] px-3 sm:px-3.5 rounded-lg text-xs font-semibold shrink-0 flex items-center gap-1.5 cursor-pointer transition active:scale-[0.98]">
-                <span class="iconify text-sm" data-icon="lucide:eye" data-stroke-width="1.8"></span>
-                <span>View Passcode</span>
-              </button>
-            `}
-          </div>
-        ` : ''}
-
-        <!-- Row 4: Action Buttons -->
-        <div class="mt-3.5 flex items-center gap-2 sm:gap-2.5">
-          <button type="button" onclick="app.openBookingDetailsPage('${req.id}')" class="flex-1 btn-secondary min-h-[36px] h-[36px] px-3.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
-            <span class="iconify text-xs text-stone-600" data-icon="lucide:eye" data-stroke-width="2"></span>
-            <span>View Details</span>
+        <!-- Row 3: Action Buttons (Senior Design Polish: Strict h-9 & 1px border alignment) -->
+        <div class="mt-3.5 flex items-center gap-2">
+          <button type="button" onclick="app.openBookingDetailsPage('${req.id}')" class="flex-1 btn-secondary h-9 px-3.5 rounded-xl border border-[#E9E3DD] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none">
+            <span class="iconify text-sm text-stone-500 shrink-0" data-icon="lucide:eye" data-stroke-width="2"></span>
+            <span class="leading-none text-stone-800">View Details</span>
           </button>
 
           ${isConfirmed ? `
-            <button type="button" onclick="app.downloadCalendarInvite('${req.id}')" title="Save to Calendar (.ics)" aria-label="Save to Calendar (.ics)" class="btn-secondary w-9 h-9 shrink-0 rounded-xl flex items-center justify-center text-stone-600 hover:text-stone-800 transition cursor-pointer active:scale-[0.98]">
-              <span class="iconify text-sm" data-icon="lucide:calendar-plus" data-stroke-width="2"></span>
+            <button type="button" onclick="app.openDoorPasscodeModal('${req.id}')" title="Door Access Passcode" aria-label="Door Access Passcode" class="btn-secondary w-9 h-9 shrink-0 rounded-xl border border-[#E9E3DD] inline-flex items-center justify-center text-stone-600 hover:text-[#991B1B] hover:border-[#991B1B]/40 transition cursor-pointer active:scale-[0.98] select-none">
+              <span class="iconify text-sm shrink-0" data-icon="lucide:key-round" data-stroke-width="2"></span>
             </button>
-            <button type="button" onclick="app.openReceiptPage('${req.id}', 'my-bookings')" class="btn-primary min-h-[36px] h-[36px] px-4 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition cursor-pointer active:scale-[0.98]">
-              <span class="iconify text-xs text-white" data-icon="lucide:receipt" data-stroke-width="2"></span>
-              <span class="text-white">Receipt</span>
+            <button type="button" onclick="app.openReceiptPage('${req.id}', 'my-bookings')" class="btn-primary h-9 px-3.5 shrink-0 rounded-xl border border-[#991B1B] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none shadow-xs">
+              <span class="iconify text-sm text-white shrink-0" data-icon="lucide:file-text" data-stroke-width="2"></span>
+              <span class="text-white leading-none">Receipt</span>
             </button>
           ` : ''}
 
           ${!isCancelled && !isRejected ? `
-            <button type="button" onclick="app.openMyBookingsCancelModal('${req.id}')" title="Cancel Booking" aria-label="Cancel Booking" class="w-9 h-9 shrink-0 rounded-xl bg-white hover:bg-rose-50 text-[#991B1B] border border-rose-200 transition flex items-center justify-center cursor-pointer active:scale-[0.98]">
-              <span class="iconify text-sm text-[#991B1B]" data-icon="lucide:x" data-stroke-width="2"></span>
+            <button type="button" onclick="app.openMyBookingsCancelModal('${req.id}')" title="Cancel Booking" aria-label="Cancel Booking" class="w-9 h-9 shrink-0 rounded-xl bg-white hover:bg-rose-50 text-[#991B1B] border border-rose-200 hover:border-rose-300 transition inline-flex items-center justify-center cursor-pointer active:scale-[0.98] select-none">
+              <span class="iconify text-sm text-[#991B1B] shrink-0" data-icon="lucide:x" data-stroke-width="2"></span>
             </button>
           ` : ''}
         </div>

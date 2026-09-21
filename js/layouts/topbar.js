@@ -19,6 +19,8 @@ window.NBC.layouts.topbar = {
           onclick="app.toggleSidebar()"
           class="sidebar-toggle p-1.5 rounded-md bg-[#1F0505] hover:bg-[#3D0C0C] text-stone-200 border border-[#3D0C0C] hidden lg:flex items-center justify-center transition shadow-2xs shrink-0 cursor-pointer"
           aria-label="Toggle Sidebar"
+          aria-expanded="${localStorage.getItem('nbc-sidebar-collapsed-v2') === 'true' ? 'false' : 'true'}"
+          aria-controls="app-sidebar"
           title="Toggle sidebar"
         >
           <span

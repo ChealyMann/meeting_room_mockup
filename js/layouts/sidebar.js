@@ -17,228 +17,112 @@ window.NBC.layouts.sidebar = {
     if (!container) return;
 
     container.className =
-      'fixed top-0 left-0 z-50 h-screen w-72 max-w-[85vw] bg-[#2A0808] border-r border-[#450A0A] flex flex-col justify-between overflow-y-auto -translate-x-full lg:translate-x-0 lg:static lg:w-64 lg:h-screen lg:sticky lg:top-0 shrink-0 select-none shadow-2xl lg:shadow-none';
+      'fixed top-0 left-0 z-50 h-screen w-72 max-w-[85vw] bg-[#260707] border-r border-[#450A0A] flex flex-col overflow-hidden -translate-x-full lg:translate-x-0 lg:static lg:w-64 lg:h-screen lg:sticky lg:top-0 shrink-0 select-none shadow-2xl lg:shadow-none';
 
     container.setAttribute('tabindex', '-1');
     container.setAttribute('aria-labelledby', 'drawer-sidebar-label');
 
-    if (localStorage.getItem('nbc-sidebar-collapsed') === 'true') {
+    if (localStorage.getItem('nbc-sidebar-collapsed-v2') === 'true') {
       container.classList.add('sidebar-collapsed');
     }
 
     container.innerHTML = `
-      <div>
-        <div class="h-16 flex items-center justify-between px-4 border-b border-[#3D0C0C]">
-          <div
-            class="flex items-center space-x-3 cursor-pointer"
+      <div class="sidebar-shell">
+        <header class="sidebar-header">
+          <button
+            type="button"
+            class="sidebar-brand"
             onclick="app.navigateTo('book-room')"
+            aria-label="Open Find a Room"
           >
-            <div class="w-10 h-10 flex items-center justify-center shrink-0">
-              <img
-                src="assets/nbc-logo.png"
-                alt="National Bank of Cambodia"
-                class="w-full h-full object-contain drop-shadow-sm"
-              />
-            </div>
+            <span class="sidebar-brand-mark">
+              <img src="assets/nbc-logo.png" alt="National Bank of Cambodia" />
+            </span>
+            <span class="sidebar-brand-copy">
+              <span id="drawer-sidebar-label" class="sidebar-brand-name">NBC Bank MRMS</span>
+              <span class="sidebar-brand-office">National Bank of Cambodia</span>
+            </span>
+          </button>
 
-            <div class="min-w-0">
-              <span id="drawer-sidebar-label" class="font-heading font-bold text-sm text-white tracking-tight truncate block">
-                NBC Bank MRMS
-              </span>
-
-              <p class="text-[10px] text-stone-300 truncate">
-                National Bank of Cambodia
-              </p>
-            </div>
-          </div>
-
-          <!-- Mobile Close (Flowbite Offcanvas Dismiss) -->
           <button
             type="button"
             data-drawer-hide="app-sidebar"
             aria-controls="app-sidebar"
             onclick="app.toggleMobileSidebar(false)"
-            class="lg:hidden p-1.5 rounded-md text-stone-400 hover:text-white hover:bg-[#3D0C0C] hover:transition-colors cursor-pointer"
-            aria-label="Close Navigation Menu"
+            class="sidebar-control sidebar-mobile-close lg:hidden"
+            aria-label="Close navigation menu"
           >
-            <span class="iconify text-base" data-icon="lucide:x"></span>
+            <span class="iconify" data-icon="lucide:x" data-stroke-width="2"></span>
           </button>
 
-          <!-- Desktop Collapse -->
           <button
+            type="button"
             onclick="app.toggleSidebar()"
-            class="hidden lg:flex p-1.5 rounded-md text-stone-400 hover:text-white hover:bg-[#3D0C0C] hover:transition-colors cursor-pointer"
-            aria-label="Collapse Sidebar"
+            class="sidebar-control sidebar-desktop-collapse hidden lg:flex"
+            aria-label="Collapse sidebar"
+            aria-expanded="true"
+            aria-controls="app-sidebar"
             title="Collapse sidebar"
           >
-            <span
-              class="iconify text-base"
-              data-icon="lucide:panel-left-close"
-            ></span>
+            <span class="iconify" data-icon="lucide:panel-left-close" data-stroke-width="2"></span>
           </button>
-        </div>
+        </header>
 
-        <nav class="p-3 space-y-5 text-xs">
-          <div class="space-y-1">
-            <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-amber-400/80">
-              Booker
-            </p>
-
-            <button
-              id="nav-book-room"
-              onclick="app.navigateTo('book-room')"
-              class="nav-item active w-full flex items-center justify-between px-3 py-2 rounded-md text-left"
-            >
-              <div class="flex items-center space-x-2.5">
-                <span class="iconify text-sm" data-icon="lucide:door-open"></span>
-                <span>Find a Room</span>
-              </div>
+        <nav class="sidebar-nav no-scrollbar" aria-label="Primary navigation">
+          <section class="sidebar-nav-group" aria-labelledby="sidebar-group-booker">
+            <h2 id="sidebar-group-booker" class="sidebar-nav-label">Booker</h2>
+            <button id="nav-book-room" type="button" onclick="app.navigateTo('book-room')" class="nav-item active" aria-current="page">
+              <span class="nav-item-main"><span class="iconify" data-icon="lucide:door-open" data-stroke-width="2"></span><span>Find a Room</span></span>
             </button>
-
-            <button
-              id="nav-my-bookings"
-              onclick="app.navigateTo('my-bookings')"
-              class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-left"
-            >
-              <div class="flex items-center space-x-2.5">
-                <span class="iconify text-sm" data-icon="lucide:calendar-check-2"></span>
-                <span>My Bookings</span>
-              </div>
-
-              <span
-                id="badge-my-bookings"
-                class="px-1.5 py-0.5 rounded text-[10px] bg-[#3D0C0C] text-amber-300 border border-[#5C1313] font-bold"
-              >
-                1
-              </span>
+            <button id="nav-my-bookings" type="button" onclick="app.navigateTo('my-bookings')" class="nav-item">
+              <span class="nav-item-main"><span class="iconify" data-icon="lucide:calendar-check-2" data-stroke-width="2"></span><span>My Bookings</span></span>
+              <span id="nav-count-my-bookings" class="nav-count" aria-label="0 bookings">0</span>
             </button>
-          </div>
+          </section>
 
-          <div class="space-y-1">
-            <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-amber-400/80">
-              Manager
-            </p>
-
-            <button
-              id="nav-pitika-queue"
-              onclick="app.navigateTo('pitika-queue')"
-              class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-left"
-            >
-              <div class="flex items-center space-x-2.5">
-                <span class="iconify text-sm" data-icon="lucide:clipboard-check"></span>
-                <span>Review Requests</span>
-              </div>
-
-              <span
-                id="badge-pitika-pending"
-                class="px-1.5 py-0.5 rounded text-[10px] bg-amber-950 text-amber-300 border border-amber-600 font-bold"
-              >
-                1
-              </span>
+          <section class="sidebar-nav-group" aria-labelledby="sidebar-group-manager">
+            <h2 id="sidebar-group-manager" class="sidebar-nav-label">Manager</h2>
+            <button id="nav-pitika-queue" type="button" onclick="app.navigateTo('pitika-queue')" class="nav-item">
+              <span class="nav-item-main"><span class="iconify" data-icon="lucide:clipboard-check" data-stroke-width="2"></span><span>Review Requests</span></span>
+              <span id="nav-count-pitika-pending" class="nav-count nav-count-attention" aria-label="0 requests">0</span>
             </button>
-
-            <button
-              id="nav-room-availability"
-              onclick="app.navigateTo('room-availability')"
-              class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-left cursor-pointer"
-            >
-              <div class="flex items-center space-x-2.5">
-                <span class="iconify text-sm" data-icon="lucide:calendar-range"></span>
-                <span>Room Availability</span>
-              </div>
+            <button id="nav-room-availability" type="button" onclick="app.navigateTo('room-availability')" class="nav-item">
+              <span class="nav-item-main"><span class="iconify" data-icon="lucide:calendar-range" data-stroke-width="2"></span><span>Room Availability</span></span>
             </button>
-          </div>
+          </section>
 
-          <div class="space-y-1">
-            <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-amber-400/80">
-              Room Owner
-            </p>
-
-            <button
-              id="nav-room-owner-queue"
-              onclick="app.navigateTo('room-owner-queue')"
-              class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-left"
-            >
-              <div class="flex items-center space-x-2.5">
-                <span class="iconify text-sm" data-icon="lucide:shield-check"></span>
-                <span>Private Requests</span>
-              </div>
-
-              <span
-                id="badge-room-owner-pending"
-                class="px-1.5 py-0.5 rounded text-[10px] bg-amber-950 text-amber-300 border border-amber-600 font-bold"
-              >
-                1
-              </span>
+          <section class="sidebar-nav-group" aria-labelledby="sidebar-group-owner">
+            <h2 id="sidebar-group-owner" class="sidebar-nav-label">Room Owner</h2>
+            <button id="nav-room-owner-queue" type="button" onclick="app.navigateTo('room-owner-queue')" class="nav-item">
+              <span class="nav-item-main"><span class="iconify" data-icon="lucide:shield-check" data-stroke-width="2"></span><span>Private Requests</span></span>
+              <span id="nav-count-room-owner-pending" class="nav-count nav-count-attention" aria-label="0 requests">0</span>
             </button>
-          </div>
+          </section>
 
-          <div class="space-y-1">
-            <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-amber-400/80">
-              IT Support
-            </p>
-
-            <button
-              id="nav-it-queue"
-              onclick="app.navigateTo('it-queue')"
-              class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-left"
-            >
-              <div class="flex items-center space-x-2.5">
-                <span class="iconify text-sm" data-icon="lucide:headset"></span>
-                <span>IT Support Queue</span>
-              </div>
-
-              <span
-                id="badge-it-pending"
-                class="hidden px-1.5 py-0.5 rounded text-[10px] bg-red-950 text-amber-200 border border-amber-600 font-bold"
-              >
-                0
-              </span>
+          <section class="sidebar-nav-group" aria-labelledby="sidebar-group-it">
+            <h2 id="sidebar-group-it" class="sidebar-nav-label">IT Support</h2>
+            <button id="nav-it-queue" type="button" onclick="app.navigateTo('it-queue')" class="nav-item">
+              <span class="nav-item-main"><span class="iconify" data-icon="lucide:headset" data-stroke-width="2"></span><span>IT Support Queue</span></span>
+              <span id="nav-count-it-pending" class="nav-count nav-count-attention hidden" aria-label="0 tickets">0</span>
             </button>
-          </div>
+          </section>
 
-          <div class="space-y-1">
-            <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-amber-400/80">
-              Admin
-            </p>
-
-            <button
-              id="nav-create-room"
-              onclick="app.navigateTo('create-room')"
-              class="nav-item w-full flex items-center justify-between px-3 py-2 rounded-md text-left"
-            >
-              <div class="flex items-center space-x-2.5">
-                <span class="iconify text-sm text-white" data-icon="lucide:plus-circle"></span>
-                <span>Add Room</span>
-              </div>
-
-              <span
-                class="px-1.5 py-0.5 rounded text-[9px] bg-amber-950/80 text-amber-300 border border-amber-700/60 font-semibold"
-              >
-                Admin
-              </span>
+          <section class="sidebar-nav-group" aria-labelledby="sidebar-group-admin">
+            <h2 id="sidebar-group-admin" class="sidebar-nav-label">Admin</h2>
+            <button id="nav-create-room" type="button" onclick="app.navigateTo('create-room')" class="nav-item">
+              <span class="nav-item-main"><span class="iconify" data-icon="lucide:circle-plus" data-stroke-width="2"></span><span>Add Room</span></span>
             </button>
-          </div>
+          </section>
         </nav>
       </div>
 
-      <div class="p-3 border-t border-[#3D0C0C] space-y-2 text-xs">
-        <div class="p-2 rounded-md bg-[#1F0505] border border-[#3D0C0C] flex items-center justify-between">
-          <div class="flex items-center space-x-2">
-            <div class="w-2 h-2 rounded-full bg-amber-400"></div>
-            <span class="text-[11px] text-stone-300 font-medium">
-              NBC Official Portal
-            </span>
-          </div>
-
-          <button
-            onclick="app.confirmResetDemo()"
-            class="text-[10px] text-amber-300 hover:text-white font-semibold underline cursor-pointer"
-          >
-            Reset Data
-          </button>
+      <footer class="sidebar-footer">
+        <div class="sidebar-portal-row">
+          <span class="sidebar-portal-status" aria-hidden="true"></span>
+          <span class="sidebar-portal-label">NBC Official Portal</span>
+          <button type="button" onclick="app.confirmResetDemo()" class="sidebar-reset-button">Reset data</button>
         </div>
-      </div>
+      </footer>
     `;
 
     this.updateBadges();
@@ -294,31 +178,34 @@ window.NBC.layouts.sidebar = {
   updateBadges() {
     if (typeof bookingStore === 'undefined') return;
 
-    const myBookingsBadge = document.getElementById('badge-my-bookings');
+    const myBookingsCountEl = document.getElementById('nav-count-my-bookings');
     const myBookingsCount = bookingStore.getRequests().length;
 
-    if (myBookingsBadge) {
-      myBookingsBadge.innerText = myBookingsCount;
-      myBookingsBadge.classList.toggle('hidden', myBookingsCount === 0);
+    if (myBookingsCountEl) {
+      myBookingsCountEl.innerText = myBookingsCount;
+      myBookingsCountEl.setAttribute('aria-label', `${myBookingsCount} bookings`);
+      myBookingsCountEl.classList.toggle('hidden', myBookingsCount === 0);
     }
 
-    const pitikaBadge = document.getElementById('badge-pitika-pending');
+    const pitikaCountEl = document.getElementById('nav-count-pitika-pending');
     const pendingPitika = bookingStore.getPendingPitikaRequests().length;
 
-    if (pitikaBadge) {
-      pitikaBadge.innerText = pendingPitika;
-      pitikaBadge.classList.toggle('hidden', pendingPitika === 0);
+    if (pitikaCountEl) {
+      pitikaCountEl.innerText = pendingPitika;
+      pitikaCountEl.setAttribute('aria-label', `${pendingPitika} requests`);
+      pitikaCountEl.classList.toggle('hidden', pendingPitika === 0);
     }
 
-    const ownerBadge = document.getElementById('badge-room-owner-pending');
+    const ownerCountEl = document.getElementById('nav-count-room-owner-pending');
     const pendingOwner = bookingStore.getPendingRoomOwnerRequests().length;
 
-    if (ownerBadge) {
-      ownerBadge.innerText = pendingOwner;
-      ownerBadge.classList.toggle('hidden', pendingOwner === 0);
+    if (ownerCountEl) {
+      ownerCountEl.innerText = pendingOwner;
+      ownerCountEl.setAttribute('aria-label', `${pendingOwner} requests`);
+      ownerCountEl.classList.toggle('hidden', pendingOwner === 0);
     }
 
-    const itBadge = document.getElementById('badge-it-pending');
+    const itCountEl = document.getElementById('nav-count-it-pending');
     const itTickets = bookingStore
       .getRequests()
       .filter(
@@ -327,9 +214,10 @@ window.NBC.layouts.sidebar = {
           (!request.itDetails || !request.itDetails.isReady)
       );
 
-    if (itBadge) {
-      itBadge.innerText = itTickets.length;
-      itBadge.classList.toggle('hidden', itTickets.length === 0);
+    if (itCountEl) {
+      itCountEl.innerText = itTickets.length;
+      itCountEl.setAttribute('aria-label', `${itTickets.length} tickets`);
+      itCountEl.classList.toggle('hidden', itTickets.length === 0);
     }
   },
 
@@ -365,7 +253,13 @@ window.NBC.layouts.sidebar = {
       const button = document.getElementById(navId);
 
       if (button) {
-        button.classList.toggle('active', navItems[viewId] === navId);
+        const isActive = navItems[viewId] === navId;
+        button.classList.toggle('active', isActive);
+        if (isActive) {
+          button.setAttribute('aria-current', 'page');
+        } else {
+          button.removeAttribute('aria-current');
+        }
       }
     });
   },

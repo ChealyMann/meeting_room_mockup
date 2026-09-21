@@ -26,28 +26,22 @@ window.NBC.layouts.mobileNav = {
         <button
           id="mobile-nav-my-bookings"
           onclick="app.navigateTo('my-bookings')"
-          class="relative flex flex-col items-center justify-center flex-1 py-1 text-stone-400 hover:text-white transition cursor-pointer"
+          aria-label="Open my bookings"
+          class="flex flex-col items-center justify-center flex-1 py-1 text-stone-400 hover:text-white transition cursor-pointer"
         >
           <span class="iconify text-lg mb-0.5" data-icon="lucide:calendar-check-2" data-stroke-width="2"></span>
           <span class="text-[10px] font-medium font-heading">Bookings</span>
-          <span
-            id="mobile-badge-my-bookings"
-            class="hidden absolute top-1 right-3 px-1 py-0.2 rounded-full text-[9px] bg-red-900 text-amber-300 font-bold border border-red-700"
-          >0</span>
         </button>
 
         <!-- Review Requests Button with Badge -->
         <button
           id="mobile-nav-pitika-queue"
           onclick="app.navigateTo('pitika-queue')"
-          class="relative flex flex-col items-center justify-center flex-1 py-1 text-stone-400 hover:text-white transition cursor-pointer"
+          aria-label="Open review requests"
+          class="flex flex-col items-center justify-center flex-1 py-1 text-stone-400 hover:text-white transition cursor-pointer"
         >
           <span class="iconify text-lg mb-0.5" data-icon="lucide:clipboard-check" data-stroke-width="2"></span>
           <span class="text-[10px] font-medium font-heading">Reviews</span>
-          <span
-            id="mobile-badge-pitika"
-            class="hidden absolute top-1 right-3 px-1 py-0.2 rounded-full text-[9px] bg-amber-950 text-amber-300 font-bold border border-amber-600"
-          >0</span>
         </button>
 
         <!-- More Menu / Drawer Toggle -->
@@ -90,18 +84,16 @@ window.NBC.layouts.mobileNav = {
 
   updateBadges() {
     if (typeof bookingStore === 'undefined') return;
-    const myBookingsBadge = document.getElementById('mobile-badge-my-bookings');
-    const pitikaBadge = document.getElementById('mobile-badge-pitika');
+    const myBookingsButton = document.getElementById('mobile-nav-my-bookings');
+    const pitikaButton = document.getElementById('mobile-nav-pitika-queue');
 
     const bookings = bookingStore.getRequests ? bookingStore.getRequests() : [];
-    if (myBookingsBadge) {
-      myBookingsBadge.innerText = bookings.length;
-      myBookingsBadge.classList.toggle('hidden', bookings.length === 0);
+    if (myBookingsButton) {
+      myBookingsButton.setAttribute('aria-label', `Open my bookings, ${bookings.length} total`);
     }
-    if (pitikaBadge) {
+    if (pitikaButton) {
       const pendingCount = bookings.filter(r => r.status === 'Pending Review' || r.status === 'Pending Manager Review').length;
-      pitikaBadge.innerText = pendingCount;
-      pitikaBadge.classList.toggle('hidden', pendingCount === 0);
+      pitikaButton.setAttribute('aria-label', `Open review requests, ${pendingCount} pending`);
     }
   }
 };
