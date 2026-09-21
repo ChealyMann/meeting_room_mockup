@@ -491,20 +491,23 @@ class RoomAvailabilityView {
       tbody.innerHTML = `
         <tr>
           <td colspan="4" class="py-12 px-4 text-center">
-            <div class="w-12 h-12 rounded-full bg-stone-100 text-stone-500 mx-auto flex items-center justify-center mb-2">
-              <span class="iconify text-xl text-stone-400" data-icon="lucide:door-closed" data-stroke-width="1.8"></span>
+            <div class="w-14 h-14 rounded-2xl bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center mx-auto shadow-2xs mb-3.5">
+              <span class="iconify text-2xl text-[#991B1B]" data-icon="lucide:door-closed" data-stroke-width="1.8"></span>
             </div>
-            <h4 class="text-sm font-heading font-bold text-stone-900">No Rooms Found</h4>
-            <p class="text-xs text-stone-500 max-w-md mx-auto leading-relaxed mt-1">No meeting rooms match your active filters or selected date.</p>
+            <h3 class="font-heading font-bold text-base sm:text-lg text-[#3E2B1E] tracking-tight">No Rooms Found</h3>
+            <p class="text-xs sm:text-sm text-[#6F5849] max-w-md mx-auto leading-relaxed mt-1">No meeting rooms match your active filters or selected date.</p>
             <div class="flex items-center justify-center gap-2 pt-3">
-              <button type="button" onclick="app.resetAvailabilityFilters()" class="btn-secondary min-h-[34px] h-[34px] px-3.5 py-1.5 rounded-lg font-semibold text-xs transition-all shadow-2xs active:scale-[0.98] cursor-pointer flex items-center space-x-1.5">
-                <span class="iconify text-xs text-[#78716C]" data-icon="lucide:rotate-ccw" data-stroke-width="1.8"></span>
+              <button type="button" onclick="app.resetAvailabilityFilters()" class="btn-secondary h-9 px-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-[#E9E3DD] bg-white hover:bg-[#FAF7F4] text-[#3E2B1E] transition cursor-pointer shadow-2xs active:scale-[0.98]">
+                <span class="iconify text-xs text-[#7D6857]" data-icon="lucide:rotate-ccw" data-stroke-width="2"></span>
                 <span>Reset Filters</span>
               </button>
             </div>
           </td>
         </tr>
       `;
+      if (window.Iconify && typeof window.Iconify.scan === 'function') {
+        window.Iconify.scan(tbody);
+      }
       return;
     }
 

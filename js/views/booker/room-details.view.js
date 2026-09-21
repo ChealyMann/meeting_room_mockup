@@ -423,7 +423,27 @@ class RoomDetailsView {
     const room = (typeof bookingStore !== 'undefined') 
       ? (bookingStore.getRoomById(roomId) || bookingStore.getRooms()[0])
       : null;
-    if (!room) return;
+    if (!room) {
+      container.innerHTML = `
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-10 sm:p-14 text-center flex flex-col items-center justify-center shadow-2xs space-y-3.5 my-4 animate-empty-state">
+          <div class="w-14 h-14 rounded-2xl bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center mx-auto shadow-2xs">
+            <span class="iconify text-2xl text-[#991B1B]" data-icon="lucide:door-closed" data-stroke-width="1.8"></span>
+          </div>
+          <h3 class="font-heading font-bold text-base sm:text-lg text-[#3E2B1E] tracking-tight">Meeting Room Not Found</h3>
+          <p class="text-xs sm:text-sm text-[#6F5849] max-w-md mx-auto leading-relaxed">The requested room details could not be located or may have been removed.</p>
+          <div class="pt-2">
+            <button onclick="app.navigateTo('catalog')" class="btn-primary h-9 px-4 rounded-xl text-xs font-bold text-white bg-[#991B1B] hover:bg-[#7F1D1D] flex items-center gap-1.5 mx-auto transition cursor-pointer shadow-xs">
+              <span class="iconify text-sm text-white" data-icon="lucide:arrow-left" data-stroke-width="1.8"></span>
+              <span>Back to Directory</span>
+            </button>
+          </div>
+        </div>
+      `;
+      if (window.Iconify && window.Iconify.scan) {
+        window.Iconify.scan(container);
+      }
+      return;
+    }
 
     this.currentModalRoom = room;
     this.days = this.generateDays();

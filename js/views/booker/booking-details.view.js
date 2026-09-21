@@ -57,15 +57,23 @@
      const req = bookingStore.getRequestById(requestId);
      if (!req) {
        container.innerHTML = `
-         <div class="py-12 px-4 text-center bg-white rounded-2xl border border-[#E9E3DD] shadow-xs">
-           <span class="iconify text-2xl text-stone-400" data-icon="lucide:calendar-x-2" data-stroke-width="1.8"></span>
-           <h2 class="font-heading font-bold text-sm text-stone-900 mt-3">Booking Request Not Found</h2>
-           <button type="button" onclick="app.navigateTo('my-bookings')" class="btn-primary mt-4 min-h-[44px] px-4 rounded-lg text-xs font-bold inline-flex items-center gap-1.5">
-             <span class="iconify text-sm text-white" data-icon="lucide:arrow-left" data-stroke-width="1.8"></span>
+         <div class="bg-white rounded-2xl border border-[#E9E3DD] p-10 sm:p-14 text-center flex flex-col items-center justify-center shadow-2xs space-y-3.5 my-4 animate-empty-state">
+           <div class="w-14 h-14 rounded-2xl bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center mx-auto shadow-2xs">
+             <span class="iconify text-2xl text-[#991B1B]" data-icon="lucide:calendar-x-2" data-stroke-width="1.8"></span>
+           </div>
+           <h3 class="font-heading font-bold text-base sm:text-lg text-[#3E2B1E] tracking-tight">Booking Request Not Found</h3>
+           <p class="text-xs sm:text-sm text-[#6F5849] max-w-md mx-auto leading-relaxed">
+             The requested reservation record does not exist or may have been removed.
+           </p>
+           <button type="button" onclick="app.navigateTo('my-bookings')" class="btn-primary h-9 px-4 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 bg-[#991B1B] hover:bg-[#7F1D1D] transition shadow-xs cursor-pointer active:scale-[0.98]">
+             <span class="iconify text-xs text-white" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
              <span class="text-white">Back to My Bookings</span>
            </button>
          </div>
        `;
+       if (window.Iconify && typeof window.Iconify.scan === 'function') {
+         window.Iconify.scan(container);
+       }
        return;
      }
 

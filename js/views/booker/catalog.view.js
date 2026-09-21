@@ -29,7 +29,7 @@ window.NBC.views['book-room'] = {
     {
       id: 'it',
       title: 'IT Department Building',
-      pillIcon: 'lucide:cpu',
+      pillIcon: 'lucide:server',
       pillLabel: 'IT Dept',
       matches: (room) => {
         const loc = (room.location || '').toLowerCase();
@@ -511,11 +511,16 @@ window.NBC.views['book-room'] = {
             <span class="font-mono text-xs">{{ dateRangeLabel || 'Across NBC locations' }}</span>
           </div>
 
-          <div v-if="matchingRooms.length === 0" class="animate-empty-state py-12 px-6 text-center bg-white rounded-2xl border border-[#E9E3DD] shadow-xs space-y-3.5 max-w-xl mx-auto my-6" role="status">
-            <div class="w-14 h-14 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 mx-auto flex items-center justify-center"><app-icon icon="lucide:search-x" class-name="text-2xl text-amber-700" :stroke-width="1.8" /></div>
-            <h2 class="text-lg font-heading font-bold text-[#3E2B1E]">No matching rooms found</h2>
-            <p class="text-sm text-[#6F5849] max-w-sm mx-auto leading-relaxed">{{ dateRangeError || (hasDateRange ? 'No room is available for every day in the selected range.' : searchQuery.trim() ? 'Try a different search term.' : 'Try a different location or room type.') }}</p>
-            <button @click="resetAllFilters" class="px-4 py-2.5 bg-[#991B1B] hover:bg-[#7F1D1D] text-white font-bold text-sm rounded-xl transition shadow-xs inline-flex items-center gap-2 cursor-pointer" type="button"><app-icon icon="lucide:rotate-ccw" class-name="text-sm text-white" /><span>Reset filters</span></button>
+          <div v-if="matchingRooms.length === 0" class="animate-empty-state py-12 px-6 text-center bg-white rounded-2xl border border-[#E9E3DD] shadow-2xs space-y-3.5 max-w-xl mx-auto my-6" role="status">
+            <div class="w-14 h-14 rounded-2xl bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center mx-auto shadow-2xs">
+              <app-icon icon="lucide:door-closed" class-name="text-2xl text-[#991B1B]" :stroke-width="1.8" />
+            </div>
+            <h3 class="text-base sm:text-lg font-heading font-bold text-[#3E2B1E] tracking-tight">No Matching Rooms Found</h3>
+            <p class="text-xs sm:text-sm text-[#6F5849] max-w-md mx-auto leading-relaxed">{{ dateRangeError || (hasDateRange ? 'No room is available for every day in the selected range.' : searchQuery.trim() ? 'Try a different search term.' : 'Try a different location or room type.') }}</p>
+            <button @click="resetAllFilters" class="btn-secondary h-9 px-4 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-2 border border-[#E9E3DD] bg-white hover:bg-[#FAF7F4] text-[#3E2B1E] transition cursor-pointer shadow-2xs active:scale-[0.98]" type="button">
+              <app-icon icon="lucide:rotate-ccw" class-name="text-xs text-[#7D6857]" />
+              <span>Reset Filters</span>
+            </button>
           </div>
 
           <div v-else :key="currentBuildingFilter + '-' + currentStatusFilter" class="catalog-view-container space-y-9 flex flex-col pt-1">

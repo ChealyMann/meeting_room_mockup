@@ -765,26 +765,29 @@ class MyBookingsView {
       this._disconnectCardsObserver();
       this._currentPaginatedItems = [];
       container.innerHTML = `
-        <div class="py-12 px-4 text-center bg-white rounded-2xl border border-[#E9E3DD] shadow-2xs space-y-3">
-          <div class="w-12 h-12 rounded-full bg-stone-100 text-stone-500 mx-auto flex items-center justify-center">
-            <span class="iconify text-xl text-stone-400" data-icon="lucide:calendar-x-2" data-stroke-width="1.8"></span>
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-10 sm:p-14 text-center flex flex-col items-center justify-center shadow-2xs space-y-3.5 my-4 flex-1 animate-empty-state">
+          <div class="w-14 h-14 rounded-2xl bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center mx-auto shadow-2xs">
+            <span class="iconify text-2xl text-[#991B1B]" data-icon="lucide:calendar-x-2" data-stroke-width="1.8"></span>
           </div>
-          <div class="space-y-1">
-            <h4 class="text-sm font-heading font-bold text-stone-900">No Bookings Found</h4>
-            <p class="text-xs text-stone-500 max-w-md mx-auto leading-relaxed">There are no meeting room reservations matching your active filters.</p>
-          </div>
+          <h3 class="font-heading font-bold text-base sm:text-lg text-[#3E2B1E] tracking-tight">No Bookings Found</h3>
+          <p class="text-xs sm:text-sm text-[#6F5849] max-w-md mx-auto leading-relaxed">
+            There are no meeting room reservations matching your active filters.
+          </p>
           <div class="flex items-center justify-center gap-2 pt-2">
-            <button onclick="app.resetMyBookingsFilters()" class="btn-secondary px-4 py-2 rounded-lg font-semibold text-xs transition-all shadow-2xs active:scale-[0.98] cursor-pointer flex items-center space-x-1.5">
-              <span class="iconify text-xs text-[#78716C]" data-icon="lucide:rotate-ccw" data-stroke-width="1.8"></span>
+            <button onclick="app.resetMyBookingsFilters()" class="btn-secondary h-9 px-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-[#E9E3DD] bg-white hover:bg-[#FAF7F4] text-[#3E2B1E] transition cursor-pointer shadow-2xs active:scale-[0.98]">
+              <span class="iconify text-xs text-[#7D6857]" data-icon="lucide:rotate-ccw" data-stroke-width="2"></span>
               <span>Reset Filters</span>
             </button>
-            <button onclick="app.navigateTo('book-room')" class="btn-primary px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-xs flex items-center space-x-1.5 cursor-pointer active:scale-[0.98]">
+            <button onclick="app.navigateTo('book-room')" class="btn-primary h-9 px-4 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 bg-[#991B1B] hover:bg-[#7F1D1D] transition shadow-xs cursor-pointer active:scale-[0.98]">
               <span class="iconify text-xs text-white" data-icon="lucide:calendar-plus" data-stroke-width="1.8"></span>
               <span class="text-white">+ Find and Book Room</span>
             </button>
           </div>
         </div>
       `;
+      if (window.Iconify && typeof window.Iconify.scan === 'function') {
+        window.Iconify.scan(container);
+      }
       return;
     }
 

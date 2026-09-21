@@ -178,17 +178,23 @@ window.NBC.views['request-other-private'] = {
 
     if (rooms.length === 0) {
       container.innerHTML = `
-        <div class="col-span-full py-12 text-center bg-white rounded-2xl border border-[#E9E3DD] p-6 space-y-3">
-          <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center mx-auto text-xl font-bold">
-            <span class="iconify" data-icon="lucide:search-x"></span>
+        <div class="col-span-full bg-white rounded-2xl border border-[#E9E3DD] p-10 sm:p-14 text-center flex flex-col items-center justify-center shadow-2xs space-y-3.5 my-4 animate-empty-state">
+          <div class="w-14 h-14 rounded-2xl bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center mx-auto shadow-2xs">
+            <span class="iconify text-2xl text-[#991B1B]" data-icon="lucide:door-closed" data-stroke-width="1.8"></span>
           </div>
-          <h4 class="font-heading font-bold text-sm text-stone-900">No Private Rooms Found</h4>
-          <p class="text-xs text-stone-500 max-w-sm mx-auto">No private rooms matched your search or filters.</p>
-          <button onclick="NBC.views['request-other-private'].resetFilters()" class="px-4 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold transition cursor-pointer">
-            Reset Filters
+          <h3 class="font-heading font-bold text-base sm:text-lg text-[#3E2B1E] tracking-tight">No Private Rooms Found</h3>
+          <p class="text-xs sm:text-sm text-[#6F5849] max-w-md mx-auto leading-relaxed">
+            No private rooms matched your active search or filters.
+          </p>
+          <button onclick="NBC.views['request-other-private'].resetFilters()" class="btn-secondary h-9 px-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-[#E9E3DD] bg-white hover:bg-[#FAF7F4] text-[#3E2B1E] transition cursor-pointer shadow-2xs active:scale-[0.98]">
+            <span class="iconify text-xs text-[#7D6857]" data-icon="lucide:rotate-ccw" data-stroke-width="2"></span>
+            <span>Reset Filters</span>
           </button>
         </div>
       `;
+      if (window.Iconify && typeof window.Iconify.scan === 'function') {
+        window.Iconify.scan(container);
+      }
       return;
     }
 

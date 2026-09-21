@@ -94,18 +94,23 @@ class RoomOwnerReviewView {
     const req = bookingStore.getRequestById(requestId) || bookingStore.getRequests().find(r => r.isPrivateRequest || r.room?.isPrivate) || bookingStore.getRequests()[0];
     if (!req) {
       container.innerHTML = `
-        <div class="py-12 px-4 text-center bg-white rounded-2xl border border-[#E9E3DD] shadow-xs space-y-3">
-          <div class="w-12 h-12 rounded-full bg-[#FAF7F4] text-stone-500 mx-auto flex items-center justify-center">
-            <span class="iconify text-xl" data-icon="lucide:key" data-stroke-width="1.8"></span>
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-10 sm:p-14 text-center flex flex-col items-center justify-center shadow-2xs space-y-3.5 my-4 animate-empty-state">
+          <div class="w-14 h-14 rounded-2xl bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center mx-auto shadow-2xs">
+            <span class="iconify text-2xl text-[#991B1B]" data-icon="lucide:shield-alert" data-stroke-width="1.8"></span>
           </div>
-          <h2 class="text-sm font-heading font-bold text-stone-900">No Private Request Selected</h2>
+          <h3 class="font-heading font-bold text-base sm:text-lg text-[#3E2B1E] tracking-tight">Private Request Not Found</h3>
+          <p class="text-xs sm:text-sm text-[#6F5849] max-w-md mx-auto leading-relaxed">The requested private room booking could not be located or may have already been resolved.</p>
           <div class="pt-2">
-            <button onclick="app.navigateTo('room-owner-queue')" class="px-4 py-2 btn-primary rounded-lg text-xs font-bold shadow-xs">
-              Back to Private Requests
+            <button onclick="app.navigateTo('room-owner-queue')" class="btn-primary h-9 px-4 rounded-xl text-xs font-bold text-white bg-[#991B1B] hover:bg-[#7F1D1D] flex items-center gap-1.5 mx-auto transition cursor-pointer shadow-xs">
+              <span class="iconify text-sm text-white" data-icon="lucide:arrow-left" data-stroke-width="1.8"></span>
+              <span>Back to Private Requests</span>
             </button>
           </div>
         </div>
       `;
+      if (window.Iconify && window.Iconify.scan) {
+        window.Iconify.scan(container);
+      }
       return;
     }
 

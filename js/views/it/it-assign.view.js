@@ -80,11 +80,23 @@ class ITAssignView {
     const ticket = bookingStore.getRequestById(ticketId) || this.selectedRequestForIT;
     if (!ticket) {
       container.innerHTML = `
-        <div class="py-12 text-center bg-white rounded-xl border border-[#E9E3DD]">
-          <p class="text-xs font-semibold text-stone-800">IT ticket not found.</p>
-          <button onclick="app.navigateTo('it-queue')" class="mt-3 px-4 py-2 btn-primary rounded-lg text-xs font-bold">Back to IT Queue</button>
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-10 sm:p-14 text-center flex flex-col items-center justify-center shadow-2xs space-y-3.5 my-4 animate-empty-state">
+          <div class="w-14 h-14 rounded-2xl bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center mx-auto shadow-2xs">
+            <span class="iconify text-2xl text-[#991B1B]" data-icon="lucide:headset" data-stroke-width="1.8"></span>
+          </div>
+          <h3 class="font-heading font-bold text-base sm:text-lg text-[#3E2B1E] tracking-tight">IT Ticket Not Found</h3>
+          <p class="text-xs sm:text-sm text-[#6F5849] max-w-md mx-auto leading-relaxed">
+            The requested IT dispatch ticket could not be located.
+          </p>
+          <button type="button" onclick="app.navigateTo('it-queue')" class="btn-primary h-9 px-4 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 bg-[#991B1B] hover:bg-[#7F1D1D] transition shadow-xs cursor-pointer active:scale-[0.98]">
+            <span class="iconify text-xs text-white" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+            <span class="text-white">Back to IT Queue</span>
+          </button>
         </div>
       `;
+      if (window.Iconify && typeof window.Iconify.scan === 'function') {
+        window.Iconify.scan(container);
+      }
       return;
     }
 
@@ -228,12 +240,23 @@ class ITAssignView {
     const ticket = bookingStore.getRequestById(ticketId) || this.selectedRequestForIT;
     if (!ticket) {
       container.innerHTML = `
-        <div class="py-12 text-center bg-white rounded-2xl border border-[#E9E3DD]">
-          <span class="iconify text-2xl text-stone-400" data-icon="lucide:ticket-x" data-stroke-width="1.8"></span>
-          <p class="mt-3 text-xs font-semibold text-stone-800">IT ticket not found.</p>
-          <button type="button" onclick="app.navigateTo('it-queue')" class="mt-4 btn-primary px-4 py-2 rounded-lg text-xs font-bold">Back to IT Queue</button>
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-10 sm:p-14 text-center flex flex-col items-center justify-center shadow-2xs space-y-3.5 my-4 animate-empty-state">
+          <div class="w-14 h-14 rounded-2xl bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center mx-auto shadow-2xs">
+            <span class="iconify text-2xl text-[#991B1B]" data-icon="lucide:headset" data-stroke-width="1.8"></span>
+          </div>
+          <h3 class="font-heading font-bold text-base sm:text-lg text-[#3E2B1E] tracking-tight">IT Ticket Not Found</h3>
+          <p class="text-xs sm:text-sm text-[#6F5849] max-w-md mx-auto leading-relaxed">
+            The requested IT dispatch ticket could not be located.
+          </p>
+          <button type="button" onclick="app.navigateTo('it-queue')" class="btn-primary h-9 px-4 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 bg-[#991B1B] hover:bg-[#7F1D1D] transition shadow-xs cursor-pointer active:scale-[0.98]">
+            <span class="iconify text-xs text-white" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+            <span class="text-white">Back to IT Queue</span>
+          </button>
         </div>
       `;
+      if (window.Iconify && typeof window.Iconify.scan === 'function') {
+        window.Iconify.scan(container);
+      }
       return;
     }
 

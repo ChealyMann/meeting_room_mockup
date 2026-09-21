@@ -716,20 +716,23 @@ class PitikaQueueView {
       this._disconnectCardsObserver();
       this._currentPaginatedItems = [];
       container.innerHTML = `
-        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-12 text-center flex flex-col items-center justify-center space-y-3 shadow-2xs flex-1">
-          <div class="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400">
-            <span class="iconify text-xl" data-icon="lucide:inbox" data-stroke-width="2"></span>
+        <div class="bg-white rounded-2xl border border-[#E9E3DD] p-10 sm:p-14 text-center flex flex-col items-center justify-center shadow-2xs space-y-3.5 my-4 flex-1 animate-empty-state">
+          <div class="w-14 h-14 rounded-2xl bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center mx-auto shadow-2xs">
+            <span class="iconify text-2xl text-[#991B1B]" data-icon="lucide:clipboard-x" data-stroke-width="1.8"></span>
           </div>
-          <h3 class="font-heading font-bold text-sm text-stone-900">No Review Requests Found</h3>
-          <p class="text-xs text-stone-500 max-w-sm leading-relaxed">
+          <h3 class="font-heading font-bold text-base sm:text-lg text-[#3E2B1E] tracking-tight">No Review Requests Found</h3>
+          <p class="text-xs sm:text-sm text-[#6F5849] max-w-md mx-auto leading-relaxed">
             No meeting reservations matched your filter criteria. Reset filters to view all pending and approved bookings.
           </p>
-          <button type="button" onclick="app.resetApproverFilters()" class="btn-secondary h-8 px-4 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition cursor-pointer">
-            <span class="iconify text-xs" data-icon="lucide:rotate-ccw" data-stroke-width="2"></span>
+          <button type="button" onclick="app.resetApproverFilters()" class="btn-secondary h-9 px-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border border-[#E9E3DD] bg-white hover:bg-[#FAF7F4] text-[#3E2B1E] transition cursor-pointer shadow-2xs active:scale-[0.98]">
+            <span class="iconify text-xs text-[#7D6857]" data-icon="lucide:rotate-ccw" data-stroke-width="2"></span>
             <span>Reset Filters</span>
           </button>
         </div>
       `;
+      if (window.Iconify && typeof window.Iconify.scan === 'function') {
+        window.Iconify.scan(container);
+      }
       return;
     }
 

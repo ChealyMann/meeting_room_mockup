@@ -26,7 +26,7 @@ const HIERARCHY_GROUPS = [
     id: 'it',
     title: 'National Bank of Cambodia - IT & Innovation Campus',
     shortName: 'IT Department',
-    icon: 'lucide:cpu',
+    icon: 'lucide:server',
     description: 'High-tech collaboration studios, Bakong core development, and network labs',
     matches: (room) => {
       const loc = (room.location || '').toLowerCase();

@@ -441,7 +441,7 @@ class BookingFormView {
           <!-- Top Guidance & 1-Click Skip Banner -->
           <div class="p-3.5 sm:p-4 bg-gradient-to-r from-[#FAF7F4] to-white rounded-xl border border-[#E9E3DD] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-2xs">
             <h3 class="text-sm font-heading font-bold text-stone-900 flex items-center space-x-2">
-              <span class="iconify text-amber-700 text-base" data-icon="lucide:sparkles"></span>
+              <span class="iconify text-amber-700 text-base" data-icon="lucide:package-plus" data-stroke-width="1.8"></span>
               <span>Select Services & Add-ons (Optional)</span>
             </h3>
             <button type="button" onclick="app.bookingFormSkipAddons()" class="min-h-[38px] px-3.5 py-1.5 rounded-lg bg-white hover:bg-stone-50 text-stone-800 border border-[#E9E3DD] text-xs font-semibold shadow-2xs flex items-center space-x-1.5 transition shrink-0 cursor-pointer">
@@ -1096,12 +1096,12 @@ class BookingFormView {
 
               <!-- Action Buttons -->
               <div class="space-y-2.5 pt-1">
-                <button type="button" onclick="app.handleBookingSubmit(event)" id="form-submit-btn" class="btn-primary w-full h-11 rounded-xl bg-[#801414] hover:bg-[#6A1010] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-xs cursor-pointer transition active:scale-[0.98]" style="width: 100%;">
+                <button type="button" onclick="app.handleBookingSubmit(event)" id="form-submit-btn" class="btn-primary w-full h-9 rounded-md bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-xs cursor-pointer transition active:scale-[0.98]">
                   <span id="form-submit-btn-text">Submit Request for Review</span>
-                  <span class="iconify text-sm text-white" data-icon="lucide:arrow-right" data-stroke-width="2"></span>
+                  <span class="iconify text-xs text-white" data-icon="lucide:arrow-right" data-stroke-width="2"></span>
                 </button>
-                <button type="button" onclick="app.bookingFormGoToStep(3)" class="w-full h-11 rounded-xl bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 hover:border-stone-300 text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer transition shadow-2xs" style="width: 100%;">
-                  <span class="iconify text-stone-600 text-sm" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+                <button type="button" onclick="app.bookingFormGoToStep(3)" class="w-full h-9 rounded-md bg-white hover:bg-stone-50 text-stone-700 border border-[#E9E3DD] hover:border-stone-300 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition shadow-2xs">
+                  <span class="iconify text-stone-500 text-xs" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
                   <span>Back to Services</span>
                 </button>
               </div>

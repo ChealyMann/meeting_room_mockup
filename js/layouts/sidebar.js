@@ -54,18 +54,6 @@ window.NBC.layouts.sidebar = {
           >
             <span class="iconify" data-icon="lucide:x" data-stroke-width="2"></span>
           </button>
-
-          <button
-            type="button"
-            onclick="app.toggleSidebar()"
-            class="sidebar-control sidebar-desktop-collapse hidden lg:flex"
-            aria-label="Collapse sidebar"
-            aria-expanded="true"
-            aria-controls="app-sidebar"
-            title="Collapse sidebar"
-          >
-            <span class="iconify" data-icon="lucide:panel-left-close" data-stroke-width="2"></span>
-          </button>
         </header>
 
         <nav class="sidebar-nav no-scrollbar" aria-label="Primary navigation">
@@ -115,14 +103,6 @@ window.NBC.layouts.sidebar = {
           </section>
         </nav>
       </div>
-
-      <footer class="sidebar-footer">
-        <div class="sidebar-portal-row">
-          <span class="sidebar-portal-status" aria-hidden="true"></span>
-          <span class="sidebar-portal-label">NBC Official Portal</span>
-          <button type="button" onclick="app.confirmResetDemo()" class="sidebar-reset-button">Reset data</button>
-        </div>
-      </footer>
     `;
 
     this.updateBadges();
