@@ -87,7 +87,7 @@
          icon: 'monitor-cog',
          title: 'IT & AV support',
          detail: req.needsIT ? (req.itDetails?.requestedItems?.join(', ') || 'Video conference and audio setup') : 'Standard room equipment',
-         state: req.needsIT ? (req.itDetails?.assignedStaff ? 'Assigned' : 'Requested') : 'Standard',
+         state: req.needsIT ? (req.itDetails?.assignedStaff ? 'Assigned' : (req.itDetails?.ticketForwardedToIT ? 'In Progress' : 'Awaiting Approval')) : 'Standard',
          tone: req.needsIT ? 'text-amber-700' : 'text-stone-500'
        },
        {

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBC Booking - Review & Confirm (Option A)</title>
+  
+  <!-- Fonts: Poppins, Kantumruy Pro, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN with NBC Cafe Design System Tokens -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            coffee: {
+              50: '#FDFCFA',
+              100: '#F9F7F5',
+              200: '#E9E3DD',
+              300: '#D8CFC7',
+              400: '#A8988B',
+              500: '#7D6857',
+              600: '#5D4432',
+              700: '#483425',
+              800: '#3E2B1E',
+              900: '#2A1C13'
+            },
+            brand: {
+              50: '#FEF2F2',
+              100: '#FEE2E2',
+              600: '#DC2626',
+              700: '#B91C1C',
+              800: '#991B1B',
+              900: '#7F1D1D',
+              950: '#450A0A'
+            },
+            gold: {
+              300: '#FDE047',
+              400: '#FACC15',
+              500: '#EAB308',
+              600: '#D97706',
+              700: '#B45309'
+            },
+            sidebar: {
+              DEFAULT: '#260707',
+              surface: '#2A0808',
+              hover: '#380B0B',
+              active: '#4F0E0E',
+              border: '#3D0C0C',
+              edge: '#450A0A'
+            },
+            nbcbg: '#F9F7F5',
+            nbccard: '#FFFFFF',
+            nbcstroke: '#E9E3DD'
+          },
+          fontFamily: {
+            sans: ['Poppins', 'Kantumruy Pro', '-apple-system', 'sans-serif'],
+            heading: ['Poppins', 'Kantumruy Pro', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Iconify SVG Framework (Stroke-only Lucide icons) -->
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+
+  <!-- Vue 3 CDN for live demo interactivity -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.38/dist/vue.global.prod.js"></script>
+
+  <style>
+    /* Strict No Full-Page Vertical Scroll rules */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #D6CCC2; border-radius: 9999px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .btn-primary {
+      background-color: #991B1B;
+      color: #FFFFFF;
+      transition: all 0.15s ease;
+    }
+    .btn-primary:hover {
+      background-color: #7F1D1D;
+    }
+    .btn-primary:active {
+      background-color: #691515;
+      transform: scale(0.98);
+    }
+    .btn-primary .iconify {
+      color: #FFFFFF !important;
+    }
+  </style>
+</head>
+<body class="bg-[#F9F7F5] text-[#3E2B1E] h-screen overflow-hidden flex flex-col antialiased selection:bg-[#991B1B] selection:text-white">
+
+  <div id="app" class="h-full flex flex-col max-w-[1600px] w-full mx-auto p-3.5 sm:p-5 lg:p-6 space-y-3.5">
+    
+    <!-- Top Action Breadcrumb Bar with 4-Step Wizard Tracker -->
+    <header class="pb-2 border-b border-[#E9E3DD] shrink-0">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+        <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+          <button type="button" class="h-8 px-3 rounded-lg bg-white hover:bg-[#FAF7F4] text-stone-700 border border-[#E9E3DD] text-xs font-semibold flex items-center space-x-1.5 transition shadow-2xs shrink-0 cursor-pointer">
+            <span class="iconify text-stone-400 text-sm" data-icon="lucide:arrow-left" data-stroke-width="1.8"></span>
+            <span>All Rooms</span>
+          </button>
+
+          <!-- Interactive Demo State Switcher -->
+          <div class="flex items-center gap-1.5 bg-white px-2 py-1 rounded-lg border border-[#E9E3DD] text-xs">
+            <span class="text-stone-400 text-[11px] font-medium">Scenario:</span>
+            <button type="button" @click="setScenario('standard')" :class="scenario === 'standard' ? 'bg-[#991B1B] text-white font-bold' : 'text-stone-600 hover:bg-stone-100'" class="px-2 py-0.5 rounded text-[11px] transition">Standard Room</button>
+            <button type="button" @click="setScenario('private')" :class="scenario === 'private' ? 'bg-[#991B1B] text-white font-bold' : 'text-stone-600 hover:bg-stone-100'" class="px-2 py-0.5 rounded text-[11px] transition">Private Room</button>
+            <button type="button" @click="setScenario('owner')" :class="scenario === 'owner' ? 'bg-[#991B1B] text-white font-bold' : 'text-stone-600 hover:bg-stone-100'" class="px-2 py-0.5 rounded text-[11px] transition">My Room (Instant)</button>
+            <button type="button" @click="toggleMultiSession()" :class="isMultiSession ? 'bg-[#D97706] text-white font-bold' : 'text-stone-600 hover:bg-stone-100'" class="px-2 py-0.5 rounded text-[11px] transition">Multi-Session ({{ isMultiSession ? 'ON' : 'OFF' }})</button>
+          </div>
+        </div>
+
+        <!-- 4-Step Wizard Steps -->
+        <div class="flex items-center space-x-1 text-xs shrink-0">
+          <div class="h-8 px-2.5 rounded-lg text-emerald-800 font-medium text-[12px] flex items-center space-x-1.5">
+            <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold"><span class="iconify" data-icon="lucide:check" data-stroke-width="2.5"></span></span>
+            <span>Schedule</span>
+          </div>
+          <span class="iconify text-stone-300 text-[10px]" data-icon="lucide:chevron-right" data-stroke-width="1.8"></span>
+          <div class="h-8 px-2.5 rounded-lg text-emerald-800 font-medium text-[12px] flex items-center space-x-1.5">
+            <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold"><span class="iconify" data-icon="lucide:check" data-stroke-width="2.5"></span></span>
+            <span>Meeting Details</span>
+          </div>
+          <span class="iconify text-stone-300 text-[10px]" data-icon="lucide:chevron-right" data-stroke-width="1.8"></span>
+          <div class="h-8 px-2.5 rounded-lg text-emerald-800 font-medium text-[12px] flex items-center space-x-1.5">
+            <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold"><span class="iconify" data-icon="lucide:check" data-stroke-width="2.5"></span></span>
+            <span>Food & IT</span>
+          </div>
+          <span class="iconify text-stone-300 text-[10px]" data-icon="lucide:chevron-right" data-stroke-width="1.8"></span>
+          <div class="h-8 px-2.5 rounded-lg bg-[#FEF2F2] border border-red-200 text-[#991B1B] font-semibold text-[12px] flex items-center space-x-1.5 shadow-2xs">
+            <span class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center text-[11px] font-bold">4</span>
+            <span>Review & Confirm</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- STEP 4 CONTAINER: Unified Single-Page 2-Column Reservation Summary (Strict Zero Vertical Scroll) -->
+    <main class="w-full max-w-6xl mx-auto flex-1 min-h-0 flex flex-col justify-start">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
+        
+        <!-- LEFT COLUMN: Comprehensive Reservation Dossier (lg:col-span-8) -->
+        <div class="lg:col-span-8 bg-white rounded-2xl border border-stone-200/80 p-5 shadow-xs space-y-4">
+          
+          <!-- 1. Room Header & Schedule Bar -->
+          <div class="flex items-start justify-between gap-3 pb-1">
+            <div class="flex items-center gap-3.5 min-w-0">
+              <img :src="currentRoom.image" :alt="currentRoom.name" class="w-36 h-24 sm:w-44 sm:h-26 rounded-xl object-cover border border-stone-200 shrink-0" />
+              <div class="min-w-0">
+                <h3 class="font-heading font-bold text-base sm:text-lg text-stone-900 tracking-tight leading-tight truncate">{{ currentRoom.name }}</h3>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone-600 mt-1 font-medium">
+                  <span class="inline-flex items-center gap-1.5">
+                    <span class="iconify text-[#991B1B] text-sm" data-icon="lucide:map-pin" data-stroke-width="1.8"></span>
+                    <span>{{ currentRoom.floor }}</span>
+                  </span>
+                  <span class="inline-flex items-center gap-1.5">
+                    <span class="iconify text-[#991B1B] text-sm" data-icon="lucide:users" data-stroke-width="1.8"></span>
+                    <span>Capacity: {{ currentRoom.capacity }} Seats</span>
+                  </span>
+                  <span v-if="currentRoom.isPrivate" class="inline-flex items-center gap-1.5 text-[#D97706] font-semibold">
+                    <span class="iconify text-sm" data-icon="lucide:shield" data-stroke-width="1.8"></span>
+                    <span>Owner: {{ currentRoom.ownerName }}</span>
+                  </span>
+                </div>
+                <div class="flex items-center gap-2 mt-2.5">
+                  <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold bg-[#FEF2F2] text-[#991B1B] border border-red-100">{{ currentRoom.tierText }}</span>
+                  <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold bg-[#F5F2EE] text-[#6F5849] border border-[#E9E3DD]">Meeting Room</span>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="h-8 px-3 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-medium inline-flex items-center gap-1.5 transition shadow-2xs shrink-0 cursor-pointer">
+              <span class="iconify text-stone-400 text-xs" data-icon="lucide:pencil" data-stroke-width="1.8"></span>
+              <span>Edit</span>
+            </button>
+          </div>
+
+          <!-- 2. Schedule & Attendees Metrics Strip (Matching Reference) -->
+          <div class="bg-[#FAF7F5] rounded-xl border border-stone-200/60 p-3.5 sm:p-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="flex items-start gap-2.5">
+              <span class="iconify text-[#991B1B] text-xl shrink-0 mt-0.5" data-icon="lucide:calendar" data-stroke-width="1.8"></span>
+              <div class="min-w-0">
+                <span class="text-[10.5px] font-medium text-stone-400 block leading-tight">Date</span>
+                <strong class="font-heading font-bold text-xs sm:text-[13px] text-stone-900 block truncate mt-0.5">{{ isMultiSession ? sessionsList.length + ' Sessions' : bookingDate }}</strong>
+                <span class="text-[10.5px] text-stone-400 font-mono block truncate mt-0.5">{{ isMultiSession ? 'Scheduled' : 'Confirmed Slot' }}</span>
+              </div>
+            </div>
+            <div class="flex items-start gap-2.5">
+              <span class="iconify text-[#991B1B] text-xl shrink-0 mt-0.5" data-icon="lucide:clock" data-stroke-width="1.8"></span>
+              <div class="min-w-0">
+                <span class="text-[10.5px] font-medium text-stone-400 block leading-tight">Time & Duration</span>
+                <strong class="font-mono font-bold text-xs sm:text-[13px] text-stone-900 block truncate mt-0.5">{{ bookingTime }}</strong>
+                <span class="text-[10.5px] text-stone-400 font-mono block truncate mt-0.5">{{ isMultiSession ? 'Multi-Session' : 'Scheduled (' + bookingDuration + ')' }}</span>
+              </div>
+            </div>
+            <div class="flex items-start gap-2.5">
+              <span class="iconify text-[#991B1B] text-xl shrink-0 mt-0.5" data-icon="lucide:users" data-stroke-width="1.8"></span>
+              <div class="min-w-0">
+                <span class="text-[10.5px] font-medium text-stone-400 block leading-tight">Attendees</span>
+                <strong class="font-mono font-bold text-xs sm:text-[13px] text-stone-900 block truncate mt-0.5">{{ attendeesCount }} Persons</strong>
+                <span class="text-[10.5px] text-stone-400 block truncate mt-0.5">In-person</span>
+              </div>
+            </div>
+            <div class="flex items-start gap-2.5">
+              <span class="iconify text-[#991B1B] text-xl shrink-0 mt-0.5" data-icon="lucide:lock" data-stroke-width="1.8"></span>
+              <div class="min-w-0">
+                <span class="text-[10.5px] font-medium text-stone-400 block leading-tight">Door Access</span>
+                <strong class="font-heading font-bold text-xs sm:text-[13px] text-[#991B1B] block truncate mt-0.5">Digital PIN</strong>
+                <span class="text-[10.5px] text-stone-400 block truncate mt-0.5">Sent via email</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Multi-Session Schedule Breakdown (Only when multiple sessions) -->
+          <div v-if="isMultiSession" class="rounded-xl border border-stone-200/60 bg-[#FAF7F5] p-2.5 space-y-1.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-heading font-bold text-stone-900">Multi-Session Schedule</span>
+              <span class="font-mono text-xs font-bold text-[#991B1B]">{{ sessionsList.length }} Sessions Selected</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-20 overflow-y-auto no-scrollbar">
+              <div v-for="(s, idx) in sessionsList" :key="idx" class="flex items-center justify-between p-2.5 rounded-lg bg-white border border-[#E9E3DD] text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="w-5 h-5 rounded-full bg-red-50 text-[#991B1B] font-mono text-[10px] font-bold flex items-center justify-center shrink-0">#{{ idx + 1 }}</span>
+                  <div>
+                    <span class="font-semibold text-stone-900 block leading-tight">{{ s.date }}</span>
+                    <span class="font-mono text-[11px] text-stone-600 block leading-tight">{{ s.time }}</span>
+                  </div>
+                </div>
+                <span class="font-mono text-[10.5px] font-semibold text-stone-600 px-1.5 py-0.5 bg-[#FAF7F4] rounded border border-[#E9E3DD]">{{ s.duration }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Meeting & Requester (2-Column Grid) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            
+            <!-- Meeting Details Card -->
+            <div class="bg-white rounded-xl border border-stone-200/80 p-3.5 shadow-2xs space-y-2 flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-6.5 h-6.5 rounded-full bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
+                    <span class="iconify text-xs" data-icon="lucide:file-text" data-stroke-width="1.8"></span>
+                  </span>
+                  <span class="font-heading font-bold text-xs sm:text-sm text-stone-900">Meeting Details</span>
+                </div>
+                <button type="button" class="h-6 px-2 rounded-md border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 text-[11px] font-medium inline-flex items-center gap-1 transition cursor-pointer">
+                  <span class="iconify text-[11px] text-stone-400" data-icon="lucide:pencil" data-stroke-width="1.8"></span>
+                  <span>Edit</span>
+                </button>
+              </div>
+              <div>
+                <h4 class="font-heading font-bold text-xs sm:text-sm text-stone-900 truncate">{{ meetingTitle }}</h4>
+                <p class="text-xs text-stone-500 line-clamp-2 mt-0.5 leading-relaxed">{{ meetingNotes }}</p>
+              </div>
+            </div>
+
+            <!-- Requester Profile Card -->
+            <div class="bg-white rounded-xl border border-stone-200/80 p-3.5 shadow-2xs space-y-2 flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-6.5 h-6.5 rounded-full bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
+                    <span class="iconify text-xs" data-icon="lucide:user" data-stroke-width="1.8"></span>
+                  </span>
+                  <span class="font-heading font-bold text-xs sm:text-sm text-stone-900">Requester</span>
+                </div>
+                <span class="font-mono text-xs font-semibold text-stone-400">{{ staffId }}</span>
+              </div>
+              <div>
+                <strong class="font-heading font-bold text-xs sm:text-sm text-stone-900 block truncate">{{ requesterName }}</strong>
+                <p class="text-xs text-stone-500 truncate mt-0.5 leading-snug">{{ departmentName }}</p>
+                <div class="text-[11px] text-stone-500 font-mono truncate mt-1 flex items-center gap-1.5">
+                  <span class="iconify text-stone-400 text-xs shrink-0" data-icon="lucide:mail" data-stroke-width="1.8"></span>
+                  <span>{{ requesterPhone }}</span> &bull; <span>{{ requesterEmail }}</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 4. Services Specification: Food & IT (2-Column Grid) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            
+            <!-- Food & Catering -->
+            <div class="bg-white rounded-xl border border-stone-200/80 p-3.5 shadow-2xs space-y-2 flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-6.5 h-6.5 rounded-full bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
+                    <span class="iconify text-xs" data-icon="lucide:utensils" data-stroke-width="1.8"></span>
+                  </span>
+                  <span class="font-heading font-bold text-xs sm:text-sm text-stone-900">Food & Catering</span>
+                </div>
+                <button type="button" class="h-6 px-2 rounded-md border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 text-[11px] font-medium inline-flex items-center gap-1 transition cursor-pointer">
+                  <span class="iconify text-[11px] text-stone-400" data-icon="lucide:pencil" data-stroke-width="1.8"></span>
+                  <span>Edit</span>
+                </button>
+              </div>
+              <div v-if="hasCatering">
+                <div class="flex items-center justify-between text-xs">
+                  <strong class="font-bold text-stone-900 truncate">{{ cateringPackageName }}</strong>
+                  <span class="font-mono text-xs text-stone-600 shrink-0 ml-1">{{ attendeesCount }} Servings</span>
+                </div>
+                <p class="text-xs text-stone-500 truncate mt-0.5 leading-relaxed">Remarks: Hot tea alongside coffee, gluten-free cookies.</p>
+              </div>
+              <div v-else>
+                <span class="text-xs text-stone-500 font-normal">Complimentary mineral water only</span>
+              </div>
+            </div>
+
+            <!-- IT Support -->
+            <div class="bg-white rounded-xl border border-stone-200/80 p-3.5 shadow-2xs space-y-2 flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-6.5 h-6.5 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+                    <span class="iconify text-xs" data-icon="lucide:monitor" data-stroke-width="1.8"></span>
+                  </span>
+                  <span class="font-heading font-bold text-xs sm:text-sm text-stone-900">IT & AV Support</span>
+                </div>
+                <button type="button" class="h-6 px-2 rounded-md border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 text-[11px] font-medium inline-flex items-center gap-1 transition cursor-pointer">
+                  <span class="iconify text-[11px] text-stone-400" data-icon="lucide:pencil" data-stroke-width="1.8"></span>
+                  <span>Edit</span>
+                </button>
+              </div>
+              <div v-if="needsIT && itItems.length > 0">
+                <div class="flex flex-wrap gap-2">
+                  <span v-for="item in itItems" :key="item" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-stone-200 text-xs text-stone-700 font-medium shadow-2xs">
+                    <span class="iconify text-[#801414] text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
+                    <span>{{ item }}</span>
+                  </span>
+                </div>
+              </div>
+              <div v-else>
+                <span class="text-xs text-stone-500 font-normal">Standard in-room AV equipment only</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 5. Private Room Justification (Conditional) -->
+          <div v-if="currentRoom.isPrivate && scenario === 'private'" class="p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-xs space-y-1">
+            <div class="flex items-center gap-1.5 text-amber-950 font-bold text-xs">
+              <span class="iconify text-amber-700 text-sm" data-icon="lucide:shield-alert" data-stroke-width="1.8"></span>
+              <span>Executive Justification for Private Room</span>
+            </div>
+            <p class="text-xs text-amber-900 leading-snug">"Confidential monetary policy review requires high-level executive isolation and encrypted projection."</p>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: Voucher & Action Console (lg:col-span-4) -->
+        <div class="lg:col-span-4 bg-white rounded-2xl border border-stone-200/80 p-5 shadow-xs flex flex-col justify-between space-y-4">
+          
+          <!-- Voucher Header -->
+          <div class="flex items-center justify-between pb-3.5 border-b border-stone-200/70">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-[#801414] text-white flex items-center justify-center shrink-0 shadow-xs">
+                <span class="iconify text-xl text-white" data-icon="lucide:landmark" data-stroke-width="1.8"></span>
+              </div>
+              <div>
+                <h4 class="font-heading font-bold text-xs text-stone-900 uppercase tracking-wider leading-tight">NATIONAL BANK OF CAMBODIA</h4>
+                <span class="text-xs text-stone-400 font-medium">Reservation Voucher</span>
+              </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-md bg-red-50 text-[#991B1B] text-xs font-bold font-mono border border-red-100">DRAFT</span>
+          </div>
+
+          <!-- Booking Summary Inset Card -->
+          <div class="p-4 bg-[#FAF7F5] rounded-xl border border-stone-200/60 space-y-2.5">
+            <div class="flex items-center gap-2 text-stone-900 font-bold text-sm">
+              <span class="iconify text-[#991B1B] text-base" data-icon="lucide:list" data-stroke-width="2"></span>
+              <span>Booking Summary</span>
+            </div>
+            <div class="space-y-2 text-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-stone-500">Facility</span>
+                <strong class="font-bold text-stone-900 truncate ml-2 text-right">{{ currentRoom.name }}</strong>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-stone-500">Type</span>
+                <strong class="font-bold text-right" :class="currentRoom.isPrivate ? 'text-[#D97706]' : 'text-stone-900'">{{ currentRoom.tierText }}</strong>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-stone-500">Duration</span>
+                <strong class="font-mono font-bold text-stone-900 text-right">{{ isMultiSession ? sessionsList.length + ' Sessions • 5.0 hrs' : 'Scheduled' }}</strong>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-stone-500">Attendees</span>
+                <strong class="font-mono font-bold text-stone-900 text-right">{{ attendeesCount }} Persons</strong>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-stone-500">Services</span>
+                <strong class="font-bold text-stone-900 text-right">{{ hasCatering && needsIT ? 'Catering + IT Setup' : (hasCatering ? 'Catering Only' : (needsIT ? 'IT AV Setup' : 'Standard Room Only')) }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Authorization Pathway -->
+          <div class="space-y-2.5 pt-1">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <span class="iconify text-[#991B1B] text-base" data-icon="lucide:git-pull-request" data-stroke-width="1.8"></span>
+                <span class="font-heading font-bold text-sm text-stone-900">Approval Route</span>
+              </div>
+              <span class="text-xs text-stone-400 font-mono">{{ scenarioText.turnaround }}</span>
+            </div>
+            <div class="space-y-2">
+              <div v-for="(step, idx) in scenarioSteps" :key="idx" class="flex items-center gap-2.5 py-0.5 text-xs">
+                <span class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold" :class="step.done ? 'bg-emerald-100 text-emerald-800' : (step.active ? 'bg-[#801414] text-white' : 'bg-stone-200 text-stone-600')">
+                  <span v-if="step.done" class="iconify text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
+                  <span v-else>{{ idx + 1 }}</span>
+                </span>
+                <span class="font-medium" :class="step.active ? 'text-stone-900 font-semibold' : 'text-stone-600'">{{ step.title }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notice Box -->
+          <div class="p-3 rounded-xl bg-[#FDF8F3] border border-[#F5E6D8] flex items-center gap-2.5 text-xs text-stone-700">
+            <span class="iconify text-[#D97706] text-base shrink-0" data-icon="lucide:info" data-stroke-width="1.8"></span>
+            <span>Door PIN emailed 15m before session</span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="space-y-2.5 pt-1">
+            <button type="button" class="btn-primary w-full h-11 rounded-xl bg-[#801414] hover:bg-[#6A1010] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-xs cursor-pointer transition active:scale-[0.98]" style="width: 100%;">
+              <span>{{ scenarioText.btnText }}</span>
+              <span class="iconify text-sm text-white" data-icon="lucide:arrow-right" data-stroke-width="2"></span>
+            </button>
+            <button type="button" class="w-full h-11 rounded-xl bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 hover:border-stone-300 text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer transition shadow-2xs" style="width: 100%;">
+              <span class="iconify text-stone-600 text-sm" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+              <span>Back to Services</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    const { createApp, ref, computed } = Vue;
+
+    createApp({
+      setup() {
+        const scenario = ref('standard');
+        const isMultiSession = ref(false);
+
+        const rooms = {
+          standard: {
+            name: 'ទន្លេសេកុង - Sisekong – Sekong River',
+            floor: 'Floor 18 - Executive Suite',
+            capacity: 60,
+            tierText: 'Standard Room',
+            isPrivate: false,
+            image: '../assets/rooms/summit-suite.jpg'
+          },
+          private: {
+            name: 'បន្ទប់ប្រជុំព្រះខ័ន - Preah Khan VIP Suite',
+            floor: 'Floor 22 - Executive Tower',
+            capacity: 18,
+            tierText: 'Executive Private Suite',
+            isPrivate: true,
+            ownerName: 'Deputy Governor Chea',
+            image: '../assets/rooms/boardroom-alpha.jpg'
+          },
+          owner: {
+            name: 'បន្ទប់ប្រជុំមេគង្គ - Mekong Grand Executive',
+            floor: 'Floor 19 - Executive Suite',
+            capacity: 24,
+            tierText: 'Your Designated Suite',
+            isPrivate: true,
+            ownerName: 'Jonathan Vance (You)',
+            image: '../assets/rooms/innovation-hub.jpg'
+          }
+        };
+
+        const currentRoom = computed(() => rooms[scenario.value] || rooms.standard);
+
+        const bookingDate = ref('Wed, Sep 23, 2026');
+        const bookingDay = ref('Confirmed Slot');
+        const bookingTime = ref('07:30 – 09:00');
+        const bookingDuration = ref('1h 30m');
+        const attendeesCount = ref(8);
+        const meetingTitle = ref('CC');
+        const meetingNotes = ref('General departmental meeting and discussion.');
+        const requesterName = ref('Jonathan Vance');
+        const staffId = ref('NBC-4102');
+        const departmentName = ref('Board of Directors & Cabinet • Board & Executive Office');
+        const requesterPhone = ref('Ext. 8421');
+        const requesterEmail = ref('jonathan.vance@nbc.gov.kh');
+
+        const hasCatering = ref(false);
+        const cateringPackageName = ref('Morning Coffee & Fresh Pastries');
+        const needsIT = ref(true);
+        const itItems = ref(['Video Conference', 'Microphones']);
+
+        const sessionsList = ref([
+          { date: 'Mon, Sep 21, 2026', time: '07:30 – 09:00', duration: '1.5h' },
+          { date: 'Wed, Sep 23, 2026', time: '14:00 – 15:30', duration: '1.5h' },
+          { date: 'Fri, Sep 25, 2026', time: '09:00 – 10:30', duration: '1.5h' }
+        ]);
+
+        const setScenario = (sc) => {
+          scenario.value = sc;
+        };
+
+        const toggleMultiSession = () => {
+          isMultiSession.value = !isMultiSession.value;
+        };
+
+        const scenarioText = computed(() => {
+          if (scenario.value === 'owner') {
+            return {
+              turnaround: 'Instant Confirmation',
+              btnText: 'Confirm Booking & Issue Door PIN'
+            };
+          } else if (scenario.value === 'private') {
+            return {
+              turnaround: 'Est. 2-4 hours',
+              btnText: 'Submit for 2-Tier Approvals'
+            };
+          }
+          return {
+            turnaround: 'Est. 1-2 hours',
+            btnText: 'Submit Request for Review'
+          };
+        });
+
+        const scenarioSteps = computed(() => {
+          if (scenario.value === 'owner') {
+            return [
+              { title: 'Room Ownership Verified', done: true, active: false },
+              { title: 'Instant Passcode Confirmed', done: true, active: false }
+            ];
+          } else if (scenario.value === 'private') {
+            return [
+              { title: 'Manager Pitika Review', done: false, active: true },
+              { title: 'Room Owner Authorization', done: false, active: false },
+              { title: 'Door PIN Issued', done: false, active: false }
+            ];
+          }
+          return [
+            { title: 'Manager Pitika Review', done: false, active: true },
+            { title: 'Service Dispatch (Food/IT)', done: false, active: false },
+            { title: 'Door PIN Issued', done: false, active: false }
+          ];
+        });
+
+        return {
+          scenario,
+          isMultiSession,
+          currentRoom,
+          bookingDate,
+          bookingDay,
+          bookingTime,
+          bookingDuration,
+          attendeesCount,
+          meetingTitle,
+          meetingNotes,
+          requesterName,
+          staffId,
+          departmentName,
+          requesterPhone,
+          requesterEmail,
+          hasCatering,
+          cateringPackageName,
+          needsIT,
+          itItems,
+          sessionsList,
+          setScenario,
+          toggleMultiSession,
+          scenarioText,
+          scenarioSteps
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

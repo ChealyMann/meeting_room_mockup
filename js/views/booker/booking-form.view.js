@@ -832,132 +832,282 @@ class BookingFormView {
         </div>
 
         <!-- ==================== STEP 4: BOOKING REVIEW & SUBMIT ==================== -->
-        <div id="booking-step-4" class="hidden space-y-3.5 animate-fade-in">
+        <div id="booking-step-4" class="hidden animate-fade-in w-full max-w-8xl mx-auto flex flex-col min-h-0">
           
-          <!-- ===== PREMIUM REVIEW CARD ===== -->
-          <div class="bg-white rounded-2xl border border-stone-200/80 shadow-sm overflow-hidden">
-
-            <!-- Card Header: Room Name with Dark Background -->
-            <div class="bg-gradient-to-r from-stone-800 via-stone-900 to-stone-800 px-5 py-4 sm:px-6 sm:py-5">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3 min-w-0">
-                  <div class="w-9 h-9 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center shrink-0">
-                    <span class="iconify text-white/90 text-lg" data-icon="lucide:building-2"></span>
-                  </div>
-                  <div class="min-w-0">
-                    <h3 id="step4-room-name" class="text-white text-[15px] sm:text-[16px] font-bold tracking-tight truncate">Conference Room</h3>
-                    <span id="step4-room-floor" class="text-white/60 text-[11px] sm:text-[12px] font-medium block mt-0.5">Floor details</span>
-                  </div>
-                </div>
-                <span class="text-[10px] text-white/40 font-semibold uppercase tracking-widest shrink-0 ml-3">Review</span>
-              </div>
-            </div>
-
-            <!-- Body Content -->
-            <div class="px-5 py-4 sm:px-6 sm:py-5 space-y-4">
-
-              <!-- 3-Column Quick Info Strip -->
-              <div class="grid grid-cols-3 gap-2.5 sm:gap-3">
-                <div class="flex items-center space-x-2.5 p-2.5 sm:p-3 bg-stone-50/80 rounded-xl border border-stone-100">
-                  <div class="w-8 h-8 rounded-lg bg-red-50 text-red-800 flex items-center justify-center shrink-0">
-                    <span class="iconify text-[15px]" data-icon="lucide:calendar-days"></span>
-                  </div>
-                  <div class="min-w-0">
-                    <span class="text-[10px] uppercase font-semibold text-stone-400 block leading-tight">Schedule</span>
-                    <strong id="step4-date" class="text-stone-900 text-[12px] sm:text-[13px] font-semibold block truncate leading-snug">Date</strong>
-                    <span id="step4-time" class="text-[10.5px] sm:text-[11px] text-stone-500 block leading-tight">Time</span>
-                  </div>
-                </div>
-                <div class="flex items-center space-x-2.5 p-2.5 sm:p-3 bg-stone-50/80 rounded-xl border border-stone-100">
-                  <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
-                    <span class="iconify text-[15px]" data-icon="lucide:clock"></span>
-                  </div>
-                  <div class="min-w-0">
-                    <span class="text-[10px] uppercase font-semibold text-stone-400 block leading-tight">Duration</span>
-                    <strong id="step4-duration" class="text-stone-900 text-[12px] sm:text-[13px] font-semibold block truncate leading-snug">1 hr</strong>
-                  </div>
-                </div>
-                <div class="flex items-center space-x-2.5 p-2.5 sm:p-3 bg-stone-50/80 rounded-xl border border-stone-100">
-                  <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
-                    <span class="iconify text-[15px]" data-icon="lucide:users"></span>
-                  </div>
-                  <div class="min-w-0">
-                    <span class="text-[10px] uppercase font-semibold text-stone-400 block leading-tight">Attendees</span>
-                    <strong id="step4-attendees" class="text-stone-900 text-[12px] sm:text-[13px] font-semibold block truncate leading-snug">8 people</strong>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Multi-Session Schedule Breakdown (Visible when multiple sessions are booked) -->
-              <div id="step4-multi-sessions-section" class="hidden">
-                <div class="rounded-xl border border-emerald-200 bg-emerald-50/40 p-3 space-y-2">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-1.5">
-                      <span class="iconify text-emerald-700 text-sm" data-icon="lucide:layers"></span>
-                      <span class="text-[11px] font-bold text-emerald-950 uppercase tracking-wide">Multi-Session Schedule Breakdown</span>
-                    </div>
-                    <span id="step4-multi-sessions-count" class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300"></span>
-                  </div>
-                  <div id="step4-multi-sessions-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1"></div>
-                </div>
-              </div>
-
-              <!-- Meeting Title -->
-              <div class="py-1">
-                <span class="text-[10px] uppercase font-semibold text-stone-400 tracking-wide block mb-1">Meeting</span>
-                <h4 id="step4-meeting-title" class="text-stone-900 text-[16px] sm:text-[18px] font-bold tracking-tight leading-snug">Meeting Title</h4>
-              </div>
-
-              <!-- Services Section (Food & IT) -->
-              <div id="step4-services-section" class="hidden">
-                <div class="border-t border-stone-100 pt-4 space-y-3">
-                  <span class="text-[10px] uppercase font-semibold text-stone-400 tracking-wide block">Requested Services</span>
-                  
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <!-- Food Section -->
-                    <div id="step4-food-chips" class="hidden">
-                      <div class="rounded-xl border border-amber-200/70 bg-amber-50/40 p-3 space-y-2">
-                        <div class="flex items-center space-x-1.5">
-                          <span class="iconify text-amber-700 text-[14px]" data-icon="lucide:utensils"></span>
-                          <span class="text-[11px] font-bold text-amber-900 uppercase tracking-wide">Food & Refreshments</span>
-                        </div>
-                        <div id="step4-food-chip-list" class="flex flex-wrap gap-1.5"></div>
-                      </div>
-                    </div>
-
-                    <!-- IT Section -->
-                    <div id="step4-it-chips" class="hidden">
-                      <div class="rounded-xl border border-blue-200/70 bg-blue-50/40 p-3 space-y-2">
-                        <div class="flex items-center space-x-1.5">
-                          <span class="iconify text-blue-700 text-[14px]" data-icon="lucide:monitor"></span>
-                          <span class="text-[11px] font-bold text-blue-900 uppercase tracking-wide">IT & Technical Support</span>
-                        </div>
-                        <div id="step4-it-chip-list" class="flex flex-wrap gap-1.5"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Approval Callout -->
-              <div id="step3-approval-callout" class="rounded-xl border border-stone-200 bg-stone-50/50 p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mt-0.5">
-                <!-- Populated dynamically -->
-              </div>
-
-            </div>
-          </div>
-
-          <!-- Bottom Actions for Step 4 (Submit Station) -->
-          <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-0.5">
-            <button type="button" onclick="app.bookingFormGoToStep(3)" class="h-9 px-4 rounded-lg bg-white hover:bg-stone-50 text-stone-600 border border-stone-200 text-[13px] font-medium flex items-center space-x-1.5 transition cursor-pointer">
-              <span class="iconify text-[14px]" data-icon="lucide:arrow-left"></span>
-              <span>Back</span>
-            </button>
+          <!-- Unified Single-Page 2-Column Reservation Summary Matching Reference Screenshot -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
             
-            <button type="button" onclick="app.handleBookingSubmit(event)" id="form-submit-btn" class="btn-primary w-full sm:w-auto h-9.5 sm:h-10 px-6 rounded-lg text-[13px] font-bold shadow-md flex items-center justify-center space-x-2 transition cursor-pointer">
-              <span id="form-submit-btn-text">Send Request for Review</span>
-              <span class="iconify text-[14px]" data-icon="lucide:arrow-right" data-stroke-width="2"></span>
-            </button>
+            <!-- LEFT COLUMN: Comprehensive Reservation Dossier (lg:col-span-8) -->
+            <div class="lg:col-span-8 bg-white rounded-2xl border border-stone-200/80 p-5 shadow-xs space-y-4">
+              
+              <!-- 1. Room Header & Schedule Bar -->
+              <div class="flex items-start justify-between gap-3 pb-1">
+                <div class="flex items-center gap-3.5 min-w-0">
+                  <img id="step4-room-img" src="assets/rooms/summit-suite.jpg" alt="Room" class="w-36 h-24 sm:w-44 sm:h-26 rounded-xl object-cover border border-stone-200 shrink-0" />
+                  <div class="min-w-0">
+                    <h3 id="step4-room-name" class="font-heading font-bold text-base sm:text-lg text-stone-900 tracking-tight leading-tight truncate">ទន្លេសេកុង - Sisekong – Sekong River</h3>
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone-600 mt-1 font-medium">
+                      <span class="inline-flex items-center gap-1.5">
+                        <span class="iconify text-[#991B1B] text-sm" data-icon="lucide:map-pin" data-stroke-width="1.8"></span>
+                        <span id="step4-room-floor">Floor 18 - Executive Suite</span>
+                      </span>
+                      <span class="inline-flex items-center gap-1.5">
+                        <span class="iconify text-[#991B1B] text-sm" data-icon="lucide:users" data-stroke-width="1.8"></span>
+                        <span id="step4-room-capacity">Capacity: 60 Seats</span>
+                      </span>
+                      <span id="step4-room-owner-tag" class="hidden inline-flex items-center gap-1.5 text-[#D97706] font-semibold">
+                        <span class="iconify text-sm" data-icon="lucide:shield" data-stroke-width="1.8"></span>
+                        <span id="step4-room-owner-text">Owner: Jonathan Vance</span>
+                      </span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-2.5">
+                      <span id="step4-room-type" class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold bg-[#FEF2F2] text-[#991B1B] border border-red-100">Standard Room</span>
+                      <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold bg-[#F5F2EE] text-[#6F5849] border border-[#E9E3DD]">Meeting Room</span>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" onclick="app.bookingFormGoToStep(1)" class="h-8 px-3 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-medium inline-flex items-center gap-1.5 transition shadow-2xs shrink-0 cursor-pointer">
+                  <span class="iconify text-stone-400 text-xs" data-icon="lucide:pencil" data-stroke-width="1.8"></span>
+                  <span>Edit</span>
+                </button>
+              </div>
+
+              <!-- 2. Schedule & Attendees Metrics Strip (Matching Reference) -->
+              <div class="bg-[#FAF7F5] rounded-xl border border-stone-200/60 p-3.5 sm:p-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="flex items-start gap-2.5">
+                  <span class="iconify text-[#991B1B] text-xl shrink-0 mt-0.5" data-icon="lucide:calendar" data-stroke-width="1.8"></span>
+                  <div class="min-w-0">
+                    <span class="text-[10.5px] font-medium text-stone-400 block leading-tight">Date</span>
+                    <strong id="step4-date" class="font-heading font-bold text-xs sm:text-[13px] text-stone-900 block truncate mt-0.5">Wed, Sep 23, 2026</strong>
+                    <span id="step4-day-label" class="text-[10.5px] text-stone-400 font-mono block truncate mt-0.5">Confirmed Slot</span>
+                  </div>
+                </div>
+                <div class="flex items-start gap-2.5">
+                  <span class="iconify text-[#991B1B] text-xl shrink-0 mt-0.5" data-icon="lucide:clock" data-stroke-width="1.8"></span>
+                  <div class="min-w-0">
+                    <span class="text-[10.5px] font-medium text-stone-400 block leading-tight">Time & Duration</span>
+                    <strong id="step4-time" class="font-mono font-bold text-xs sm:text-[13px] text-stone-900 block truncate mt-0.5">07:30 – 09:00</strong>
+                    <span id="step4-duration" class="text-[10.5px] text-stone-400 font-mono block truncate mt-0.5">Scheduled (1h 30m)</span>
+                  </div>
+                </div>
+                <div class="flex items-start gap-2.5">
+                  <span class="iconify text-[#991B1B] text-xl shrink-0 mt-0.5" data-icon="lucide:users" data-stroke-width="1.8"></span>
+                  <div class="min-w-0">
+                    <span class="text-[10.5px] font-medium text-stone-400 block leading-tight">Attendees</span>
+                    <strong id="step4-attendees" class="font-mono font-bold text-xs sm:text-[13px] text-stone-900 block truncate mt-0.5">8 Persons</strong>
+                    <span class="text-[10.5px] text-stone-400 block truncate mt-0.5">In-person</span>
+                  </div>
+                </div>
+                <div class="flex items-start gap-2.5">
+                  <span class="iconify text-[#991B1B] text-xl shrink-0 mt-0.5" data-icon="lucide:lock" data-stroke-width="1.8"></span>
+                  <div class="min-w-0">
+                    <span class="text-[10.5px] font-medium text-stone-400 block leading-tight">Door Access</span>
+                    <strong class="font-heading font-bold text-xs sm:text-[13px] text-[#991B1B] block truncate mt-0.5">Digital PIN</strong>
+                    <span class="text-[10.5px] text-stone-400 block truncate mt-0.5">Sent via email</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Multi-Session Schedule Breakdown (Only when multiple sessions) -->
+              <div id="step4-multi-sessions-section" class="hidden rounded-xl border border-stone-200/60 bg-[#FAF7F5] p-2.5 space-y-1.5">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-heading font-bold text-stone-900">Multi-Session Schedule</span>
+                  <span id="step4-multi-sessions-count" class="font-mono text-xs font-bold text-[#991B1B]"></span>
+                </div>
+                <div id="step4-multi-sessions-list" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-20 overflow-y-auto no-scrollbar"></div>
+              </div>
+
+              <!-- 3. Meeting & Requester (2-Column Grid) -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                
+                <!-- Meeting Details Card -->
+                <div class="bg-white rounded-xl border border-stone-200/80 p-3.5 shadow-2xs space-y-2 flex flex-col justify-between">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="w-6.5 h-6.5 rounded-full bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
+                        <span class="iconify text-xs" data-icon="lucide:file-text" data-stroke-width="1.8"></span>
+                      </span>
+                      <span class="font-heading font-bold text-xs sm:text-sm text-stone-900">Meeting Details</span>
+                    </div>
+                    <button type="button" onclick="app.bookingFormGoToStep(2)" class="h-6 px-2 rounded-md border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 text-[11px] font-medium inline-flex items-center gap-1 transition cursor-pointer">
+                      <span class="iconify text-[11px] text-stone-400" data-icon="lucide:pencil" data-stroke-width="1.8"></span>
+                      <span>Edit</span>
+                    </button>
+                  </div>
+                  <div>
+                    <h4 id="step4-meeting-title" class="font-heading font-bold text-xs sm:text-sm text-stone-900 truncate">CC</h4>
+                    <p id="step4-meeting-notes" class="text-xs text-stone-500 line-clamp-2 mt-0.5 leading-relaxed">General departmental meeting and discussion.</p>
+                  </div>
+                </div>
+
+                <!-- Requester Profile Card -->
+                <div class="bg-white rounded-xl border border-stone-200/80 p-3.5 shadow-2xs space-y-2 flex flex-col justify-between">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="w-6.5 h-6.5 rounded-full bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
+                        <span class="iconify text-xs" data-icon="lucide:user" data-stroke-width="1.8"></span>
+                      </span>
+                      <span class="font-heading font-bold text-xs sm:text-sm text-stone-900">Requester</span>
+                    </div>
+                    <span id="step4-staff-id" class="font-mono text-xs font-semibold text-stone-400">NBC-4102</span>
+                  </div>
+                  <div>
+                    <strong id="step4-requester-name" class="font-heading font-bold text-xs sm:text-sm text-stone-900 block truncate">Jonathan Vance</strong>
+                    <p id="step4-department" class="text-xs text-stone-500 truncate mt-0.5 leading-snug">Board of Directors & Cabinet • Board & Executive Office</p>
+                    <div class="text-[11px] text-stone-500 font-mono truncate mt-1 flex items-center gap-1.5">
+                      <span class="iconify text-stone-400 text-xs shrink-0" data-icon="lucide:mail" data-stroke-width="1.8"></span>
+                      <span id="step4-phone">Ext. 8421</span> &bull; <span id="step4-email">jonathan.vance@nbc.gov.kh</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- 4. Services Specification: Food & IT (2-Column Grid) -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                
+                <!-- Food & Catering -->
+                <div class="bg-white rounded-xl border border-stone-200/80 p-3.5 shadow-2xs space-y-2 flex flex-col justify-between">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="w-6.5 h-6.5 rounded-full bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
+                        <span class="iconify text-xs" data-icon="lucide:utensils" data-stroke-width="1.8"></span>
+                      </span>
+                      <span class="font-heading font-bold text-xs sm:text-sm text-stone-900">Food & Catering</span>
+                    </div>
+                    <button type="button" onclick="app.bookingFormGoToStep(3)" class="h-6 px-2 rounded-md border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 text-[11px] font-medium inline-flex items-center gap-1 transition cursor-pointer">
+                      <span class="iconify text-[11px] text-stone-400" data-icon="lucide:pencil" data-stroke-width="1.8"></span>
+                      <span>Edit</span>
+                    </button>
+                  </div>
+                  <div id="step4-food-content" class="hidden">
+                    <div class="flex items-center justify-between text-xs">
+                      <strong id="step4-food-package-name" class="font-bold text-stone-900 truncate">Package</strong>
+                      <span id="step4-food-servings" class="font-mono text-xs text-stone-600 shrink-0 ml-1">8 Servings</span>
+                    </div>
+                    <p id="step4-food-remarks" class="text-xs text-stone-500 truncate mt-0.5 leading-relaxed"></p>
+                  </div>
+                  <div id="step4-food-empty">
+                    <span class="text-xs text-stone-500 font-normal">Complimentary mineral water only</span>
+                  </div>
+                  <span id="step4-food-status" class="hidden">None</span>
+                </div>
+
+                <!-- IT Support -->
+                <div class="bg-white rounded-xl border border-stone-200/80 p-3.5 shadow-2xs space-y-2 flex flex-col justify-between">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="w-6.5 h-6.5 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+                        <span class="iconify text-xs" data-icon="lucide:monitor" data-stroke-width="1.8"></span>
+                      </span>
+                      <span class="font-heading font-bold text-xs sm:text-sm text-stone-900">IT & AV Support</span>
+                    </div>
+                    <button type="button" onclick="app.bookingFormGoToStep(3)" class="h-6 px-2 rounded-md border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 text-[11px] font-medium inline-flex items-center gap-1 transition cursor-pointer">
+                      <span class="iconify text-[11px] text-stone-400" data-icon="lucide:pencil" data-stroke-width="1.8"></span>
+                      <span>Edit</span>
+                    </button>
+                  </div>
+                  <div id="step4-it-content" class="hidden">
+                    <div id="step4-it-chip-list" class="flex flex-wrap gap-2"></div>
+                  </div>
+                  <div id="step4-it-empty">
+                    <span class="text-xs text-stone-500 font-normal">Standard in-room AV equipment only</span>
+                  </div>
+                  <span id="step4-it-status" class="hidden">Standard AV</span>
+                </div>
+
+              </div>
+
+              <!-- 5. Private Room Justification (Conditional) -->
+              <div id="step4-justification-card" class="hidden p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-xs space-y-1">
+                <div class="flex items-center gap-1.5 text-amber-950 font-bold text-xs">
+                  <span class="iconify text-amber-700 text-sm" data-icon="lucide:shield-alert" data-stroke-width="1.8"></span>
+                  <span>Executive Justification for Private Room</span>
+                </div>
+                <p id="step4-justification-text" class="text-xs text-amber-900 leading-snug"></p>
+              </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN: Voucher & Action Console (lg:col-span-4) -->
+            <div class="lg:col-span-4 bg-white rounded-2xl border border-stone-200/80 p-5 shadow-xs flex flex-col justify-between space-y-4">
+              
+              <!-- Voucher Header -->
+              <div class="flex items-center justify-between pb-3.5 border-b border-stone-200/70">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-[#801414] text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <span class="iconify text-xl text-white" data-icon="lucide:landmark" data-stroke-width="1.8"></span>
+                  </div>
+                  <div>
+                    <h4 class="font-heading font-bold text-xs text-stone-900 uppercase tracking-wider leading-tight">NATIONAL BANK OF CAMBODIA</h4>
+                    <span class="text-xs text-stone-400 font-medium">Reservation Voucher</span>
+                  </div>
+                </div>
+                <span class="px-2.5 py-1 rounded-md bg-red-50 text-[#991B1B] text-xs font-bold font-mono border border-red-100">DRAFT</span>
+              </div>
+
+              <!-- Booking Summary Inset Card -->
+              <div class="p-4 bg-[#FAF7F5] rounded-xl border border-stone-200/60 space-y-2.5">
+                <div class="flex items-center gap-2 text-stone-900 font-bold text-sm">
+                  <span class="iconify text-[#991B1B] text-base" data-icon="lucide:list" data-stroke-width="2"></span>
+                  <span>Booking Summary</span>
+                </div>
+                <div class="space-y-2 text-xs">
+                  <div class="flex items-center justify-between">
+                    <span class="text-stone-500">Facility</span>
+                    <strong id="step4-voucher-room" class="font-bold text-stone-900 truncate ml-2 text-right">Sisekong – Sekong River</strong>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-stone-500">Type</span>
+                    <strong id="step4-voucher-type" class="font-bold text-stone-900 text-right">Standard Room</strong>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-stone-500">Duration</span>
+                    <strong id="step4-voucher-duration" class="font-mono font-bold text-stone-900 text-right">Scheduled</strong>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-stone-500">Attendees</span>
+                    <strong id="step4-voucher-attendees" class="font-mono font-bold text-stone-900 text-right">8 Persons</strong>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-stone-500">Services</span>
+                    <strong id="step4-voucher-services" class="font-bold text-stone-900 text-right">IT AV Setup</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Authorization Pathway -->
+              <div class="space-y-2.5 pt-1">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <span class="iconify text-[#991B1B] text-base" data-icon="lucide:git-pull-request" data-stroke-width="1.8"></span>
+                    <span class="font-heading font-bold text-sm text-stone-900">Approval Route</span>
+                  </div>
+                  <span id="step4-pathway-turnaround" class="text-xs text-stone-400 font-mono">Est. 1-2 hours</span>
+                </div>
+                <div id="step4-pathway-steps" class="space-y-2"></div>
+              </div>
+
+              <!-- Notice Box -->
+              <div class="p-3 rounded-xl bg-[#FDF8F3] border border-[#F5E6D8] flex items-center gap-2.5 text-xs text-stone-700">
+                <span class="iconify text-[#D97706] text-base shrink-0" data-icon="lucide:info" data-stroke-width="1.8"></span>
+                <span>Door PIN emailed 15m before session</span>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="space-y-2.5 pt-1">
+                <button type="button" onclick="app.handleBookingSubmit(event)" id="form-submit-btn" class="btn-primary w-full h-11 rounded-xl bg-[#801414] hover:bg-[#6A1010] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-xs cursor-pointer transition active:scale-[0.98]" style="width: 100%;">
+                  <span id="form-submit-btn-text">Submit Request for Review</span>
+                  <span class="iconify text-sm text-white" data-icon="lucide:arrow-right" data-stroke-width="2"></span>
+                </button>
+                <button type="button" onclick="app.bookingFormGoToStep(3)" class="w-full h-11 rounded-xl bg-white hover:bg-stone-50 text-stone-800 border border-stone-200 hover:border-stone-300 text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer transition shadow-2xs" style="width: 100%;">
+                  <span class="iconify text-stone-600 text-sm" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+                  <span>Back to Services</span>
+                </button>
+              </div>
+
+            </div>
+
           </div>
 
         </div>
@@ -3091,17 +3241,40 @@ class BookingFormView {
     const selectedITIndexes = Array.from(this.selectedITItemIndexes || [0, 2]);
     const checkedITItems = selectedITIndexes.map(idx => itItemValues[idx]).filter(Boolean);
 
-    // ===== STEP 4 PREMIUM CARD POPULATION =====
+    // ===== STEP 4 EXECUTIVE RESERVATION DOSSIER POPULATION =====
     const calcDuration = document.getElementById('calculated-duration-label')?.innerText || 'Scheduled';
 
-    // Card Header
+    // 1. Room Visual Banner
+    const step4RoomImg = document.getElementById('step4-room-img');
     const step4RoomName = document.getElementById('step4-room-name');
+    const step4RoomType = document.getElementById('step4-room-type');
     const step4RoomFloor = document.getElementById('step4-room-floor');
-    if (step4RoomName) step4RoomName.innerText = room.name;
-    if (step4RoomFloor) step4RoomFloor.innerText = `${room.floor} • ${room.capacity} seats capacity`;
+    const step4RoomCapacity = document.getElementById('step4-room-capacity');
+    const step4RoomOwnerTag = document.getElementById('step4-room-owner-tag');
+    const step4RoomOwnerText = document.getElementById('step4-room-owner-text');
 
-    // Info Strip
+    if (step4RoomImg) step4RoomImg.src = room.image || 'assets/rooms/summit-suite.jpg';
+    if (step4RoomName) step4RoomName.innerText = room.name || 'Meeting Room';
+    if (step4RoomType) {
+      step4RoomType.innerText = isMyRoom ? 'Your Private Suite' : (isPrivate ? 'Executive Private Suite' : 'Standard Room');
+    }
+    if (step4RoomFloor) {
+      const floorVal = room.floor || 'Floor 18';
+      step4RoomFloor.innerText = (floorVal.includes('Suite') || floorVal.includes('Executive'))
+        ? floorVal
+        : `${floorVal} - Executive Suite`;
+    }
+    if (step4RoomCapacity) step4RoomCapacity.innerText = `Capacity: ${room.capacity || 60} Seats`;
+    if (step4RoomOwnerTag) {
+      step4RoomOwnerTag.classList.toggle('hidden', !isPrivate);
+      if (isPrivate && step4RoomOwnerText) {
+        step4RoomOwnerText.innerText = isMyRoom ? 'Owner: Jonathan Vance (You)' : `Owner: ${room.roomOwner?.name || 'Room Owner'}`;
+      }
+    }
+
+    // 2. Schedule Info Grid
     const step4Date = document.getElementById('step4-date');
+    const step4DayLabel = document.getElementById('step4-day-label');
     const step4Time = document.getElementById('step4-time');
     const step4Duration = document.getElementById('step4-duration');
     const step4Attendees = document.getElementById('step4-attendees');
@@ -3111,6 +3284,7 @@ class BookingFormView {
     const multiList = document.getElementById('step4-multi-sessions-list');
     const multiCount = document.getElementById('step4-multi-sessions-count');
 
+    let totalDurationText = calcDuration;
     if (this.selectedSessions && this.selectedSessions.length > 1) {
       let totalMinutes = 0;
       const dayFormatter = new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -3135,15 +3309,15 @@ class BookingFormView {
           } catch (_) {}
 
           return `
-            <div class="flex items-center justify-between p-2 rounded-lg bg-white border border-emerald-200 text-xs shadow-2xs">
-              <div class="flex items-center space-x-2">
-                <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px]">#${idx + 1}</span>
+            <div class="flex items-center justify-between p-2.5 rounded-lg bg-white border border-[#E9E3DD] text-xs">
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-red-50 text-[#991B1B] font-mono text-[10px] font-bold flex items-center justify-center shrink-0">#${idx + 1}</span>
                 <div>
                   <span class="font-semibold text-stone-900 block leading-tight">${fDate}</span>
                   <span class="font-mono text-[11px] text-stone-600 block leading-tight">${s.startTime} – ${s.endTime}</span>
                 </div>
               </div>
-              <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[10px] font-bold border border-emerald-200">${dStr}</span>
+              <span class="font-mono text-[10.5px] font-semibold text-stone-600 px-1.5 py-0.5 bg-[#FAF7F4] rounded border border-[#E9E3DD]">${dStr}</span>
             </div>
           `;
         }).join('');
@@ -3155,11 +3329,13 @@ class BookingFormView {
       if (totH > 0) totStr += `${totH} hr${totH > 1 ? 's' : ''}`;
       if (remM > 0) totStr += ` ${remM} min${remM > 1 ? 's' : ''}`;
       totStr = totStr.trim() || `${totalMinutes} mins`;
+      totalDurationText = totStr;
 
       if (multiSec) multiSec.classList.remove('hidden');
-      if (multiCount) multiCount.innerText = `${this.selectedSessions.length} Sessions • ${totStr}`;
+      if (multiCount) multiCount.innerText = `${this.selectedSessions.length} Sessions (${totStr} total)`;
       if (step4Date) step4Date.innerText = `${this.selectedSessions.length} Sessions`;
-      if (step4Time) step4Time.innerText = `${this.selectedSessions[0].date} & more`;
+      if (step4DayLabel) step4DayLabel.innerText = `${this.selectedSessions[0].date} & more`;
+      if (step4Time) step4Time.innerText = `${this.selectedSessions[0].startTime} – ${this.selectedSessions[this.selectedSessions.length - 1].endTime}`;
       if (step4Duration) step4Duration.innerText = `${totStr} total`;
     } else {
       if (multiSec) multiSec.classList.add('hidden');
@@ -3167,151 +3343,233 @@ class BookingFormView {
       if (step4Date) {
         try {
           const dateObj = new Date(date + 'T00:00:00');
-          step4Date.innerText = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          step4Date.innerText = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
         } catch(_) {
           step4Date.innerText = date;
         }
       }
+      if (step4DayLabel) step4DayLabel.innerText = 'Confirmed Slot';
       if (step4Time) step4Time.innerText = `${startTime} – ${endTime}`;
-      if (step4Duration) step4Duration.innerText = calcDuration;
+      if (step4Duration) {
+        step4Duration.innerText = calcDuration.startsWith('Scheduled') ? calcDuration : `Scheduled (${calcDuration})`;
+      }
     }
 
-    if (step4Attendees) step4Attendees.innerText = `${attendees} people`;
+    if (step4Attendees) step4Attendees.innerText = `${attendees} Persons`;
 
-    // Meeting Title
+    // 3. Meeting Details & Requester
     const step4Title = document.getElementById('step4-meeting-title');
     if (step4Title) step4Title.innerText = meetingTitle;
 
-    // ===== SERVICE CHIPS (Food & IT) =====
-    const servicesSection = document.getElementById('step4-services-section');
-    const foodChipsContainer = document.getElementById('step4-food-chips');
-    const foodChipList = document.getElementById('step4-food-chip-list');
-    const itChipsContainer = document.getElementById('step4-it-chips');
-    const itChipList = document.getElementById('step4-it-chip-list');
+    const meetingNotes = document.getElementById('form-purpose')?.value?.trim();
+    const step4MeetingNotes = document.getElementById('step4-meeting-notes');
+    if (step4MeetingNotes) {
+      step4MeetingNotes.innerText = meetingNotes || 'General departmental meeting and discussion.';
+    }
 
-    const showServices = hasCatering || needsIT;
-    if (servicesSection) servicesSection.classList.toggle('hidden', !showServices);
+    const requesterName = document.getElementById('form-requester-name')?.value?.trim() || 'Jonathan Vance';
+    const staffId = document.getElementById('form-requester-id')?.value?.trim() || 'NBC-4102';
+    const staffEmail = document.getElementById('form-requester-email')?.value?.trim() || 'jonathan.vance@nbc.gov.kh';
+    const staffPhone = document.getElementById('form-requester-phone')?.value?.trim() || 'Ext. 8421';
+    const dirSelect = document.getElementById('form-requester-directorate');
+    const deptSelect = document.getElementById('form-requester-department');
+    const dirName = dirSelect?.options[dirSelect.selectedIndex]?.text?.trim() || 'Directorate of Banking Operations';
+    const deptName = deptSelect?.options[deptSelect.selectedIndex]?.text?.trim() || 'Department of Financial Settlement';
 
-    // Food Chips
-    if (foodChipsContainer && foodChipList) {
-      if (hasCatering) {
-        foodChipsContainer.classList.remove('hidden');
-        foodChipList.innerHTML = selectedPkgNames.map(name => {
-          return `<span class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-white text-amber-900 border border-amber-200 shadow-2xs">
-            <span class="iconify text-amber-600 text-[12px]" data-icon="lucide:check"></span>
-            <span>${name}</span>
-          </span>`;
-        }).join('');
+    const step4ReqName = document.getElementById('step4-requester-name');
+    const step4StaffId = document.getElementById('step4-staff-id');
+    const step4Dept = document.getElementById('step4-department');
+    const step4Phone = document.getElementById('step4-phone');
+    const step4Email = document.getElementById('step4-email');
+
+    if (step4ReqName) step4ReqName.innerText = requesterName;
+    if (step4StaffId) step4StaffId.innerText = staffId;
+    if (step4Dept) step4Dept.innerText = `${deptName} • ${dirName}`;
+    if (step4Phone) step4Phone.innerText = staffPhone;
+    if (step4Email) step4Email.innerText = staffEmail;
+
+    // Private Justification
+    const justificationCard = document.getElementById('step4-justification-card');
+    const justificationText = document.getElementById('step4-justification-text');
+    if (justificationCard) {
+      if (isPrivate && !isMyRoom) {
+        const reason = document.getElementById('form-private-justification')?.value?.trim() || 'Confidential banking session requiring executive private room isolation.';
+        justificationCard.classList.remove('hidden');
+        if (justificationText) justificationText.innerText = `"${reason}"`;
       } else {
-        foodChipsContainer.classList.add('hidden');
-        foodChipList.innerHTML = '';
+        justificationCard.classList.add('hidden');
       }
     }
 
-    // IT Chips
-    if (itChipsContainer && itChipList) {
-      if (needsIT && checkedITItems.length > 0) {
-        itChipsContainer.classList.remove('hidden');
-        const shortNames = {
-          'Video Conference Setup (Zoom / Teams)': 'Video Conference',
-          'Presentation Screen & TV': 'Screen & TV',
-          'Microphones & Audio Setup': 'Microphones',
-          'Smart Digital Whiteboard': 'Whiteboard',
-          'Session Recording & Stream': 'Recording',
-          'Dedicated IT Standby Staff': 'IT Standby',
-          'Presenter Laptop & Clicker': 'Laptop & Clicker',
-          'High-Density Wi-Fi / LAN': 'Wi-Fi / LAN',
-          'Simultaneous Translation': 'Translation'
-        };
+    // 4. Hospitality & IT Services Specification
+    const foodStatus = document.getElementById('step4-food-status');
+    const foodContent = document.getElementById('step4-food-content');
+    const foodEmpty = document.getElementById('step4-food-empty');
+    const foodPkgName = document.getElementById('step4-food-package-name');
+    const foodServings = document.getElementById('step4-food-servings');
+    const foodRemarksEl = document.getElementById('step4-food-remarks');
+
+    if (foodStatus) foodStatus.innerText = hasCatering ? 'Requested' : 'None';
+    if (hasCatering) {
+      if (foodContent) foodContent.classList.remove('hidden');
+      if (foodEmpty) foodEmpty.classList.add('hidden');
+      if (foodPkgName) foodPkgName.innerText = selectedPkgNames.join(', ');
+      if (foodServings) foodServings.innerText = `${attendees} Servings`;
+      if (foodRemarksEl) {
+        foodRemarksEl.innerText = cateringRemarks ? `Remarks: ${cateringRemarks}` : 'Standard beverage & hospitality arrangement.';
+      }
+    } else {
+      if (foodContent) foodContent.classList.add('hidden');
+      if (foodEmpty) foodEmpty.classList.remove('hidden');
+    }
+
+    const itStatus = document.getElementById('step4-it-status');
+    const itContent = document.getElementById('step4-it-content');
+    const itEmpty = document.getElementById('step4-it-empty');
+    const itChipList = document.getElementById('step4-it-chip-list');
+
+    if (itStatus) itStatus.innerText = (needsIT && checkedITItems.length > 0) ? `${checkedITItems.length} Items` : 'Standard AV';
+    if (needsIT && checkedITItems.length > 0) {
+      if (itContent) itContent.classList.remove('hidden');
+      if (itEmpty) itEmpty.classList.add('hidden');
+      const shortNames = {
+        'Video Conference Setup (Zoom / Teams)': 'Video Conference',
+        'Presentation Screen & TV': 'Screen & TV',
+        'Microphones & Audio Setup': 'Microphones',
+        'Smart Digital Whiteboard': 'Whiteboard',
+        'Session Recording & Stream': 'Recording',
+        'Dedicated IT Standby Staff': 'IT Standby',
+        'Presenter Laptop & Clicker': 'Laptop & Clicker',
+        'High-Density Wi-Fi / LAN': 'Wi-Fi / LAN',
+        'Simultaneous Translation': 'Translation'
+      };
+      if (itChipList) {
         itChipList.innerHTML = checkedITItems.map(item => {
           const short = shortNames[item] || item;
-          return `<span class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-white text-stone-800 border border-[#E9E3DD] shadow-2xs">
-            <span class="iconify text-[#991B1B] text-[12px]" data-icon="lucide:check"></span>
+          return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-stone-200 text-xs text-stone-700 font-medium shadow-2xs">
+            <span class="iconify text-[#801414] text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
             <span>${short}</span>
           </span>`;
         }).join('');
-      } else {
-        itChipsContainer.classList.add('hidden');
-        itChipList.innerHTML = '';
       }
+    } else {
+      if (itContent) itContent.classList.add('hidden');
+      if (itEmpty) itEmpty.classList.remove('hidden');
     }
 
-    // Approval callout banner & Submit button text
-    const calloutEl = document.getElementById('step3-approval-callout');
+    // 5. Right Column Voucher Metrics
+    const voucherRoom = document.getElementById('step4-voucher-room');
+    const voucherType = document.getElementById('step4-voucher-type');
+    const voucherDuration = document.getElementById('step4-voucher-duration');
+    const voucherAttendees = document.getElementById('step4-voucher-attendees');
+    const voucherServices = document.getElementById('step4-voucher-services');
+
+    if (voucherRoom) voucherRoom.innerText = room.name || 'Meeting Room';
+    if (voucherType) {
+      voucherType.innerText = isMyRoom ? 'Your Designated Suite' : (isPrivate ? 'Private Executive Suite' : 'Standard Room');
+      voucherType.className = isPrivate ? 'font-semibold text-[#D97706]' : 'font-semibold text-stone-800';
+    }
+    if (voucherDuration) {
+      voucherDuration.innerText = (this.selectedSessions && this.selectedSessions.length > 1) ? `${this.selectedSessions.length} Sessions • ${totalDurationText}` : (calcDuration || 'Scheduled');
+    }
+    if (voucherAttendees) voucherAttendees.innerText = `${attendees} Persons`;
+    if (voucherServices) {
+      let svcText = '';
+      if (hasCatering && needsIT) svcText = 'Catering + IT Setup';
+      else if (hasCatering) svcText = 'Catering Only';
+      else if (needsIT) svcText = 'IT AV Setup';
+      else svcText = 'Standard Room Only';
+      voucherServices.innerText = svcText;
+    }
+
+    // 6. Authorization Pathway & Submit Button
+    const pathwayTurnaround = document.getElementById('step4-pathway-turnaround');
+    const pathwaySteps = document.getElementById('step4-pathway-steps');
     const submitBtn = document.getElementById('form-submit-btn');
     const submitBtnText = document.getElementById('form-submit-btn-text');
+    if (submitBtn) submitBtn.style.width = '100%';
 
     if (isMyRoom) {
       if (hasCatering || needsIT) {
-        if (calloutEl) {
-          calloutEl.className = 'p-2.5 sm:p-3 rounded-xl border border-amber-200 bg-amber-50/50 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3';
-          calloutEl.innerHTML = `
-            <div class="flex items-center space-x-2 text-amber-950 font-semibold text-[12px] sm:text-[13px] shrink-0">
-              <span class="iconify text-amber-700 text-base" data-icon="lucide:user-check"></span>
-              <span>Manager Review (Your Private Room)</span>
+        if (pathwayTurnaround) pathwayTurnaround.innerText = 'Est. 1-2 hours';
+        if (pathwaySteps) {
+          pathwaySteps.innerHTML = `
+            <div class="flex items-center gap-2.5 py-0.5 text-xs">
+              <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 text-[10px]">
+                <span class="iconify text-[10px]" data-icon="lucide:check" data-stroke-width="2.5"></span>
+              </span>
+              <span class="text-stone-900 font-semibold">Room Ownership Verified</span>
             </div>
-            <p class="text-[11px] text-amber-900 leading-snug">
-              Because you requested <strong>${hasCatering && needsIT ? 'Food and IT Support' : (hasCatering ? 'Food / Catering' : 'IT Support')}</strong>, Manager Pitika will verify service arrangements before setup begins.
-            </p>
+            <div class="flex items-center gap-2.5 py-0.5 text-xs">
+              <span class="w-5 h-5 rounded-full bg-[#801414] text-white flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">2</span>
+              <span class="text-stone-900 font-semibold">Manager Service Verification</span>
+            </div>
+            <div class="flex items-center gap-2.5 py-0.5 text-xs">
+              <span class="w-5 h-5 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">3</span>
+              <span class="text-stone-600 font-medium">Door PIN Activation</span>
+            </div>
           `;
-        }
-        if (submitBtn) {
-          submitBtn.className = 'btn-primary w-full sm:w-auto h-9.5 sm:h-10 px-6 rounded-lg text-[13px] font-bold shadow-md flex items-center justify-center space-x-1.5 transition bg-gradient-to-r from-amber-700 via-amber-800 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white cursor-pointer';
         }
         if (submitBtnText) submitBtnText.innerText = 'Submit for Manager Review';
       } else {
-        if (calloutEl) {
-          calloutEl.className = 'p-2.5 sm:p-3 rounded-xl border border-emerald-200 bg-emerald-50/50 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3';
-          calloutEl.innerHTML = `
-            <div class="flex items-center space-x-2 text-emerald-950 font-semibold text-[12px] sm:text-[13px] shrink-0">
-              <span class="iconify text-emerald-700 text-base" data-icon="lucide:zap"></span>
-              <span>Instant Confirmation (Your Private Room)</span>
+        if (pathwayTurnaround) pathwayTurnaround.innerText = 'Instant Confirmation';
+        if (pathwaySteps) {
+          pathwaySteps.innerHTML = `
+            <div class="flex items-center gap-2.5 py-0.5 text-xs">
+              <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 text-[10px]">
+                <span class="iconify text-[10px]" data-icon="lucide:check" data-stroke-width="2.5"></span>
+              </span>
+              <span class="text-stone-900 font-semibold">Room Ownership Verified</span>
             </div>
-            <p class="text-[11px] text-emerald-800 leading-snug">
-              No extra services requested. You are the designated owner of <strong>${room.name}</strong>. Your booking is confirmed immediately without waiting for approvals.
-            </p>
+            <div class="flex items-center gap-2.5 py-0.5 text-xs">
+              <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 text-[10px]">
+                <span class="iconify text-[10px]" data-icon="lucide:check" data-stroke-width="2.5"></span>
+              </span>
+              <span class="text-stone-900 font-semibold">Instant Passcode Confirmed</span>
+            </div>
           `;
         }
-        if (submitBtn) {
-          submitBtn.className = 'btn-primary w-full sm:w-auto h-9.5 sm:h-10 px-6 rounded-lg text-[13px] font-bold shadow-md flex items-center justify-center space-x-1.5 transition bg-gradient-to-r from-emerald-700 via-emerald-800 to-emerald-900 hover:from-emerald-800 hover:to-emerald-950 text-white cursor-pointer';
-        }
-        if (submitBtnText) submitBtnText.innerText = 'Confirm Booking & Get Door Pass';
+        if (submitBtnText) submitBtnText.innerText = 'Confirm Booking & Issue Door PIN';
       }
     } else if (isPrivate) {
       const roomOwnerName = room.roomOwner?.name || 'Room Owner';
-      if (calloutEl) {
-        calloutEl.className = 'p-2.5 sm:p-3 rounded-xl border border-amber-200 bg-amber-50/50 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3';
-        calloutEl.innerHTML = `
-          <div class="flex items-center space-x-2 text-amber-950 font-semibold text-[12px] sm:text-[13px] shrink-0">
-            <span class="iconify text-amber-700 text-base" data-icon="lucide:shield-alert"></span>
-            <span>2 Approvals Required</span>
+      if (pathwayTurnaround) pathwayTurnaround.innerText = 'Est. 2-4 hours';
+      if (pathwaySteps) {
+        pathwaySteps.innerHTML = `
+          <div class="flex items-center gap-2.5 py-0.5 text-xs">
+            <span class="w-5 h-5 rounded-full bg-[#801414] text-white flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">1</span>
+            <span class="text-stone-900 font-semibold">Manager Pitika Review</span>
           </div>
-          <p class="text-[11px] text-amber-900 leading-snug">
-            This private room belongs to <strong>${roomOwnerName}</strong>. First, Manager Pitika checks your request and service arrangements. Then, <strong>${roomOwnerName}</strong> gives final approval. Food and IT setup will start only after both approvals.
-          </p>
+          <div class="flex items-center gap-2.5 py-0.5 text-xs">
+            <span class="w-5 h-5 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">2</span>
+            <span class="text-stone-600 font-medium">Room Owner (${roomOwnerName})</span>
+          </div>
+          <div class="flex items-center gap-2.5 py-0.5 text-xs">
+            <span class="w-5 h-5 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">3</span>
+            <span class="text-stone-600 font-medium">Door PIN Issued</span>
+          </div>
         `;
       }
-      if (submitBtn) {
-        submitBtn.className = 'btn-primary w-full sm:w-auto h-9.5 sm:h-10 px-6 rounded-lg text-[13px] font-bold shadow-md flex items-center justify-center space-x-1.5 transition bg-gradient-to-r from-amber-700 via-amber-800 to-amber-900 hover:from-amber-800 hover:to-amber-950 text-white cursor-pointer';
-      }
-      if (submitBtnText) submitBtnText.innerText = 'Send Request to Approvers';
+      if (submitBtnText) submitBtnText.innerText = 'Submit for 2-Tier Approvals';
     } else {
-      if (calloutEl) {
-        calloutEl.className = 'p-2.5 sm:p-3 rounded-xl border border-stone-200 bg-stone-50/50 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3';
-        calloutEl.innerHTML = `
-          <div class="flex items-center space-x-2 text-stone-900 font-semibold text-[12px] sm:text-[13px] shrink-0">
-            <span class="iconify text-red-800 text-base" data-icon="lucide:clock"></span>
-            <span>Manager Review Workflow</span>
+      if (pathwayTurnaround) pathwayTurnaround.innerText = 'Est. 1-2 hours';
+      if (pathwaySteps) {
+        pathwaySteps.innerHTML = `
+          <div class="flex items-center gap-2.5 py-0.5 text-xs">
+            <span class="w-5 h-5 rounded-full bg-[#801414] text-white flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">1</span>
+            <span class="text-stone-900 font-semibold">Manager Pitika Review</span>
           </div>
-          <p class="text-[11px] text-stone-500 leading-snug">
-            Your booking request will be sent to Manager Pitika for schedule verification and room assignment.
-          </p>
+          <div class="flex items-center gap-2.5 py-0.5 text-xs">
+            <span class="w-5 h-5 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">2</span>
+            <span class="text-stone-600 font-medium">Service Dispatch (Food/IT)</span>
+          </div>
+          <div class="flex items-center gap-2.5 py-0.5 text-xs">
+            <span class="w-5 h-5 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">3</span>
+            <span class="text-stone-600 font-medium">Door PIN Issued</span>
+          </div>
         `;
       }
-      if (submitBtn) {
-        submitBtn.className = 'btn-primary w-full sm:w-auto h-9.5 sm:h-10 px-6 rounded-lg text-[13px] font-bold shadow-md flex items-center justify-center space-x-1.5 transition cursor-pointer';
-      }
-      if (submitBtnText) submitBtnText.innerText = 'Send Request for Review';
+      if (submitBtnText) submitBtnText.innerText = 'Submit Request for Review';
     }
   }
 

@@ -305,8 +305,8 @@
                       <div class="flex items-center gap-2">
                         <h3 class="font-heading font-semibold text-sm text-stone-900">Equipment & IT</h3>
                         <span class="${req.needsIT ? (isConfirmed ? 'text-emerald-700' : 'text-amber-700') : 'text-stone-500'} inline-flex items-center gap-1 text-[11px] font-semibold">
-                          <span class="iconify" data-icon="${req.needsIT ? (isConfirmed ? 'lucide:check-circle-2' : 'lucide:clock-3') : 'lucide:minus-circle'}" data-stroke-width="1.8"></span>
-                          <span>${req.needsIT ? (isConfirmed ? 'Ready' : 'In progress') : 'Not requested'}</span>
+                          <span class="iconify" data-icon="${req.needsIT ? (isConfirmed ? 'lucide:check-circle-2' : (req.itDetails?.ticketForwardedToIT ? 'lucide:clock-3' : 'lucide:clock')) : 'lucide:minus-circle'}" data-stroke-width="1.8"></span>
+                          <span>${req.needsIT ? (isConfirmed ? 'Ready' : (req.itDetails?.ticketForwardedToIT ? 'In progress' : 'Awaiting approval')) : 'Not requested'}</span>
                         </span>
                       </div>
                       <p class="text-xs text-stone-600 mt-1">${req.needsIT ? (req.itDetails?.requestedItems?.join(', ') || 'Video conference and audio setup') : 'The room standard equipment will be used.'}</p>

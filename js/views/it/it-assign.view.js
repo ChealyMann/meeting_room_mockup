@@ -42,6 +42,12 @@ class ITAssignView {
     const ticket = bookingStore.getRequestById(ticketId);
     if (!ticket) return;
 
+    if (!ticket.itDetails?.ticketForwardedToIT || ticket.status?.includes('Reject') || ticket.status?.includes('Cancel')) {
+      this.showToast("Approval Required", "This booking must be approved by management before IT assignment.", "warning");
+      this.navigateTo('it-queue');
+      return;
+    }
+
     this.selectedRequestForIT = ticket;
 
     // Initialize selected staff set from current assigned list or default
@@ -226,6 +232,23 @@ class ITAssignView {
           <span class="iconify text-2xl text-stone-400" data-icon="lucide:ticket-x" data-stroke-width="1.8"></span>
           <p class="mt-3 text-xs font-semibold text-stone-800">IT ticket not found.</p>
           <button type="button" onclick="app.navigateTo('it-queue')" class="mt-4 btn-primary px-4 py-2 rounded-lg text-xs font-bold">Back to IT Queue</button>
+        </div>
+      `;
+      return;
+    }
+
+    if (!ticket.itDetails?.ticketForwardedToIT || ticket.status?.includes('Reject') || ticket.status?.includes('Cancel')) {
+      container.innerHTML = `
+        <div class="py-12 text-center bg-white rounded-2xl border border-[#E9E3DD] p-6 space-y-3 max-w-lg mx-auto mt-8">
+          <span class="iconify text-3xl text-amber-600 mx-auto block" data-icon="lucide:shield-alert" data-stroke-width="1.8"></span>
+          <h3 class="font-heading font-bold text-base text-stone-900">Approval Required</h3>
+          <p class="text-xs text-stone-600">This booking request has not yet completed the required management approvals. IT staff can only be assigned after official approval.</p>
+          <div class="pt-2">
+            <button type="button" onclick="app.navigateTo('it-queue')" class="btn-primary px-4 py-2 rounded-lg text-xs font-bold inline-flex items-center gap-1.5">
+              <span class="iconify text-white text-sm" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+              <span>Back to IT Queue</span>
+            </button>
+          </div>
         </div>
       `;
       return;

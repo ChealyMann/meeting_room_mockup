@@ -410,8 +410,13 @@ class ITQueueView {
     if (typeof bookingStore === 'undefined') return [];
     const allRequests = bookingStore.getRequests() || [];
 
-    // 1. Filter only requests that require IT support
-    let itTickets = allRequests.filter(r => r.needsIT);
+    // 1. Filter only requests that require IT support AND have been forwarded after full approval
+    let itTickets = (typeof bookingStore.getApprovedITTickets === 'function'
+      ? bookingStore.getApprovedITTickets()
+      : (bookingStore.getRequests() || []).filter(
+          r => r.needsIT && r.itDetails?.ticketForwardedToIT === true && !r.status?.includes('Reject') && !r.status?.includes('Cancel')
+        )
+    );
 
     // 2. Filter by status
     itTickets = itTickets.filter(ticket => {
@@ -475,9 +480,13 @@ class ITQueueView {
     const container = document.getElementById('it-tickets-list');
     if (!container || typeof bookingStore === 'undefined') return;
 
-    // 1. Fetch all raw IT tickets for KPI calculation
-    const allRequests = bookingStore.getRequests() || [];
-    const allITTickets = allRequests.filter(r => r.needsIT);
+    // 1. Fetch all approved IT tickets for KPI calculation
+    const allITTickets = (typeof bookingStore.getApprovedITTickets === 'function'
+      ? bookingStore.getApprovedITTickets()
+      : (bookingStore.getRequests() || []).filter(
+          r => r.needsIT && r.itDetails?.ticketForwardedToIT === true && !r.status?.includes('Reject') && !r.status?.includes('Cancel')
+        )
+    );
 
     // 2. Compute KPI counters
     const totalCount = allITTickets.length;

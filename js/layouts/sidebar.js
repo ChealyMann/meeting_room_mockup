@@ -206,13 +206,12 @@ window.NBC.layouts.sidebar = {
     }
 
     const itCountEl = document.getElementById('nav-count-it-pending');
-    const itTickets = bookingStore
-      .getRequests()
-      .filter(
-        request =>
-          request.needsIT &&
-          (!request.itDetails || !request.itDetails.isReady)
-      );
+    const itTickets = (typeof bookingStore.getApprovedITTickets === 'function'
+      ? bookingStore.getApprovedITTickets()
+      : (bookingStore.getRequests() || []).filter(
+          request => request.needsIT && request.itDetails?.ticketForwardedToIT === true && !request.status?.includes('Reject') && !request.status?.includes('Cancel')
+        )
+    ).filter(request => !request.itDetails || !request.itDetails.isReady);
 
     if (itCountEl) {
       itCountEl.innerText = itTickets.length;

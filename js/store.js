@@ -205,6 +205,15 @@ class BankBookingStore {
     );
   }
 
+  getApprovedITTickets() {
+    return (this.requests || []).filter(r => 
+      r.needsIT && 
+      r.itDetails?.ticketForwardedToIT === true && 
+      !r.status?.includes('Reject') && 
+      !r.status?.includes('Cancel')
+    );
+  }
+
   getNotifications() {
     return this.notifications;
   }
@@ -1654,8 +1663,8 @@ class BankBookingStore {
       req.cateringDetails.approverNotes = options.cateringNotes || "Food order approved.";
     }
 
-    if (req.needsIT && options.forwardToIT) {
-      req.itDetails.ticketForwardedToIT = true;
+    if (req.needsIT && options.forwardToIT !== false) {
+      if (req.itDetails) req.itDetails.ticketForwardedToIT = true;
       this.notifications.unshift({
         id: `NOTIF-${Date.now()}`,
         title: "New IT Support Ticket",
