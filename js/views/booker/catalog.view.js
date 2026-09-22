@@ -91,6 +91,7 @@ window.NBC.views['book-room'] = {
         const rangeStart = ref('');
         const rangeEnd = ref('');
         const rooms = ref([]);
+        const minSeats = ref('');
 
         const todayString = (() => {
           const today = new Date();
@@ -242,6 +243,10 @@ window.NBC.views['book-room'] = {
             if (!isRoomAvailableForRange(room)) return false;
             if (hasDateRange.value && (room.status || 'Available').toLowerCase() !== 'available') return false;
 
+            // Seat capacity filter (>= logic)
+            const minSeatVal = Number(minSeats.value);
+            if (minSeatVal > 0 && (Number(room.capacity) || 0) < minSeatVal) return false;
+
             // Status filter
             if (currentStatusFilter.value === 'available') {
               const isAvail = (room.status || 'Available').toLowerCase() === 'available';
@@ -326,6 +331,7 @@ window.NBC.views['book-room'] = {
           return currentBuildingFilter.value !== 'all' ||
                  currentStatusFilter.value !== 'all' ||
                  searchQuery.value.trim().length > 0 ||
+                 minSeats.value !== '' ||
                  rangeStart.value !== '' ||
                  rangeEnd.value !== '';
         });
@@ -339,7 +345,7 @@ window.NBC.views['book-room'] = {
           });
         };
 
-        watch([searchQuery, currentBuildingFilter, currentStatusFilter, rangeStart, rangeEnd, rooms], () => {
+        watch([searchQuery, currentBuildingFilter, currentStatusFilter, rangeStart, rangeEnd, minSeats, rooms], () => {
           scanIcons();
         });
 
@@ -376,6 +382,7 @@ window.NBC.views['book-room'] = {
           currentBuildingFilter.value = 'all';
           currentStatusFilter.value = 'all';
           searchQuery.value = '';
+          minSeats.value = '';
           rangeStart.value = '';
           rangeEnd.value = '';
         };
@@ -422,6 +429,7 @@ window.NBC.views['book-room'] = {
 
         return {
           searchQuery,
+          minSeats,
           currentBuildingFilter,
           currentStatusFilter,
           rangeStart,
@@ -464,12 +472,20 @@ window.NBC.views['book-room'] = {
           <section class="sticky-catalog-navbar -mx-3.5 sm:-mx-5 lg:-mx-6 xl:-mx-8 px-3.5 sm:px-5 lg:px-6 xl:px-8 -mt-3.5 sm:-mt-5 lg:-mt-6 xl:-mt-6 pt-3.5 sm:pt-5 lg:pt-6 xl:pt-6 pb-4 border-b border-[#E9E3DD]/80" aria-label="Room search and filters">
             <div class="bg-white rounded-2xl border border-[#E9E3DD] shadow-xs p-4 sm:p-5 space-y-4">
               <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-end">
-                <div class="md:col-span-7">
+                <div class="md:col-span-5">
                   <label for="room-search-input" class="block text-sm font-semibold text-[#6F5849] mb-1.5">Search rooms</label>
                   <div class="relative">
                     <app-icon icon="lucide:search" class-name="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7D6857] text-base pointer-events-none" />
                     <input type="search" v-model="searchQuery" id="room-search-input" placeholder="Name, floor, amenity, or department" autocomplete="off" class="w-full h-11 pl-10 pr-10 bg-[#FAF7F4] hover:bg-white focus:bg-white text-[#1C1917] text-sm font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none" />
                     <button v-if="searchQuery.trim().length > 0" @click="clearSearch" id="room-search-clear" class="search-clear-btn" title="Clear search" aria-label="Clear search" type="button"><app-icon icon="lucide:x" class-name="text-xs" /></button>
+                  </div>
+                </div>
+
+                <div class="md:col-span-2">
+                  <label for="catalog-min-seats" class="block text-sm font-semibold text-[#6F5849] mb-1.5">Min. Seats</label>
+                  <div class="relative">
+                    <app-icon icon="lucide:users" class-name="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7D6857] text-base pointer-events-none" />
+                    <input id="catalog-min-seats" type="number" v-model="minSeats" min="1" max="999" step="1" placeholder="e.g. 60" class="w-full h-11 pl-10 pr-3 bg-[#FAF7F4] hover:bg-white focus:bg-white text-[#1C1917] text-sm font-mono font-medium rounded-xl border border-[#E9E3DD] focus:border-[#991B1B] focus:ring-2 focus:ring-[#991B1B]/20 transition outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                   </div>
                 </div>
 

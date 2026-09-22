@@ -298,19 +298,11 @@ class BookingFormView {
               </div>
 
               <!-- Mandatory Business Justification for Private Room -->
-              <div id="form-private-justification-group" class="hidden p-3 bg-amber-50/80 rounded-xl border border-amber-300/90 space-y-2 animate-fade-in">
-                <div class="flex items-center justify-between gap-2">
-                  <label class="form-label mb-0 text-amber-950 font-bold text-xs leading-tight" for="form-private-justification">
-                    <span>Reason for Private Room <span class="text-red-700">*</span></span>
-                  </label>
-                  <span class="shrink-0 whitespace-nowrap text-[9px] text-amber-900 font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-200/80 border border-amber-300">
-                    Required for Approval
-                  </span>
-                </div>
-                <p class="text-[11px] text-stone-600 leading-snug">
-                  Please explain why this meeting requires a private executive room (e.g. confidential banking session, or standard rooms fully occupied).
-                </p>
-                <textarea id="form-private-justification" rows="2" placeholder="e.g. All standard meeting rooms are occupied today. Executive confidentiality required." class="bank-input text-xs bg-white leading-relaxed resize-none"></textarea>
+              <div id="form-private-justification-group" class="hidden p-3.5 bg-amber-50/80 rounded-xl border border-amber-300/90 space-y-2 animate-fade-in">
+                <label class="form-label mb-0 text-amber-950 font-bold text-xs leading-tight block" for="form-private-justification">
+                  <span>Reason for Private Room <span class="text-red-700">*</span></span>
+                </label>
+                <textarea id="form-private-justification" rows="3" placeholder="e.g. All standard meeting rooms are occupied today. Confidential executive session required." class="bank-input text-xs bg-white leading-relaxed resize-none w-full"></textarea>
               </div>
 
               <!-- Expected Attendees -->
@@ -831,279 +823,245 @@ class BookingFormView {
           </div>
         </div>
 
-        <!-- ==================== STEP 4: BOOKING REVIEW & SUBMIT ==================== -->
-        <div id="booking-step-4" class="hidden animate-fade-in w-full max-w-8xl mx-auto flex flex-col min-h-0">
+        <!-- ==================== STEP 4: BOOKING REVIEW & CONFIRM ==================== -->
+        <div id="booking-step-4" class="hidden animate-fade-in">
           
-          <!-- Unified Single-Page 2-Column Reservation Summary Matching Reference Screenshot -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch lg:h-[650px] lg:max-h-[650px]">
             
-            <!-- LEFT COLUMN: Comprehensive Reservation Dossier (lg:col-span-8) -->
-            <div class="lg:col-span-8 bg-white rounded-2xl border border-stone-200/80 p-5 shadow-xs space-y-4">
+            <!-- LEFT COLUMN: Reservation Overview (lg:col-span-8 xl:col-span-8) -->
+            <div class="lg:col-span-8 xl:col-span-8 flex flex-col h-full lg:h-[650px] lg:max-h-[650px] min-h-0">
               
-              <!-- 1. Room Header & Schedule Bar -->
-              <div class="flex items-start justify-between gap-3 pb-1">
-                <div class="flex items-center gap-3.5 min-w-0">
-                  <img id="step4-room-img" src="assets/rooms/summit-suite.jpg" alt="Room" class="w-36 h-24 sm:w-44 sm:h-26 rounded-xl object-cover border border-stone-200 shrink-0" />
-                  <div class="min-w-0">
-                    <h3 id="step4-room-name" class="font-heading font-bold text-base sm:text-lg text-stone-900 tracking-tight leading-tight truncate">ទន្លេសេកុង - Sisekong – Sekong River</h3>
-                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-stone-600 mt-1 font-medium">
-                      <span class="inline-flex items-center gap-1.5">
-                        <span class="iconify text-[#991B1B] text-sm" data-icon="lucide:map-pin" data-stroke-width="1.8"></span>
-                        <span id="step4-room-floor">Floor 18 - Executive Suite</span>
-                      </span>
-                      <span class="inline-flex items-center gap-1.5">
-                        <span class="iconify text-[#991B1B] text-sm" data-icon="lucide:users" data-stroke-width="1.8"></span>
-                        <span id="step4-room-capacity">Capacity: 60 Seats</span>
-                      </span>
-                      <span id="step4-room-owner-tag" class="hidden inline-flex items-center gap-1.5 text-[#D97706] font-semibold">
-                        <span class="iconify text-sm" data-icon="lucide:shield" data-stroke-width="1.8"></span>
-                        <span id="step4-room-owner-text">Owner: Jonathan Vance</span>
-                      </span>
-                    </div>
-                    <div class="flex items-center gap-2 mt-2.5">
-                      <span id="step4-room-type" class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold bg-[#FEF2F2] text-[#991B1B] border border-red-100">Standard Room</span>
-                      <span class="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-semibold bg-[#F5F2EE] text-[#6F5849] border border-[#E9E3DD]">Meeting Room</span>
-                    </div>
-                  </div>
-                </div>
-                <button type="button" onclick="app.bookingFormGoToStep(1)" class="h-8 px-3 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 text-xs font-medium inline-flex items-center gap-1.5 transition shadow-2xs shrink-0 cursor-pointer">
-                  <span class="iconify text-stone-400 text-xs" data-icon="lucide:pencil" data-stroke-width="1.8"></span>
-                  <span>Edit</span>
-                </button>
-              </div>
-
-              <!-- 2. Schedule & Attendees Metrics Strip (Matching Reference) -->
-              <div class="bg-[#FAF7F5] rounded-xl border border-stone-200/60 p-3.5 sm:p-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="flex items-start gap-2.5">
-                  <span class="iconify text-[#991B1B] text-xl shrink-0 mt-0.5" data-icon="lucide:calendar" data-stroke-width="1.8"></span>
-                  <div class="min-w-0">
-                    <span class="text-[10.5px] font-medium text-stone-400 block leading-tight">Date</span>
-                    <strong id="step4-date" class="font-heading font-bold text-xs sm:text-[13px] text-stone-900 block truncate mt-0.5">Wed, Sep 23, 2026</strong>
-                    <span id="step4-day-label" class="text-[10.5px] text-stone-400 font-mono block truncate mt-0.5">Confirmed Slot</span>
-                  </div>
-                </div>
-                <div class="flex items-start gap-2.5">
-                  <span class="iconify text-[#991B1B] text-xl shrink-0 mt-0.5" data-icon="lucide:clock" data-stroke-width="1.8"></span>
-                  <div class="min-w-0">
-                    <span class="text-[10.5px] font-medium text-stone-400 block leading-tight">Time & Duration</span>
-                    <strong id="step4-time" class="font-mono font-bold text-xs sm:text-[13px] text-stone-900 block truncate mt-0.5">07:30 – 09:00</strong>
-                    <span id="step4-duration" class="text-[10.5px] text-stone-400 font-mono block truncate mt-0.5">Scheduled (1h 30m)</span>
-                  </div>
-                </div>
-                <div class="flex items-start gap-2.5">
-                  <span class="iconify text-[#991B1B] text-xl shrink-0 mt-0.5" data-icon="lucide:users" data-stroke-width="1.8"></span>
-                  <div class="min-w-0">
-                    <span class="text-[10.5px] font-medium text-stone-400 block leading-tight">Attendees</span>
-                    <strong id="step4-attendees" class="font-mono font-bold text-xs sm:text-[13px] text-stone-900 block truncate mt-0.5">8 Persons</strong>
-                    <span class="text-[10.5px] text-stone-400 block truncate mt-0.5">In-person</span>
-                  </div>
-                </div>
-                <div class="flex items-start gap-2.5">
-                  <span class="iconify text-[#991B1B] text-xl shrink-0 mt-0.5" data-icon="lucide:lock" data-stroke-width="1.8"></span>
-                  <div class="min-w-0">
-                    <span class="text-[10.5px] font-medium text-stone-400 block leading-tight">Door Access</span>
-                    <strong class="font-heading font-bold text-xs sm:text-[13px] text-[#991B1B] block truncate mt-0.5">Digital PIN</strong>
-                    <span class="text-[10.5px] text-stone-400 block truncate mt-0.5">Sent via email</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Multi-Session Schedule Breakdown (Only when multiple sessions) -->
-              <div id="step4-multi-sessions-section" class="hidden rounded-xl border border-stone-200/60 bg-[#FAF7F5] p-2.5 space-y-1.5">
-                <div class="flex items-center justify-between text-xs">
-                  <span class="font-heading font-bold text-stone-900">Multi-Session Schedule</span>
-                  <span id="step4-multi-sessions-count" class="font-mono text-xs font-bold text-[#991B1B]"></span>
-                </div>
-                <div id="step4-multi-sessions-list" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-20 overflow-y-auto no-scrollbar"></div>
-              </div>
-
-              <!-- 3. Meeting & Requester (2-Column Grid) -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div class="bg-white rounded-xl border border-[#E9E3DD] shadow-xs flex flex-col flex-1 min-h-0 overflow-hidden">
                 
-                <!-- Meeting Details Card -->
-                <div class="bg-white rounded-xl border border-stone-200/80 p-3.5 shadow-2xs space-y-2 flex flex-col justify-between">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                      <span class="w-6.5 h-6.5 rounded-full bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
-                        <span class="iconify text-xs" data-icon="lucide:file-text" data-stroke-width="1.8"></span>
-                      </span>
-                      <span class="font-heading font-bold text-xs sm:text-sm text-stone-900">Meeting Details</span>
-                    </div>
-                    <button type="button" onclick="app.bookingFormGoToStep(2)" class="h-6 px-2 rounded-md border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 text-[11px] font-medium inline-flex items-center gap-1 transition cursor-pointer">
-                      <span class="iconify text-[11px] text-stone-400" data-icon="lucide:pencil" data-stroke-width="1.8"></span>
-                      <span>Edit</span>
-                    </button>
-                  </div>
-                  <div>
-                    <h4 id="step4-meeting-title" class="font-heading font-bold text-xs sm:text-sm text-stone-900 truncate">CC</h4>
-                    <p id="step4-meeting-notes" class="text-xs text-stone-500 line-clamp-2 mt-0.5 leading-relaxed">General departmental meeting and discussion.</p>
-                  </div>
+                <!-- Card Header -->
+                <div class="px-5 py-3.5 bg-white border-b border-[#E9E3DD] flex items-center justify-between gap-3 shrink-0">
+                  <h3 class="font-heading font-bold text-xs sm:text-sm text-[#3E2B1E] uppercase tracking-wide">
+                    Reservation Details
+                  </h3>
+                  <span class="font-mono text-xs font-semibold text-[#7D6857]">Step 4 of 4</span>
                 </div>
 
-                <!-- Requester Profile Card -->
-                <div class="bg-white rounded-xl border border-stone-200/80 p-3.5 shadow-2xs space-y-2 flex flex-col justify-between">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                      <span class="w-6.5 h-6.5 rounded-full bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
-                        <span class="iconify text-xs" data-icon="lucide:user" data-stroke-width="1.8"></span>
-                      </span>
-                      <span class="font-heading font-bold text-xs sm:text-sm text-stone-900">Requester</span>
+                <!-- Scrollable Body (internal scroll if needed, hidden scrollbars) -->
+                <div class="p-5 flex-1 min-h-0 overflow-y-auto no-scrollbar space-y-4">
+                  
+                  <!-- Section 1: Room & Schedule (Step 1) -->
+                  <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-heading font-bold text-[#3E2B1E] uppercase tracking-wide">Room & Time</span>
+                      <button type="button" onclick="app.bookingFormGoToStep(1)" class="text-xs font-medium text-[#7D6857] hover:text-[#991B1B] inline-flex items-center gap-1 transition cursor-pointer">
+                        <span class="iconify text-xs" data-icon="lucide:pencil" data-stroke-width="2"></span>
+                        <span>Edit</span>
+                      </button>
                     </div>
-                    <span id="step4-staff-id" class="font-mono text-xs font-semibold text-stone-400">NBC-4102</span>
-                  </div>
-                  <div>
-                    <strong id="step4-requester-name" class="font-heading font-bold text-xs sm:text-sm text-stone-900 block truncate">Jonathan Vance</strong>
-                    <p id="step4-department" class="text-xs text-stone-500 truncate mt-0.5 leading-snug">Board of Directors & Cabinet • Board & Executive Office</p>
-                    <div class="text-[11px] text-stone-500 font-mono truncate mt-1 flex items-center gap-1.5">
-                      <span class="iconify text-stone-400 text-xs shrink-0" data-icon="lucide:mail" data-stroke-width="1.8"></span>
-                      <span id="step4-phone">Ext. 8421</span> &bull; <span id="step4-email">jonathan.vance@nbc.gov.kh</span>
+
+                    <!-- Room Mini Hero Banner -->
+                    <div class="flex items-center gap-4 p-3.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD]">
+                      <img id="step4-room-img" src="assets/rooms/summit-suite.jpg" alt="Room" class="w-24 h-18 sm:w-28 sm:h-20 rounded-lg object-cover border border-[#E9E3DD] shadow-2xs shrink-0" />
+                      <div class="min-w-0 flex-1">
+                        <h4 id="step4-room-name" class="font-heading font-bold text-sm sm:text-base text-[#3E2B1E] leading-tight truncate">ទន្លេសេកុង - Sekong River</h4>
+                        <p id="step4-room-floor" class="text-xs text-[#6F5849] font-medium mt-0.5 truncate">Floor 18 • Executive Suite • 60 seats</p>
+                        <div class="flex items-center gap-2 mt-1.5 text-xs">
+                          <span id="step4-room-capacity" class="font-mono text-[#7D6857]">Capacity: 60 Seats</span>
+                          <span class="text-stone-300">•</span>
+                          <span id="step4-room-type" class="font-semibold text-[#991B1B]">Standard Room</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Schedule Metrics Bar -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD]">
+                      <div class="min-w-0">
+                        <span class="text-[11px] font-medium text-[#7D6857] block">Session Date</span>
+                        <strong id="step4-date" class="font-mono text-xs font-bold text-[#3E2B1E] block truncate mt-0.5">Wed, Sep 23, 2026</strong>
+                        <span id="step4-day-label" class="text-[10px] text-[#7D6857] font-mono block truncate mt-0.5">Confirmed Slot</span>
+                      </div>
+                      <div class="min-w-0">
+                        <span class="text-[11px] font-medium text-[#7D6857] block">Time & Duration</span>
+                        <strong id="step4-time" class="font-mono text-xs font-bold text-[#3E2B1E] block truncate mt-0.5">07:30 – 09:00</strong>
+                        <span id="step4-duration" class="text-[10px] text-[#7D6857] font-mono block truncate mt-0.5">Scheduled (1h 30m)</span>
+                      </div>
+                      <div class="min-w-0">
+                        <span class="text-[11px] font-medium text-[#7D6857] block">Attendees</span>
+                        <strong id="step4-attendees" class="font-mono text-xs font-bold text-[#3E2B1E] block truncate mt-0.5">8 Persons</strong>
+                        <span class="text-[10px] text-[#7D6857] block truncate mt-0.5">In-Person Meeting</span>
+                      </div>
+                    </div>
+
+                    <!-- Multi-Session Breakdown (Shown only when > 1 session) -->
+                    <div id="step4-multi-sessions-section" class="hidden rounded-xl border border-[#E9E3DD] bg-[#FAF7F4] p-3 space-y-2">
+                      <div class="flex items-center justify-between text-xs">
+                        <span class="font-heading font-bold text-[#3E2B1E]">Multi-Session Schedule</span>
+                        <span id="step4-multi-sessions-count" class="font-mono text-xs font-bold text-[#991B1B]"></span>
+                      </div>
+                      <div id="step4-multi-sessions-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-32 overflow-y-auto no-scrollbar"></div>
                     </div>
                   </div>
+
+                  <!-- Section 2: Meeting Agenda & Organizer (Step 2) -->
+                  <div class="pt-4 border-t border-[#E9E3DD] space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <!-- Meeting Agenda Details -->
+                      <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                          <span class="text-xs font-heading font-bold text-[#3E2B1E] uppercase tracking-wide">Meeting Details</span>
+                          <button type="button" onclick="app.bookingFormGoToStep(2)" class="text-xs font-medium text-[#7D6857] hover:text-[#991B1B] inline-flex items-center gap-1 transition cursor-pointer">
+                            <span class="iconify text-xs" data-icon="lucide:pencil" data-stroke-width="2"></span>
+                            <span>Edit</span>
+                          </button>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] min-h-[96px] flex flex-col justify-between space-y-1">
+                          <div>
+                            <span class="text-[11px] font-medium text-[#7D6857] block">Title</span>
+                            <h5 id="step4-meeting-title" class="font-bold text-xs sm:text-sm text-[#3E2B1E] truncate mt-0.5">Q4 Strategy Sync</h5>
+                            <p id="step4-meeting-notes" class="text-xs text-[#6F5849] line-clamp-2 mt-1 leading-relaxed">General departmental meeting and discussion.</p>
+                          </div>
+                          <!-- Conditional Private Room Justification -->
+                          <div id="step4-justification-card" class="hidden pt-1.5 border-t border-amber-200/80">
+                            <span class="text-[10px] font-bold text-amber-900 uppercase tracking-wider block">Reason for Private Room:</span>
+                            <p id="step4-justification-text" class="text-xs text-amber-950 italic leading-relaxed line-clamp-2 mt-0.5"></p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Requester Profile -->
+                      <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                          <span class="text-xs font-heading font-bold text-[#3E2B1E] uppercase tracking-wide">Organizer</span>
+                          <span id="step4-staff-id" class="font-mono text-xs font-semibold text-[#7D6857]">NBC-4102</span>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] min-h-[96px] flex flex-col justify-between space-y-1.5">
+                          <div>
+                            <strong id="step4-requester-name" class="font-bold text-xs sm:text-sm text-[#3E2B1E] block truncate">Jonathan Vance</strong>
+                            <span id="step4-department" class="text-xs text-[#6F5849] block truncate mt-0.5">Board of Directors & Cabinet • Executive Office</span>
+                          </div>
+                          <div class="pt-2 border-t border-[#E9E3DD] flex items-center gap-2 text-xs font-mono text-[#7D6857] truncate">
+                            <span id="step4-phone">Ext. 8421</span>
+                            <span class="text-stone-300">•</span>
+                            <span id="step4-email" class="truncate">jonathan.vance@nbc.gov.kh</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Section 3: Extra Services (Step 3) -->
+                  <div class="pt-4 border-t border-[#E9E3DD] space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <!-- Food & Catering -->
+                      <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                          <span class="text-xs font-heading font-bold text-[#3E2B1E] uppercase tracking-wide">Food & Catering</span>
+                          <button type="button" onclick="app.bookingFormGoToStep(3)" class="text-xs font-medium text-[#7D6857] hover:text-[#991B1B] inline-flex items-center gap-1 transition cursor-pointer">
+                            <span class="iconify text-xs" data-icon="lucide:pencil" data-stroke-width="2"></span>
+                            <span>Edit</span>
+                          </button>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] min-h-[86px] flex flex-col justify-between space-y-1">
+                          <div id="step4-food-content" class="hidden space-y-1">
+                            <div class="flex items-center justify-between text-xs">
+                              <strong id="step4-food-package-name" class="font-bold text-[#3E2B1E] truncate">Package</strong>
+                              <span id="step4-food-servings" class="font-mono text-xs text-[#7D6857] shrink-0 ml-1">8 Servings</span>
+                            </div>
+                            <p id="step4-food-remarks" class="text-xs text-[#6F5849] truncate mt-0.5 leading-relaxed"></p>
+                          </div>
+                          <div id="step4-food-empty">
+                            <span class="text-xs text-[#7D6857]">Complimentary mineral water only</span>
+                          </div>
+                          <span id="step4-food-status" class="hidden"></span>
+                        </div>
+                      </div>
+
+                      <!-- IT Support -->
+                      <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                          <span class="text-xs font-heading font-bold text-[#3E2B1E] uppercase tracking-wide">IT & AV Equipment</span>
+                          <button type="button" onclick="app.bookingFormGoToStep(3)" class="text-xs font-medium text-[#7D6857] hover:text-[#991B1B] inline-flex items-center gap-1 transition cursor-pointer">
+                            <span class="iconify text-xs" data-icon="lucide:pencil" data-stroke-width="2"></span>
+                            <span>Edit</span>
+                          </button>
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] min-h-[86px] flex flex-col justify-between space-y-1">
+                          <div id="step4-it-content" class="hidden">
+                            <div id="step4-it-chip-list" class="flex flex-wrap gap-1.5"></div>
+                          </div>
+                          <div id="step4-it-empty">
+                            <span class="text-xs text-[#7D6857]">Standard in-room AV equipment only</span>
+                          </div>
+                          <span id="step4-it-status" class="hidden"></span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
 
               </div>
-
-              <!-- 4. Services Specification: Food & IT (2-Column Grid) -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                
-                <!-- Food & Catering -->
-                <div class="bg-white rounded-xl border border-stone-200/80 p-3.5 shadow-2xs space-y-2 flex flex-col justify-between">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                      <span class="w-6.5 h-6.5 rounded-full bg-red-50 text-[#991B1B] flex items-center justify-center shrink-0">
-                        <span class="iconify text-xs" data-icon="lucide:utensils" data-stroke-width="1.8"></span>
-                      </span>
-                      <span class="font-heading font-bold text-xs sm:text-sm text-stone-900">Food & Catering</span>
-                    </div>
-                    <button type="button" onclick="app.bookingFormGoToStep(3)" class="h-6 px-2 rounded-md border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 text-[11px] font-medium inline-flex items-center gap-1 transition cursor-pointer">
-                      <span class="iconify text-[11px] text-stone-400" data-icon="lucide:pencil" data-stroke-width="1.8"></span>
-                      <span>Edit</span>
-                    </button>
-                  </div>
-                  <div id="step4-food-content" class="hidden">
-                    <div class="flex items-center justify-between text-xs">
-                      <strong id="step4-food-package-name" class="font-bold text-stone-900 truncate">Package</strong>
-                      <span id="step4-food-servings" class="font-mono text-xs text-stone-600 shrink-0 ml-1">8 Servings</span>
-                    </div>
-                    <p id="step4-food-remarks" class="text-xs text-stone-500 truncate mt-0.5 leading-relaxed"></p>
-                  </div>
-                  <div id="step4-food-empty">
-                    <span class="text-xs text-stone-500 font-normal">Complimentary mineral water only</span>
-                  </div>
-                  <span id="step4-food-status" class="hidden">None</span>
-                </div>
-
-                <!-- IT Support -->
-                <div class="bg-white rounded-xl border border-stone-200/80 p-3.5 shadow-2xs space-y-2 flex flex-col justify-between">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                      <span class="w-6.5 h-6.5 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
-                        <span class="iconify text-xs" data-icon="lucide:monitor" data-stroke-width="1.8"></span>
-                      </span>
-                      <span class="font-heading font-bold text-xs sm:text-sm text-stone-900">IT & AV Support</span>
-                    </div>
-                    <button type="button" onclick="app.bookingFormGoToStep(3)" class="h-6 px-2 rounded-md border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 text-[11px] font-medium inline-flex items-center gap-1 transition cursor-pointer">
-                      <span class="iconify text-[11px] text-stone-400" data-icon="lucide:pencil" data-stroke-width="1.8"></span>
-                      <span>Edit</span>
-                    </button>
-                  </div>
-                  <div id="step4-it-content" class="hidden">
-                    <div id="step4-it-chip-list" class="flex flex-wrap gap-2"></div>
-                  </div>
-                  <div id="step4-it-empty">
-                    <span class="text-xs text-stone-500 font-normal">Standard in-room AV equipment only</span>
-                  </div>
-                  <span id="step4-it-status" class="hidden">Standard AV</span>
-                </div>
-
-              </div>
-
-              <!-- 5. Private Room Justification (Conditional) -->
-              <div id="step4-justification-card" class="hidden p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-xs space-y-1">
-                <div class="flex items-center gap-1.5 text-amber-950 font-bold text-xs">
-                  <span class="iconify text-amber-700 text-sm" data-icon="lucide:shield-alert" data-stroke-width="1.8"></span>
-                  <span>Executive Justification for Private Room</span>
-                </div>
-                <p id="step4-justification-text" class="text-xs text-amber-900 leading-snug"></p>
-              </div>
-
             </div>
 
-            <!-- RIGHT COLUMN: Voucher & Action Console (lg:col-span-4) -->
-            <div class="lg:col-span-4 bg-white rounded-2xl border border-stone-200/80 p-5 shadow-xs flex flex-col justify-between space-y-4">
+            <!-- RIGHT COLUMN: Confirmation & Dispatch Console (lg:col-span-4 xl:col-span-4) -->
+            <div class="lg:col-span-4 xl:col-span-4 flex flex-col h-full lg:h-[650px] lg:max-h-[650px] min-h-0">
               
-              <!-- Voucher Header -->
-              <div class="flex items-center justify-between pb-3.5 border-b border-stone-200/70">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-xl bg-[#801414] text-white flex items-center justify-center shrink-0 shadow-xs">
-                    <span class="iconify text-xl text-white" data-icon="lucide:landmark" data-stroke-width="1.8"></span>
-                  </div>
-                  <div>
-                    <h4 class="font-heading font-bold text-xs text-stone-900 uppercase tracking-wider leading-tight">NATIONAL BANK OF CAMBODIA</h4>
-                    <span class="text-xs text-stone-400 font-medium">Reservation Voucher</span>
-                  </div>
+              <div class="bg-white rounded-xl border border-[#E9E3DD] shadow-xs flex flex-col flex-1 min-h-0 overflow-hidden">
+                
+                <!-- Console Header -->
+                <div class="px-4 py-3.5 bg-white border-b border-[#E9E3DD] flex items-center justify-between gap-2 shrink-0">
+                  <h4 class="font-heading font-bold text-xs sm:text-sm text-[#3E2B1E] uppercase tracking-wide">Confirmation</h4>
+                  <span id="step4-pathway-turnaround" class="font-mono text-xs font-semibold text-[#7D6857]">Est. 1-2 hours</span>
                 </div>
-                <span class="px-2.5 py-1 rounded-md bg-red-50 text-[#991B1B] text-xs font-bold font-mono border border-red-100">DRAFT</span>
-              </div>
 
-              <!-- Booking Summary Inset Card -->
-              <div class="p-4 bg-[#FAF7F5] rounded-xl border border-stone-200/60 space-y-2.5">
-                <div class="flex items-center gap-2 text-stone-900 font-bold text-sm">
-                  <span class="iconify text-[#991B1B] text-base" data-icon="lucide:list" data-stroke-width="2"></span>
-                  <span>Booking Summary</span>
+                <!-- Console Body (Scrollable, hidden scrollbar) -->
+                <div class="p-4 flex-1 min-h-0 overflow-y-auto no-scrollbar flex flex-col justify-between space-y-4">
+                  
+                  <!-- Structured Specification Rows -->
+                  <div class="p-3.5 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD] space-y-2 text-xs">
+                    <div class="flex items-center justify-between pb-1.5 border-b border-[#E9E3DD]/70">
+                      <span class="text-[#7D6857]">Room</span>
+                      <strong id="step4-voucher-room" class="font-bold text-[#3E2B1E] truncate ml-2 text-right">Sekong River</strong>
+                    </div>
+                    <div class="flex items-center justify-between pb-1.5 border-b border-[#E9E3DD]/70">
+                      <span class="text-[#7D6857]">Classification</span>
+                      <strong id="step4-voucher-type" class="font-semibold text-[#3E2B1E] text-right">Standard Room</strong>
+                    </div>
+                    <div class="flex items-center justify-between pb-1.5 border-b border-[#E9E3DD]/70">
+                      <span class="text-[#7D6857]">Duration</span>
+                      <strong id="step4-voucher-duration" class="font-mono font-bold text-[#3E2B1E] text-right">Scheduled</strong>
+                    </div>
+                    <div class="flex items-center justify-between pb-1.5 border-b border-[#E9E3DD]/70">
+                      <span class="text-[#7D6857]">Attendees</span>
+                      <strong id="step4-voucher-attendees" class="font-mono font-bold text-[#3E2B1E] text-right">8 Persons</strong>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-[#7D6857]">Services</span>
+                      <strong id="step4-voucher-services" class="font-bold text-[#3E2B1E] text-right">Standard Room Only</strong>
+                    </div>
+                  </div>
+
+                  <!-- Approval Route -->
+                  <div class="space-y-2">
+                    <span class="text-[11px] font-heading font-bold text-[#7D6857] uppercase tracking-wider block">Approval Route</span>
+                    <div id="step4-pathway-steps" class="space-y-2"></div>
+                  </div>
+
+                  <!-- Security PIN Notice -->
+                  <div class="p-3 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] flex items-start gap-2.5 text-xs text-[#6F5849]">
+                    <span class="iconify text-[#991B1B] text-sm shrink-0 mt-0.5" data-icon="lucide:shield-check" data-stroke-width="2"></span>
+                    <span class="leading-relaxed">Single-use encrypted door PIN will be emailed 15 minutes before session.</span>
+                  </div>
+
                 </div>
-                <div class="space-y-2 text-xs">
-                  <div class="flex items-center justify-between">
-                    <span class="text-stone-500">Facility</span>
-                    <strong id="step4-voucher-room" class="font-bold text-stone-900 truncate ml-2 text-right">Sisekong – Sekong River</strong>
-                  </div>
-                  <div class="flex items-center justify-between">
-                    <span class="text-stone-500">Type</span>
-                    <strong id="step4-voucher-type" class="font-bold text-stone-900 text-right">Standard Room</strong>
-                  </div>
-                  <div class="flex items-center justify-between">
-                    <span class="text-stone-500">Duration</span>
-                    <strong id="step4-voucher-duration" class="font-mono font-bold text-stone-900 text-right">Scheduled</strong>
-                  </div>
-                  <div class="flex items-center justify-between">
-                    <span class="text-stone-500">Attendees</span>
-                    <strong id="step4-voucher-attendees" class="font-mono font-bold text-stone-900 text-right">8 Persons</strong>
-                  </div>
-                  <div class="flex items-center justify-between">
-                    <span class="text-stone-500">Services</span>
-                    <strong id="step4-voucher-services" class="font-bold text-stone-900 text-right">IT AV Setup</strong>
-                  </div>
+
+                <!-- Console Action Buttons (Anchored strictly to bottom of card) -->
+                <div class="mt-auto px-4 py-3 bg-white border-t border-[#E9E3DD] space-y-2 shrink-0">
+                  <button type="button" onclick="app.handleBookingSubmit(event)" id="form-submit-btn" class="w-full h-11 rounded-xl bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white font-medium text-xs sm:text-sm shadow-sm flex items-center justify-center space-x-2 transition cursor-pointer">
+                    <span id="form-submit-btn-text">Submit Request for Review</span>
+                    <span class="iconify text-sm text-white" data-icon="lucide:arrow-right" data-stroke-width="2"></span>
+                  </button>
+                  <button type="button" onclick="app.bookingFormGoToStep(3)" class="w-full h-9 rounded-lg bg-white hover:bg-[#FAF7F4] text-[#3E2B1E] border border-[#E9E3DD] text-xs font-medium flex items-center justify-center space-x-1.5 transition cursor-pointer">
+                    <span class="iconify text-stone-400 text-xs" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
+                    <span>Back to Food & IT</span>
+                  </button>
                 </div>
-              </div>
 
-              <!-- Authorization Pathway -->
-              <div class="space-y-2.5 pt-1">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-1.5">
-                    <span class="iconify text-[#991B1B] text-base" data-icon="lucide:git-pull-request" data-stroke-width="1.8"></span>
-                    <span class="font-heading font-bold text-sm text-stone-900">Approval Route</span>
-                  </div>
-                  <span id="step4-pathway-turnaround" class="text-xs text-stone-400 font-mono">Est. 1-2 hours</span>
-                </div>
-                <div id="step4-pathway-steps" class="space-y-2"></div>
-              </div>
-
-              <!-- Notice Box -->
-              <div class="p-3 rounded-xl bg-[#FDF8F3] border border-[#F5E6D8] flex items-center gap-2.5 text-xs text-stone-700">
-                <span class="iconify text-[#D97706] text-base shrink-0" data-icon="lucide:info" data-stroke-width="1.8"></span>
-                <span>Door PIN emailed 15m before session</span>
-              </div>
-
-              <!-- Action Buttons -->
-              <div class="space-y-2.5 pt-1">
-                <button type="button" onclick="app.handleBookingSubmit(event)" id="form-submit-btn" class="btn-primary w-full h-9 rounded-md bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-xs cursor-pointer transition active:scale-[0.98]">
-                  <span id="form-submit-btn-text">Submit Request for Review</span>
-                  <span class="iconify text-xs text-white" data-icon="lucide:arrow-right" data-stroke-width="2"></span>
-                </button>
-                <button type="button" onclick="app.bookingFormGoToStep(3)" class="w-full h-9 rounded-md bg-white hover:bg-stone-50 text-stone-700 border border-[#E9E3DD] hover:border-stone-300 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition shadow-2xs">
-                  <span class="iconify text-stone-500 text-xs" data-icon="lucide:arrow-left" data-stroke-width="2"></span>
-                  <span>Back to Services</span>
-                </button>
               </div>
 
             </div>
@@ -3250,13 +3208,12 @@ class BookingFormView {
     const step4RoomType = document.getElementById('step4-room-type');
     const step4RoomFloor = document.getElementById('step4-room-floor');
     const step4RoomCapacity = document.getElementById('step4-room-capacity');
-    const step4RoomOwnerTag = document.getElementById('step4-room-owner-tag');
-    const step4RoomOwnerText = document.getElementById('step4-room-owner-text');
 
     if (step4RoomImg) step4RoomImg.src = room.image || 'assets/rooms/summit-suite.jpg';
     if (step4RoomName) step4RoomName.innerText = room.name || 'Meeting Room';
     if (step4RoomType) {
       step4RoomType.innerText = isMyRoom ? 'Your Private Suite' : (isPrivate ? 'Executive Private Suite' : 'Standard Room');
+      step4RoomType.className = isPrivate ? 'font-semibold text-[#991B1B]' : 'font-semibold text-[#3E2B1E]';
     }
     if (step4RoomFloor) {
       const floorVal = room.floor || 'Floor 18';
@@ -3265,12 +3222,6 @@ class BookingFormView {
         : `${floorVal} - Executive Suite`;
     }
     if (step4RoomCapacity) step4RoomCapacity.innerText = `Capacity: ${room.capacity || 60} Seats`;
-    if (step4RoomOwnerTag) {
-      step4RoomOwnerTag.classList.toggle('hidden', !isPrivate);
-      if (isPrivate && step4RoomOwnerText) {
-        step4RoomOwnerText.innerText = isMyRoom ? 'Owner: Jonathan Vance (You)' : `Owner: ${room.roomOwner?.name || 'Room Owner'}`;
-      }
-    }
 
     // 2. Schedule Info Grid
     const step4Date = document.getElementById('step4-date');
@@ -3313,11 +3264,11 @@ class BookingFormView {
               <div class="flex items-center gap-2">
                 <span class="w-5 h-5 rounded-full bg-red-50 text-[#991B1B] font-mono text-[10px] font-bold flex items-center justify-center shrink-0">#${idx + 1}</span>
                 <div>
-                  <span class="font-semibold text-stone-900 block leading-tight">${fDate}</span>
-                  <span class="font-mono text-[11px] text-stone-600 block leading-tight">${s.startTime} – ${s.endTime}</span>
+                  <span class="font-semibold text-[#3E2B1E] block leading-tight">${fDate}</span>
+                  <span class="font-mono text-[11px] text-[#6F5849] block leading-tight">${s.startTime} – ${s.endTime}</span>
                 </div>
               </div>
-              <span class="font-mono text-[10.5px] font-semibold text-stone-600 px-1.5 py-0.5 bg-[#FAF7F4] rounded border border-[#E9E3DD]">${dStr}</span>
+              <span class="font-mono text-[10.5px] font-semibold text-[#6F5849] px-1.5 py-0.5 bg-[#FAF7F4] rounded border border-[#E9E3DD]">${dStr}</span>
             </div>
           `;
         }).join('');
@@ -3446,8 +3397,8 @@ class BookingFormView {
       if (itChipList) {
         itChipList.innerHTML = checkedITItems.map(item => {
           const short = shortNames[item] || item;
-          return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-stone-200 text-xs text-stone-700 font-medium shadow-2xs">
-            <span class="iconify text-[#801414] text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
+          return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-[#E9E3DD] text-xs text-[#3E2B1E] font-medium shadow-2xs">
+            <span class="iconify text-[#991B1B] text-xs" data-icon="lucide:check" data-stroke-width="2.5"></span>
             <span>${short}</span>
           </span>`;
         }).join('');
@@ -3457,7 +3408,7 @@ class BookingFormView {
       if (itEmpty) itEmpty.classList.remove('hidden');
     }
 
-    // 5. Right Column Voucher Metrics
+    // 5. Right Column Overview Metrics
     const voucherRoom = document.getElementById('step4-voucher-room');
     const voucherType = document.getElementById('step4-voucher-type');
     const voucherDuration = document.getElementById('step4-voucher-duration');
@@ -3467,7 +3418,7 @@ class BookingFormView {
     if (voucherRoom) voucherRoom.innerText = room.name || 'Meeting Room';
     if (voucherType) {
       voucherType.innerText = isMyRoom ? 'Your Designated Suite' : (isPrivate ? 'Private Executive Suite' : 'Standard Room');
-      voucherType.className = isPrivate ? 'font-semibold text-[#D97706]' : 'font-semibold text-stone-800';
+      voucherType.className = isPrivate ? 'font-semibold text-[#991B1B]' : 'font-semibold text-[#3E2B1E]';
     }
     if (voucherDuration) {
       voucherDuration.innerText = (this.selectedSessions && this.selectedSessions.length > 1) ? `${this.selectedSessions.length} Sessions • ${totalDurationText}` : (calcDuration || 'Scheduled');
@@ -3498,15 +3449,15 @@ class BookingFormView {
               <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 text-[10px]">
                 <span class="iconify text-[10px]" data-icon="lucide:check" data-stroke-width="2.5"></span>
               </span>
-              <span class="text-stone-900 font-semibold">Room Ownership Verified</span>
+              <span class="text-[#3E2B1E] font-semibold">Room Ownership Verified</span>
             </div>
             <div class="flex items-center gap-2.5 py-0.5 text-xs">
-              <span class="w-5 h-5 rounded-full bg-[#801414] text-white flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">2</span>
-              <span class="text-stone-900 font-semibold">Manager Service Verification</span>
+              <span class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">2</span>
+              <span class="text-[#3E2B1E] font-semibold">Manager Service Verification</span>
             </div>
             <div class="flex items-center gap-2.5 py-0.5 text-xs">
               <span class="w-5 h-5 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">3</span>
-              <span class="text-stone-600 font-medium">Door PIN Activation</span>
+              <span class="text-[#6F5849] font-medium">Door PIN Activation</span>
             </div>
           `;
         }
@@ -3519,13 +3470,13 @@ class BookingFormView {
               <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 text-[10px]">
                 <span class="iconify text-[10px]" data-icon="lucide:check" data-stroke-width="2.5"></span>
               </span>
-              <span class="text-stone-900 font-semibold">Room Ownership Verified</span>
+              <span class="text-[#3E2B1E] font-semibold">Room Ownership Verified</span>
             </div>
             <div class="flex items-center gap-2.5 py-0.5 text-xs">
               <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 text-[10px]">
                 <span class="iconify text-[10px]" data-icon="lucide:check" data-stroke-width="2.5"></span>
               </span>
-              <span class="text-stone-900 font-semibold">Instant Passcode Confirmed</span>
+              <span class="text-[#3E2B1E] font-semibold">Instant Passcode Confirmed</span>
             </div>
           `;
         }
@@ -3537,16 +3488,16 @@ class BookingFormView {
       if (pathwaySteps) {
         pathwaySteps.innerHTML = `
           <div class="flex items-center gap-2.5 py-0.5 text-xs">
-            <span class="w-5 h-5 rounded-full bg-[#801414] text-white flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">1</span>
-            <span class="text-stone-900 font-semibold">Manager Pitika Review</span>
+            <span class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">1</span>
+            <span class="text-[#3E2B1E] font-semibold">Manager Pitika Review</span>
           </div>
           <div class="flex items-center gap-2.5 py-0.5 text-xs">
             <span class="w-5 h-5 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">2</span>
-            <span class="text-stone-600 font-medium">Room Owner (${roomOwnerName})</span>
+            <span class="text-[#6F5849] font-medium">Room Owner (${roomOwnerName})</span>
           </div>
           <div class="flex items-center gap-2.5 py-0.5 text-xs">
             <span class="w-5 h-5 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">3</span>
-            <span class="text-stone-600 font-medium">Door PIN Issued</span>
+            <span class="text-[#6F5849] font-medium">Door PIN Issued</span>
           </div>
         `;
       }
@@ -3556,16 +3507,16 @@ class BookingFormView {
       if (pathwaySteps) {
         pathwaySteps.innerHTML = `
           <div class="flex items-center gap-2.5 py-0.5 text-xs">
-            <span class="w-5 h-5 rounded-full bg-[#801414] text-white flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">1</span>
-            <span class="text-stone-900 font-semibold">Manager Pitika Review</span>
+            <span class="w-5 h-5 rounded-full bg-[#991B1B] text-white flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">1</span>
+            <span class="text-[#3E2B1E] font-semibold">Manager Pitika Review</span>
           </div>
           <div class="flex items-center gap-2.5 py-0.5 text-xs">
             <span class="w-5 h-5 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">2</span>
-            <span class="text-stone-600 font-medium">Service Dispatch (Food/IT)</span>
+            <span class="text-[#6F5849] font-medium">Service Dispatch (Food/IT)</span>
           </div>
           <div class="flex items-center gap-2.5 py-0.5 text-xs">
             <span class="w-5 h-5 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center shrink-0 text-[10.5px] font-mono font-bold">3</span>
-            <span class="text-stone-600 font-medium">Door PIN Issued</span>
+            <span class="text-[#6F5849] font-medium">Door PIN Issued</span>
           </div>
         `;
       }

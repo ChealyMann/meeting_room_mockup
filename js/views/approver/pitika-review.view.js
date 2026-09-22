@@ -51,7 +51,15 @@ class PitikaReviewView {
     const drawerEl = document.getElementById('pitika-location-drawer');
     const backdropEl = document.getElementById('pitika-drawer-backdrop');
     const panelEl = document.getElementById('pitika-drawer-panel');
-    if (!drawerEl || !backdropEl || !panelEl) return;
+    if (!drawerEl || !backdropEl || !panelEl) {
+      if (show) {
+        const req = typeof this.selectedRequestForReview === 'object' ? this.selectedRequestForReview : (typeof bookingStore !== 'undefined' ? bookingStore.getRequestById(this.selectedRequestForReview) : null);
+        const room = req ? ((req.room?.id && bookingStore.getRoomById(req.room.id)) || req.room) : null;
+        const mapInfo = (typeof bookingStore !== 'undefined' && bookingStore.getRoomMapDetails) ? bookingStore.getRoomMapDetails(room) : { externalUrl: 'https://maps.google.com/?q=National+Bank+of+Cambodia' };
+        window.open(mapInfo.directionsUrl || mapInfo.externalUrl, '_blank');
+      }
+      return;
+    }
 
     if (show) {
       drawerEl.classList.remove('hidden');
@@ -351,48 +359,46 @@ class PitikaReviewView {
             </div>
 
             <!-- Room Specifications & Requester Profile Card -->
-            <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 flex-1 flex flex-col justify-between shadow-xs overflow-y-auto no-scrollbar space-y-3">
-              <div class="space-y-3">
-                <h3 class="font-heading font-bold text-sm text-[#3E2B1E] tracking-tight">Meeting Specs & Requester</h3>
+            <div class="bg-white rounded-2xl border border-[#E9E3DD] p-4 flex-1 flex flex-col shadow-xs overflow-hidden gap-3 min-h-0">
+              <h3 class="font-heading font-bold text-sm text-[#3E2B1E] tracking-tight shrink-0">Meeting Specs & Requester</h3>
 
-                <!-- 3-Stat Metric Row -->
-                <div class="grid grid-cols-3 gap-2">
-                  <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-center">
-                    <span class="text-[10px] font-semibold text-[#7D6857] block">Room Size</span>
-                    <strong class="font-mono text-xs font-bold text-[#3E2B1E] mt-0.5 block">${req.attendees} / ${room.capacity} Seats</strong>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-center">
-                    <span class="text-[10px] font-semibold text-[#7D6857] block">Schedule</span>
-                    <strong class="font-mono text-xs font-bold ${isPassed ? 'text-stone-500 line-through' : 'text-[#3E2B1E]'} mt-0.5 block truncate">${req.date}</strong>
-                  </div>
-                  <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-center">
-                    <span class="text-[10px] font-semibold text-[#7D6857] block">Time Window</span>
-                    <strong class="font-mono text-xs font-bold text-[#3E2B1E] mt-0.5 block truncate">${req.startTime}–${req.endTime}</strong>
+              <!-- 3-Stat Metric Row -->
+              <div class="grid grid-cols-3 gap-2 shrink-0">
+                <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-center">
+                  <span class="text-[10px] font-semibold text-[#7D6857] block">Room Size</span>
+                  <strong class="font-mono text-xs font-bold text-[#3E2B1E] mt-0.5 block">${req.attendees} / ${room.capacity} Seats</strong>
+                </div>
+                <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-center">
+                  <span class="text-[10px] font-semibold text-[#7D6857] block">Schedule</span>
+                  <strong class="font-mono text-xs font-bold ${isPassed ? 'text-stone-500 line-through' : 'text-[#3E2B1E]'} mt-0.5 block truncate">${req.date}</strong>
+                </div>
+                <div class="p-2.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] text-center">
+                  <span class="text-[10px] font-semibold text-[#7D6857] block">Time Window</span>
+                  <strong class="font-mono text-xs font-bold text-[#3E2B1E] mt-0.5 block truncate">${req.startTime}–${req.endTime}</strong>
+                </div>
+              </div>
+
+              <!-- Booker Profile Box -->
+              <div class="p-3.5 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] flex-1 flex flex-col min-h-0 space-y-2.5">
+                <div class="flex items-center justify-between shrink-0">
+                  <span class="text-[10px] font-bold text-[#7D6857] uppercase tracking-wider">Requested By</span>
+                  <span class="text-[11px] font-semibold text-[#991B1B]">${req.requester?.department || 'Operations'}</span>
+                </div>
+                <div class="flex items-center gap-2.5 shrink-0">
+                  <span class="w-8 h-8 rounded-lg bg-white border border-[#E9E3DD] text-[#3E2B1E] flex items-center justify-center shrink-0">
+                    <span class="iconify text-sm" data-icon="lucide:user" data-stroke-width="2"></span>
+                  </span>
+                  <div class="min-w-0 flex-1">
+                    <strong class="text-xs font-bold text-[#3E2B1E] block truncate">${req.requester?.name || 'NBC Staff'}</strong>
+                    <span class="text-[11px] text-[#6F5849] block truncate">${req.requester?.phone || 'NBC Staff'}</span>
                   </div>
                 </div>
-
-                <!-- Booker Profile Box -->
-                <div class="p-3 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] space-y-2">
-                  <div class="flex items-center justify-between">
-                    <span class="text-[10px] font-bold text-[#7D6857] uppercase tracking-wider">Requested By</span>
-                    <span class="text-[11px] font-semibold text-[#991B1B]">${req.requester?.department || 'Operations'}</span>
+                ${req.meetingPurpose ? `
+                  <div class="pt-2.5 border-t border-[#E9E3DD]/80 flex-1 flex flex-col min-h-0">
+                    <span class="text-[10px] font-bold text-[#7D6857] uppercase tracking-wider block mb-1 shrink-0">Purpose:</span>
+                    <p class="text-xs text-[#3E2B1E] leading-relaxed overflow-y-auto no-scrollbar">${req.meetingPurpose}</p>
                   </div>
-                  <div class="flex items-center gap-2.5">
-                    <span class="w-8 h-8 rounded-lg bg-white border border-[#E9E3DD] text-[#3E2B1E] flex items-center justify-center shrink-0">
-                      <span class="iconify text-sm" data-icon="lucide:user" data-stroke-width="2"></span>
-                    </span>
-                    <div class="min-w-0 flex-1">
-                      <strong class="text-xs font-bold text-[#3E2B1E] block truncate">${req.requester?.name || 'NBC Staff'}</strong>
-                      <span class="text-[11px] text-[#6F5849] block truncate">${req.requester?.phone || 'NBC Staff'}</span>
-                    </div>
-                  </div>
-                  ${req.meetingPurpose ? `
-                    <div class="pt-2 border-t border-[#E9E3DD]/80">
-                      <span class="text-[10px] font-bold text-[#7D6857] uppercase tracking-wider block mb-0.5">Purpose:</span>
-                      <p class="text-xs text-[#3E2B1E] leading-relaxed line-clamp-3">${req.meetingPurpose}</p>
-                    </div>
-                  ` : ''}
-                </div>
+                ` : ''}
               </div>
 
               <!-- Bottom Footer Details -->
@@ -506,8 +512,9 @@ class PitikaReviewView {
 
 
               <!-- Action Buttons Area (Zero Modals, Inline UX) -->
+              ${(isPending || isSetup || isConfirmed || (isPassed && isPending)) ? `
               <div class="pt-1 space-y-2.5">
-                ${isPassed && (isPending || isOwnerPending) ? `
+                ${isPassed && isPending ? `
                   <div class="p-3.5 bg-stone-100/80 rounded-xl border border-stone-200 text-center space-y-1.5">
                     <div class="flex items-center justify-center gap-1.5 text-stone-700 font-bold text-xs">
                       <span class="iconify text-stone-500 text-sm" data-icon="lucide:history"></span>
@@ -585,70 +592,9 @@ class PitikaReviewView {
                     <span class="iconify text-white text-sm" data-icon="lucide:receipt" data-stroke-width="2"></span>
                     <span>View Booking Receipt</span>
                   </button>
-                ` : `
-                  <div class="py-2 text-center text-xs text-stone-500 font-medium">
-                    Review decision completed
-                  </div>
-                `)))}
+                ` : '')))}
               </div>
-
-              <!-- Status Notice (Relocated below action buttons) -->
-              ${(isPending && req.isPrivateRequest) ? '' : `
-              <div class="p-2.5 rounded-xl border text-xs leading-relaxed ${
-                isPassed && (isPending || isOwnerPending) ? 'bg-stone-100/90 border-stone-300 text-stone-800' :
-                isPending ? 'bg-amber-50/70 border-amber-200 text-amber-950' :
-                isOwnerPending ? 'bg-amber-50 border-amber-300 text-amber-950' :
-                isSetup ? 'bg-orange-50/70 border-orange-200 text-orange-950' :
-                isConfirmed ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950' :
-                isRejected ? 'bg-rose-50/70 border-rose-200 text-rose-950' :
-                'bg-stone-50 border-stone-200 text-stone-700'
-              }">
-                ${isPassed && (isPending || isOwnerPending) ? `
-                  <div class="flex items-start gap-2">
-                    <span class="iconify text-stone-500 text-sm mt-0.5 shrink-0" data-icon="lucide:history" data-stroke-width="1.8"></span>
-                    <div>
-                      <strong class="block text-stone-800 font-bold">Meeting Date Passed</strong>
-                      <p class="mt-0.5 text-stone-600">Scheduled for ${req.date} (${req.startTime}–${req.endTime}). This request is now closed.</p>
-                    </div>
-                  </div>
-                ` : (isPending ? `
-                  <div class="flex items-start gap-2">
-                    <span class="iconify text-amber-600 text-sm mt-0.5 shrink-0" data-icon="lucide:clock" data-stroke-width="1.8"></span>
-                    <p>
-                      Review meeting details below. Click <strong>Reject</strong> or <strong>Approve</strong> to proceed.
-                    </p>
-                  </div>
-                ` : (isOwnerPending ? `
-                  <div class="flex items-start gap-2">
-                    <span class="iconify text-amber-700 text-sm mt-0.5 shrink-0" data-icon="lucide:key" data-stroke-width="1.8"></span>
-                    <div>
-                      <strong class="block text-amber-900 font-bold">Sent to Room Owner:</strong>
-                      <p class="mt-0.5">Sent on ${req.managerReview?.reviewDate || req.submissionTimestamp || 'Today'}. Waiting for Room Owner (${room.roomOwner?.name || 'Owner'}) to approve.</p>
-                    </div>
-                  </div>
-                ` : (isSetup ? `
-                  <div class="flex items-start gap-2">
-                    <span class="iconify text-orange-600 text-sm mt-0.5 shrink-0" data-icon="lucide:settings" data-stroke-width="1.8"></span>
-                    <p>Approved. Room setup in progress. Confirm booking below to issue access pass.</p>
-                  </div>
-                ` : (isConfirmed ? `
-                  <div class="flex items-start gap-2">
-                    <span class="iconify text-emerald-600 text-sm mt-0.5 shrink-0" data-icon="lucide:check-circle-2" data-stroke-width="1.8"></span>
-                    <p><strong>Booking Confirmed:</strong> Room is booked and access pass is ready.</p>
-                  </div>
-                ` : (isRejected ? `
-                  <div class="flex items-start gap-2">
-                    <span class="iconify text-rose-600 text-sm mt-0.5 shrink-0" data-icon="lucide:alert-circle" data-stroke-width="1.8"></span>
-                    <p><strong>Rejected:</strong> ${isOwnerRejected ? (req.roomOwnerReview?.ownerNotes || 'Declined by Room Owner.') : (req.approver?.rejectionReason || 'Declined by Manager.')}</p>
-                  </div>
-                ` : `
-                  <div class="flex items-start gap-2">
-                    <span class="iconify text-stone-500 text-sm mt-0.5 shrink-0" data-icon="lucide:ban" data-stroke-width="1.8"></span>
-                    <p>Cancelled by booker.</p>
-                  </div>
-                `)))))}
-              </div>
-              `}
+              ` : ''}
 
             </div>
 
@@ -671,13 +617,13 @@ class PitikaReviewView {
                 </div>
               </div>
 
-              <!-- Internal Scrollable Logistics Grid -->
-              <div class="flex-1 overflow-y-auto no-scrollbar pt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 content-start">
+              <!-- Internal Scrollable Logistics Grid (Stretches to fill parent container height) -->
+              <div class="flex-1 overflow-y-auto no-scrollbar pt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 min-h-0 h-full">
                 
                 <!-- Catering Mini-Panel -->
-                <div class="p-3.5 rounded-xl border ${req.needsCatering ? 'border-amber-300 bg-amber-50/40' : 'border-[#E9E3DD] bg-[#FAF7F4]'} space-y-2.5 text-xs flex flex-col justify-between">
-                  <div>
-                    <div class="flex items-center justify-between pb-2 border-b ${req.needsCatering ? 'border-amber-200' : 'border-[#E9E3DD]'}">
+                <div class="p-3.5 rounded-xl border ${req.needsCatering ? 'border-amber-300 bg-amber-50/40' : 'border-[#E9E3DD] bg-[#FAF7F4]'} text-xs flex flex-col justify-between h-full">
+                  <div class="flex-1 flex flex-col">
+                    <div class="flex items-center justify-between pb-2 border-b ${req.needsCatering ? 'border-amber-200' : 'border-[#E9E3DD]'} shrink-0">
                       <div class="flex items-center gap-1.5">
                         <span class="iconify text-amber-700 text-xs" data-icon="lucide:utensils" data-stroke-width="2"></span>
                         <h4 class="font-bold text-[#3E2B1E] text-xs">Food Service</h4>
@@ -688,28 +634,32 @@ class PitikaReviewView {
                     </div>
 
                     ${req.needsCatering ? `
-                      <div class="space-y-1.5 bg-white p-2.5 rounded-xl border border-[#E9E3DD] mt-2">
-                        <div class="flex items-center justify-between text-[11px]">
-                          <span class="text-[#7D6857]">Package:</span>
-                          <strong class="text-[#3E2B1E]">${req.cateringDetails?.packageName?.split('(')[0]?.trim() || 'Executive Selection'}</strong>
+                      <div class="space-y-1.5 bg-white p-2.5 rounded-xl border border-[#E9E3DD] mt-2.5 flex-1 flex flex-col justify-between">
+                        <div class="space-y-1.5">
+                          <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-[#7D6857]">Package:</span>
+                            <strong class="text-[#3E2B1E]">${req.cateringDetails?.packageName?.split('(')[0]?.trim() || 'Executive Selection'}</strong>
+                          </div>
+                          <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-[#7D6857]">Portions:</span>
+                            <strong class="text-[#3E2B1E]">${req.cateringDetails?.servings || req.attendees} Meals</strong>
+                          </div>
+                          <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-[#7D6857]">Delivery Time:</span>
+                            <strong class="text-[#3E2B1E]">${req.cateringDetails?.deliveryTime || req.startTime}</strong>
+                          </div>
                         </div>
-                        <div class="flex items-center justify-between text-[11px]">
-                          <span class="text-[#7D6857]">Portions:</span>
-                          <strong class="text-[#3E2B1E]">${req.cateringDetails?.servings || req.attendees} Meals</strong>
-                        </div>
-                        <div class="flex items-center justify-between text-[11px]">
-                          <span class="text-[#7D6857]">Delivery Time:</span>
-                          <strong class="text-[#3E2B1E]">${req.cateringDetails?.deliveryTime || req.startTime}</strong>
-                        </div>
-                        <p class="text-[10px] text-[#7D6857] pt-1 border-t border-stone-100">Notes: ${req.cateringDetails?.dietaryRemarks || 'Standard corporate catering'}</p>
+                        <p class="text-[10px] text-[#7D6857] pt-1.5 border-t border-stone-100">Notes: ${req.cateringDetails?.dietaryRemarks || 'Standard corporate catering'}</p>
                       </div>
                     ` : `
-                      <p class="text-[11px] text-[#7D6857] py-6 text-center">No catering requested for this session.</p>
+                      <div class="flex-1 flex items-center justify-center py-6">
+                        <p class="text-[11px] text-[#7D6857] text-center">No catering requested for this session.</p>
+                      </div>
                     `}
                   </div>
 
                   ${req.needsCatering && !isConfirmed && !isRejected && !isCancelled ? `
-                    <div class="space-y-1 pt-1">
+                    <div class="space-y-1 pt-2 shrink-0">
                       <label class="block text-[10px] font-bold uppercase tracking-wider text-[#7D6857]">Kitchen Note:</label>
                       <input type="text" id="approver-page-catering-notes" value="${req.cateringDetails?.approverNotes || 'Food order approved.'}" class="bank-input text-xs w-full" />
                     </div>
@@ -717,9 +667,9 @@ class PitikaReviewView {
                 </div>
 
                 <!-- IT Mini-Panel -->
-                <div class="p-3.5 rounded-xl border ${req.needsIT ? 'border-red-300 bg-red-50/40' : 'border-[#E9E3DD] bg-[#FAF7F4]'} space-y-2.5 text-xs flex flex-col justify-between">
-                  <div>
-                    <div class="flex items-center justify-between pb-2 border-b ${req.needsIT ? 'border-red-200' : 'border-[#E9E3DD]'}">
+                <div class="p-3.5 rounded-xl border ${req.needsIT ? 'border-red-300 bg-red-50/40' : 'border-[#E9E3DD] bg-[#FAF7F4]'} text-xs flex flex-col justify-between h-full">
+                  <div class="flex-1 flex flex-col">
+                    <div class="flex items-center justify-between pb-2 border-b ${req.needsIT ? 'border-red-200' : 'border-[#E9E3DD]'} shrink-0">
                       <div class="flex items-center gap-1.5">
                         <span class="iconify text-[#991B1B] text-xs" data-icon="lucide:headset" data-stroke-width="2"></span>
                         <h4 class="font-bold text-[#3E2B1E] text-xs">IT Support</h4>
@@ -730,17 +680,19 @@ class PitikaReviewView {
                     </div>
 
                     ${req.needsIT ? `
-                      <div class="space-y-2 bg-white p-2.5 rounded-xl border border-[#E9E3DD] mt-2">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-[#7D6857] block">Required Equipment:</span>
-                        <ul class="text-[11px] text-[#3E2B1E] space-y-1">
-                          ${(req.itDetails?.requestedItems || ['Conference Video Polycom', 'Wireless Microphones']).map(item => `
-                            <li class="flex items-center gap-1.5">
-                              <span class="iconify text-emerald-600 text-xs shrink-0" data-icon="lucide:check" data-stroke-width="2.5"></span>
-                              <span>${item}</span>
-                            </li>
-                          `).join('')}
-                        </ul>
-                        <div class="pt-1.5 border-t border-stone-100 flex items-center justify-between text-[11px]">
+                      <div class="space-y-2 bg-white p-2.5 rounded-xl border border-[#E9E3DD] mt-2.5 flex-1 flex flex-col justify-between">
+                        <div class="space-y-1.5">
+                          <span class="text-[10px] font-bold uppercase tracking-wider text-[#7D6857] block">Required Equipment:</span>
+                          <ul class="text-[11px] text-[#3E2B1E] space-y-1">
+                            ${(req.itDetails?.requestedItems || ['Conference Video Polycom', 'Wireless Microphones']).map(item => `
+                              <li class="flex items-center gap-1.5">
+                                <span class="iconify text-emerald-600 text-xs shrink-0" data-icon="lucide:check" data-stroke-width="2.5"></span>
+                                <span>${item}</span>
+                              </li>
+                            `).join('')}
+                          </ul>
+                        </div>
+                        <div class="pt-1.5 border-t border-stone-100 flex items-center justify-between text-[11px] shrink-0">
                           <span class="text-[#7D6857]">Technician:</span>
                           ${req.itDetails?.assignedStaffList && req.itDetails.assignedStaffList.length > 0 ? `
                             <div class="flex items-center gap-1.5">
@@ -759,34 +711,22 @@ class PitikaReviewView {
                         </div>
                       </div>
                     ` : `
-                      <p class="text-[11px] text-[#7D6857] py-6 text-center">No IT support requested for this session.</p>
+                      <div class="flex-1 flex items-center justify-center py-6">
+                        <p class="text-[11px] text-[#7D6857] text-center">No IT support requested for this session.</p>
+                      </div>
                     `}
                   </div>
-
-                  ${req.needsIT ? `
-                    <div class="p-2 rounded-xl bg-red-50 border border-red-200 text-[10px] text-red-900 flex items-center gap-1.5 mt-1">
-                      <span class="iconify text-xs text-red-700 shrink-0" data-icon="lucide:workflow"></span>
-                      <span><strong>IT Process:</strong> ${isOwnerPending ? 'Sent to IT queue once Room Owner approves' : (isSetup ? 'Dispatched to IT technician queue for setup' : (isConfirmed ? 'IT equipment verified & ready' : 'Forwarded to IT on approval'))}</span>
-                    </div>
-                  ` : ''}
                 </div>
 
               </div>
 
               <!-- Location Quick Strip -->
-              <div class="pt-3 border-t border-[#E9E3DD] flex items-center justify-between shrink-0 text-xs">
-                <div class="flex items-center gap-2 text-[#6F5849] truncate">
+              <div class="pt-3 border-t border-[#E9E3DD] flex items-center justify-between text-[#6F5849] shrink-0 text-xs">
+                <div class="flex items-center gap-2 truncate">
                   <span class="iconify text-[#991B1B] text-sm shrink-0" data-icon="lucide:map-pin" data-stroke-width="2"></span>
                   <span class="truncate">${mapInfo.building} &bull; ${floorShort}</span>
                 </div>
-                <button
-                  onclick="window.NBC.views['pitika-review'].toggleDrawer(true)"
-                  class="text-xs font-semibold text-[#991B1B] hover:text-[#7F1D1D] flex items-center gap-1 shrink-0 cursor-pointer"
-                  type="button"
-                >
-                  <span>Map & Directions</span>
-                  <span class="iconify text-xs" data-icon="lucide:chevron-right" data-stroke-width="2"></span>
-                </button>
+              
               </div>
             </div>
 
@@ -853,7 +793,7 @@ class PitikaReviewView {
                 href="${mapInfo.directionsUrl}"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="flex-1 h-11 rounded-xl bg-white hover:bg-stone-50 text-[#3E2B1E] border border-[#E9E3DD] text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-2xs text-center"
+                class="flex-1 h-11 rounded-xl bg-white hover:bg-stone-50 text-[#3E2B1E] border border-[#E9E3DD] text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-2xs text-center cursor-pointer"
               >
                 <span class="iconify text-stone-600 text-sm" data-icon="lucide:navigation" data-stroke-width="2"></span>
                 <span>Get Directions</span>
@@ -862,7 +802,7 @@ class PitikaReviewView {
                 href="${mapInfo.externalUrl}"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="flex-1 h-11 rounded-xl bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-xs text-center"
+                class="flex-1 h-11 rounded-xl bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-xs text-center cursor-pointer"
               >
                 <span class="iconify text-white text-sm" data-icon="lucide:external-link" data-stroke-width="2"></span>
                 <span>Google Maps</span>
