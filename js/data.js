@@ -306,7 +306,7 @@ const NBC_BRANCHES = NBC_PROVINCES;  // Compatibility alias
 const INITIAL_ROOMS_DATA = [
   {
     id: "ROOM-101",
-    name: "ទន្លេមេគង្គ - Mekong River",
+    name: "ស្ទឹងសង្កែ - Sangker River",
     subtitle: "Executive boardroom for leadership & delegations",
     province: "Phnom Penh",
     location: "National Bank of Cambodia - Headquarters",
@@ -324,9 +324,9 @@ const INITIAL_ROOMS_DATA = [
       "Whiteboard & Markers",
       "High-Speed Wi-Fi"
     ],
-    image: "assets/rooms/boardroom-alpha.jpg",
+    image: "assets/rooms/61b926e2-2e73-4e0a-8d01-7d9f45ed2d46.png",
     images: [
-      "assets/rooms/boardroom-alpha.jpg",
+      "assets/rooms/61b926e2-2e73-4e0a-8d01-7d9f45ed2d46.png",
       "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1200&q=80",
@@ -346,7 +346,7 @@ const INITIAL_ROOMS_DATA = [
   },
   {
     id: "ROOM-102",
-    name: "ទន្លេសាប - Tonle Sap River",
+    name: "ស្ទឹងពោធិ៍សាត់ - Pursat River",
     subtitle: "Modern meeting space for productive teams",
     province: "Phnom Penh",
     location: "National Bank of Cambodia - Headquarters",
@@ -364,9 +364,9 @@ const INITIAL_ROOMS_DATA = [
       "Coffee Machine Nearby",
       "High-Speed Wi-Fi"
     ],
-    image: "assets/rooms/innovation-hub.jpg",
+    image: "assets/rooms/pursat_river_meeting_room.jpg",
     images: [
-      "assets/rooms/innovation-hub.jpg",
+      "assets/rooms/pursat_river_meeting_room.jpg",
       "https://images.unsplash.com/photo-1517502884422-41eaead166d4?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80",
@@ -378,7 +378,7 @@ const INITIAL_ROOMS_DATA = [
   },
   {
     id: "ROOM-103",
-    name: "ទន្លេបាសាក់ - Bassac River",
+    name: "ស្ទឹងសែន - Sen River",
     subtitle: "Quiet private suite for focused discussions",
     province: "Phnom Penh",
     location: "National Bank of Cambodia - Headquarters",
@@ -395,9 +395,9 @@ const INITIAL_ROOMS_DATA = [
       "Power Sockets",
       "High-Speed Wi-Fi"
     ],
-    image: "assets/rooms/focus-room.jpg",
+    image: "assets/rooms/72edadb0-8408-4bd8-8e0b-fc9ade28727c.png",
     images: [
-      "assets/rooms/focus-room.jpg",
+      "assets/rooms/72edadb0-8408-4bd8-8e0b-fc9ade28727c.png",
       "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=1200&q=80",
@@ -417,7 +417,7 @@ const INITIAL_ROOMS_DATA = [
   },
   {
     id: "ROOM-104",
-    name: "ទន្លេសេកុង - Sekong River",
+    name: "ស្ទឹងជីនិត - Chinit River",
     subtitle: "Grand auditorium for town halls & conferences",
     province: "Phnom Penh",
     location: "National Bank of Cambodia - Headquarters",
@@ -435,9 +435,9 @@ const INITIAL_ROOMS_DATA = [
       "Live Streaming Camera",
       "Direct Elevator Access"
     ],
-    image: "assets/rooms/summit-suite.jpg",
+    image: "assets/rooms/8d3b169a-e3cf-4880-865e-5c05db7f0b96.png",
     images: [
-      "assets/rooms/summit-suite.jpg",
+      "assets/rooms/8d3b169a-e3cf-4880-865e-5c05db7f0b96.png",
       "https://images.unsplash.com/photo-1582653291997-079a1c04e5a1?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1200&q=80",
@@ -449,7 +449,7 @@ const INITIAL_ROOMS_DATA = [
   },
   {
     id: "ROOM-105",
-    name: "ទន្លេសេសាន - Sesan River",
+    name: "ស្ទឹងមង្គលបូរី - Mongkol Borei River",
     subtitle: "High-tech studio for engineering & innovation",
     province: "Phnom Penh",
     location: "National Bank of Cambodia, IT Department",
@@ -466,9 +466,9 @@ const INITIAL_ROOMS_DATA = [
       "Fast Video Call Rig",
       "Glass Whiteboard"
     ],
-    image: "assets/rooms/tech-studio.jpg",
+    image: "assets/rooms/a5bf5363-1aba-46db-90a3-2c42d0ef3c95.png",
     images: [
-      "assets/rooms/tech-studio.jpg",
+      "assets/rooms/a5bf5363-1aba-46db-90a3-2c42d0ef3c95.png",
       "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1200&q=80",
@@ -480,7 +480,7 @@ const INITIAL_ROOMS_DATA = [
   },
   {
     id: "ROOM-106",
-    name: "ទន្លេស្រែពក - Srepok River",
+    name: "ស្ទឹងសៀមរាប - Siem Reap River",
     subtitle: "Accessible meeting room for guests & partners",
     province: "Phnom Penh",
     location: "National Bank of Cambodia (Phnom Penh branch)",
@@ -497,9 +497,9 @@ const INITIAL_ROOMS_DATA = [
       "Comfortable Sofa Chairs",
       "Guest Wi-Fi"
     ],
-    image: "assets/rooms/ground-briefing.jpg",
+    image: "assets/rooms/b2858b86-a480-472e-a580-869dc6e60cc3.png",
     images: [
-      "assets/rooms/ground-briefing.jpg",
+      "assets/rooms/b2858b86-a480-472e-a580-869dc6e60cc3.png",
       "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80",
@@ -511,7 +511,7 @@ const INITIAL_ROOMS_DATA = [
   },
   {
     id: "ROOM-107",
-    name: "ស្ទឹងសែន - Stung Sen River",
+    name: "ស្ទឹងស្រែង - Sreng River",
     subtitle: "Private executive office for confidential work",
     province: "Phnom Penh",
     location: "National Bank of Cambodia - Headquarters",
@@ -528,9 +528,9 @@ const INITIAL_ROOMS_DATA = [
       "Wireless Presentation Screen",
       "High-Speed Encrypted Wi-Fi"
     ],
-    image: "https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=1200&q=80",
+    image: "assets/rooms/bbef8ed3-6540-46db-aaef-1962add7965e.png",
     images: [
-      "https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=1200&q=80",
+      "assets/rooms/bbef8ed3-6540-46db-aaef-1962add7965e.png",
       "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=80"
@@ -548,7 +548,7 @@ const INITIAL_ROOMS_DATA = [
   },
   {
     id: "ROOM-108",
-    name: "ស្ទឹងសង្កែ - Stung Sangker River",
+    name: "ស្ទឹងព្រែកត្នោត - Prek Tnot River",
     subtitle: "Regional leadership room with HQ video link",
     province: "Battambang",
     location: "Battambang Provincial Branch",
@@ -566,9 +566,9 @@ const INITIAL_ROOMS_DATA = [
       "Whiteboard & Markers",
       "High-Speed Wi-Fi"
     ],
-    image: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=1200&q=80",
+    image: "assets/rooms/bcc94610-00b1-4a1a-922b-d0777e4a55a4.png",
     images: [
-      "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=1200&q=80",
+      "assets/rooms/bcc94610-00b1-4a1a-922b-d0777e4a55a4.png",
       "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1517502884422-41eaead166d4?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1200&q=80"
@@ -578,7 +578,7 @@ const INITIAL_ROOMS_DATA = [
   },
   {
     id: "ROOM-109",
-    name: "ស្ទឹងសៀមរាប - Stung Siem Reap River",
+    name: "ស្ទឹងកំចាយ - Kamchay River",
     subtitle: "Inter-bank summit suite & provincial center",
     province: "Siem Reap",
     location: "Siem Reap Provincial Branch",
@@ -596,9 +596,9 @@ const INITIAL_ROOMS_DATA = [
       "Executive Seating",
       "High-Speed Wi-Fi"
     ],
-    image: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
+    image: "assets/rooms/e4465141-0937-42b6-b083-1da23ac0db31.png",
     images: [
-      "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
+      "assets/rooms/e4465141-0937-42b6-b083-1da23ac0db31.png",
       "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1517502884422-41eaead166d4?auto=format&fit=crop&w=1200&q=80"
@@ -608,7 +608,7 @@ const INITIAL_ROOMS_DATA = [
   },
   {
     id: "ROOM-110",
-    name: "ស្ទឹងពោធិ៍សាត់ - Stung Pursat River",
+    name: "ស្ទឹងតៃតៃ - Tatai River",
     subtitle: "Interactive seminar room for banking courses",
     province: "Phnom Penh",
     location: "National Bank of Cambodia, Sen Sok",
@@ -626,9 +626,9 @@ const INITIAL_ROOMS_DATA = [
       "Wireless Microphones",
       "High-Speed Wi-Fi"
     ],
-    image: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80",
+    image: "assets/rooms/f96d8490-dcf1-468a-aea3-84ea8e62a4fb.png",
     images: [
-      "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80",
+      "assets/rooms/f96d8490-dcf1-468a-aea3-84ea8e62a4fb.png",
       "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1582653291997-079a1c04e5a1?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
@@ -642,25 +642,53 @@ const INITIAL_REQUESTS_DATA = [];
 
 const INITIAL_IT_STAFF = [
   {
-    id: "STAFF-01",
-    name: "Alex Chen",
-    title: "Audio & Video Technician",
-    phone: "Ext. 4401",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80"
+    id: "2503",
+    name: "ហ៊ី ម៉េងស្រ៊ី",
+    title: "IT Support",
+    phone: "855968607776",
+    avatar: "assets/photo_2026-09-22_14-16-49.jpg"
   },
   {
-    id: "STAFF-02",
-    name: "Marcus Vance",
-    title: "Senior IT Support Specialist",
-    phone: "Ext. 4410",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80"
+    id: "CS 0133",
+    name: "យ៉េន បូរ៉ែន",
+    title: "IT Support",
+    phone: "010798718",
+    avatar: "assets/photo_2026-09-22_14-16-35.jpg"
   },
   {
-    id: "STAFF-03",
-    name: "Elena Rostova",
-    title: "Network & Hardware Engineer",
-    phone: "Ext. 4422",
-    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80"
+    id: "2507",
+    name: "ជ័យ សុវណ្ណ",
+    title: "IT Support",
+    phone: "016 227 687",
+    avatar: "assets/photo_2026-09-22_14-16-24.jpg"
+  },
+  {
+    id: "CS-0130",
+    name: "វីណា ដារិទ្ធ",
+    title: "IT Support",
+    phone: "855769971997",
+    avatar: "assets/photo_2026-09-22_14-16-15.jpg"
+  },
+  {
+    id: "2192",
+    name: "រដ្ឋា ធាណុច",
+    title: "IT Support",
+    phone: "010363134",
+    avatar: "assets/IMG_4894.PNG"
+  },
+  {
+    id: "CS-0134",
+    name: "ឆេង ឈុនពុទ្ធិរង្សី",
+    title: "IT Support",
+    phone: "855965676733",
+    avatar: "assets/photo_2026-09-22_14-20-29.jpg"
+  },
+  {
+    id: "2188",
+    name: "យ៉ាង ប៊ុនឡេង",
+    title: "IT Support",
+    phone: "077234518",
+    avatar: "assets/DSC_0331 copy.jpg"
   }
 ];
 

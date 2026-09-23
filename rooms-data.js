@@ -85,9 +85,9 @@ const NBC_ROOMS = [
       "High-Speed Encrypted Wi-Fi 6E",
       "VIP Catering Service Area"
     ],
-    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80",
+    image: "assets/rooms/61b926e2-2e73-4e0a-8d01-7d9f45ed2d46.png",
     images: [
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80",
+      "assets/rooms/61b926e2-2e73-4e0a-8d01-7d9f45ed2d46.png",
       "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1517502884422-41eaead166d4?auto=format&fit=crop&w=1200&q=80"
@@ -126,9 +126,9 @@ const NBC_ROOMS = [
       "Nespresso Refreshment Bar",
       "Gigabit LAN & Fast Wi-Fi"
     ],
-    image: "https://images.unsplash.com/photo-1517502884422-41eaead166d4?auto=format&fit=crop&w=1200&q=80",
+    image: "assets/rooms/6c79dff2-416f-4b53-829b-2cce3f386082.png",
     images: [
-      "https://images.unsplash.com/photo-1517502884422-41eaead166d4?auto=format&fit=crop&w=1200&q=80",
+      "assets/rooms/6c79dff2-416f-4b53-829b-2cce3f386082.png",
       "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80"
     ],
@@ -158,9 +158,9 @@ const NBC_ROOMS = [
       "Encrypted VoIP Phone",
       "Dedicated Power & Data Pods"
     ],
-    image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80",
+    image: "assets/rooms/72edadb0-8408-4bd8-8e0b-fc9ade28727c.png",
     images: [
-      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80",
+      "assets/rooms/72edadb0-8408-4bd8-8e0b-fc9ade28727c.png",
       "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=1200&q=80"
     ],
@@ -198,9 +198,9 @@ const NBC_ROOMS = [
       "Multi-Angle Broadcast Rig",
       "Simultaneous Translation Booths"
     ],
-    image: "https://images.unsplash.com/photo-1582653291997-079a1c04e5a1?auto=format&fit=crop&w=1200&q=80",
+    image: "assets/rooms/8d3b169a-e3cf-4880-865e-5c05db7f0b96.png",
     images: [
-      "https://images.unsplash.com/photo-1582653291997-079a1c04e5a1?auto=format&fit=crop&w=1200&q=80",
+      "assets/rooms/8d3b169a-e3cf-4880-865e-5c05db7f0b96.png",
       "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1200&q=80"
     ],
@@ -230,9 +230,9 @@ const NBC_ROOMS = [
       "Full-Room Video Call Soundbar",
       "Magnetic Glass Architecture Board"
     ],
-    image: "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&w=1200&q=80",
+    image: "assets/rooms/a5bf5363-1aba-46db-90a3-2c42d0ef3c95.png",
     images: [
-      "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&w=1200&q=80",
+      "assets/rooms/a5bf5363-1aba-46db-90a3-2c42d0ef3c95.png",
       "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1200&q=80"
     ],
@@ -262,9 +262,9 @@ const NBC_ROOMS = [
       "Ergonomic Lounge Chairs",
       "Guest Portal Access"
     ],
-    image: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
+    image: "assets/rooms/b2858b86-a480-472e-a580-869dc6e60cc3.png",
     images: [
-      "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
+      "assets/rooms/b2858b86-a480-472e-a580-869dc6e60cc3.png",
       "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80"
     ],
@@ -294,9 +294,9 @@ const NBC_ROOMS = [
       "Secure Wireless Display",
       "Biometric Access Verified"
     ],
-    image: "https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=1200&q=80",
+    image: "assets/rooms/bbef8ed3-6540-46db-aaef-1962add7965e.png",
     images: [
-      "https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=1200&q=80",
+      "assets/rooms/bbef8ed3-6540-46db-aaef-1962add7965e.png",
       "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?auto=format&fit=crop&w=1200&q=80"
     ],
@@ -334,9 +334,9 @@ const NBC_ROOMS = [
       "Interactive Whiteboard & Markers",
       "High-Speed Branch Wi-Fi"
     ],
-    image: "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=1200&q=80",
+    image: "assets/rooms/bcc94610-00b1-4a1a-922b-d0777e4a55a4.png",
     images: [
-      "https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=1200&q=80",
+      "assets/rooms/bcc94610-00b1-4a1a-922b-d0777e4a55a4.png",
       "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80"
     ],
     status: "Available",
@@ -366,9 +366,9 @@ const NBC_ROOMS = [
       "Executive Leather Seating",
       "Dedicated Refreshment Lounge"
     ],
-    image: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
+    image: "assets/rooms/e4465141-0937-42b6-b083-1da23ac0db31.png",
     images: [
-      "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80",
+      "assets/rooms/e4465141-0937-42b6-b083-1da23ac0db31.png",
       "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1200&q=80"
     ],
     status: "Available",
@@ -398,9 +398,9 @@ const NBC_ROOMS = [
       "Wireless Microphone System",
       "High-Density Wi-Fi Access"
     ],
-    image: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80",
+    image: "assets/rooms/f96d8490-dcf1-468a-aea3-84ea8e62a4fb.png",
     images: [
-      "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1200&q=80",
+      "assets/rooms/f96d8490-dcf1-468a-aea3-84ea8e62a4fb.png",
       "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80"
     ],
     status: "Available",

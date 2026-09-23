@@ -231,7 +231,7 @@ window.NBC.views['book-room'] = {
         };
 
         const handleImgError = (event) => {
-          event.target.src = 'assets/rooms/boardroom-alpha.jpg';
+          event.target.src = 'assets/rooms/61b926e2-2e73-4e0a-8d01-7d9f45ed2d46.png';
         };
 
         // Computed Filtered Rooms
@@ -552,7 +552,7 @@ window.NBC.views['book-room'] = {
                 <article v-for="room in group.rooms" :key="room.id" class="catalog-room-card bg-white rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition flex flex-col group" :class="getRoomBorderClass(room)">
                   <!-- Image Header -->
                   <div class="relative h-44 bg-[#F4EFEA] overflow-hidden">
-                    <img :src="room.image || 'assets/rooms/boardroom-alpha.jpg'" :alt="room.name || 'Meeting Room'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" @error="handleImgError" />
+                    <img :src="room.image || 'assets/rooms/61b926e2-2e73-4e0a-8d01-7d9f45ed2d46.png'" :alt="room.name || 'Meeting Room'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" @error="handleImgError" />
                     <div class="absolute top-3 left-3 bg-[#260707]/80 backdrop-blur-xs text-white text-xs font-mono px-2.5 py-1 rounded-lg">
                       {{ formatFloorShort(room.floor) }}
                     </div>

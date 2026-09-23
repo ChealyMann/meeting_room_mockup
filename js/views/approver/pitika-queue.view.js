@@ -7,7 +7,7 @@ class PitikaQueueView {
   constructor() {
     this.id = 'pitika-queue';
     this.approverFilter = 'all'; // 'all', 'pending', 'approved', 'rejected'
-    this.approverViewMode = 'table'; // Default table view
+    this.approverViewMode = 'cards'; // Default card view
     this.approverSearchTerm = '';
     this.approverDateFilter = '';
     this.approverRoomTypeFilter = 'all'; // 'all', 'public', 'private'
@@ -61,12 +61,12 @@ class PitikaQueueView {
 
         <!-- View Mode Switcher -->
         <div class="flex items-center space-x-1 shrink-0 bg-stone-100 p-0.5 rounded-lg border border-[#E9E3DD]">
-          <button id="approver-view-cards-btn" onclick="app.setApproverViewMode('cards')" aria-label="Switch to card view" class="px-3 py-1.5 rounded-md text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-200/50 transition-all duration-150 flex items-center space-x-1.5 cursor-pointer">
-            <span class="iconify text-xs text-stone-500" data-icon="lucide:layout-grid" data-stroke-width="2"></span>
+          <button id="approver-view-cards-btn" onclick="app.setApproverViewMode('cards')" aria-label="Switch to card view" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 flex items-center space-x-1.5 bg-[#991B1B] text-white shadow-2xs cursor-pointer">
+            <span class="iconify text-xs text-white" data-icon="lucide:layout-grid" data-stroke-width="2"></span>
             <span>Cards</span>
           </button>
-          <button id="approver-view-table-btn" onclick="app.setApproverViewMode('table')" aria-label="Switch to table view" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-150 flex items-center space-x-1.5 bg-[#991B1B] text-white shadow-2xs cursor-pointer">
-            <span class="iconify text-xs text-white" data-icon="lucide:table" data-stroke-width="2"></span>
+          <button id="approver-view-table-btn" onclick="app.setApproverViewMode('table')" aria-label="Switch to table view" class="px-3 py-1.5 rounded-md text-xs font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-200/50 transition-all duration-150 flex items-center space-x-1.5 cursor-pointer">
+            <span class="iconify text-xs text-stone-500" data-icon="lucide:table" data-stroke-width="2"></span>
             <span>Table</span>
           </button>
         </div>

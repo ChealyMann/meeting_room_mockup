@@ -71,7 +71,7 @@ class BankBookingStore {
           }
         });
         this.notifications = parsed.notifications || [];
-        this.itStaff = parsed.itStaff || INITIAL_IT_STAFF;
+        this.itStaff = JSON.parse(JSON.stringify(INITIAL_IT_STAFF)); // Force reload from data.js
         this.ensureSeedBookings();
       } else {
         this.resetToDefaults(false);
