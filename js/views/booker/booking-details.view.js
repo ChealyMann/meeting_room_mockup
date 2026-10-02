@@ -596,6 +596,24 @@ class BookingDetailsView {
                   </div>
                 </div>
 
+                <!-- Participant Emails Section (if present) -->
+                ${(req.participantEmails && req.participantEmails.length > 0) ? `
+                  <div class="p-2.5 sm:p-3 bg-[#FAF7F4] rounded-xl border border-[#E9E3DD] space-y-1.5">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] uppercase tracking-wider font-semibold text-[#7D6857]">Participants (${req.participantEmails.length})</span>
+                      <span class="font-mono text-[10.5px] text-[#991B1B] font-semibold">${req.participantEmails.length} Invited</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto no-scrollbar">
+                      ${req.participantEmails.map(em => `
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-[#E9E3DD] text-xs font-mono text-[#3E2B1E] shadow-2xs">
+                          <span class="iconify text-stone-400 text-xs" data-icon="lucide:mail" data-stroke-width="1.8"></span>
+                          <span>${em}</span>
+                        </span>
+                      `).join('')}
+                    </div>
+                  </div>
+                ` : ''}
+
                 <!-- Private Room Justification Banner -->
                 ${(isPrivate || req.privateJustification) ? `
                   <div class="p-3 sm:p-3.5 rounded-xl bg-amber-50/50 border border-amber-200/80 flex items-start gap-2.5">

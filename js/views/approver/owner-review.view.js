@@ -28,6 +28,45 @@ class RoomOwnerReviewView {
     const reqId = params.requestId || (typeof this.selectedRequestForOwnerReview === 'object' ? this.selectedRequestForOwnerReview?.id : this.selectedRequestForOwnerReview) || 'REQ-2026-008';
     this.selectedRequestForOwnerReview = reqId;
     container.innerHTML = `
+      <style>
+        /* Motion Tokens */
+        :root {
+          --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        /* Enforce Animation Skill Rules */
+        .transition, .transition-all, .transition-colors, .transition-opacity, .transition-transform {
+          transition-timing-function: var(--ease-out) !important;
+          transition-duration: 150ms !important;
+        }
+
+        @keyframes scaleInDropdown {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes fadeInOpacity {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .animate-scale-in {
+          animation: scaleInDropdown 0.2s var(--ease-out) forwards;
+          transform-origin: top;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .animate-scale-in {
+            animation: fadeInOpacity 0.2s ease forwards !important;
+          }
+          .transition, .transition-all, .transition-colors, .transition-opacity, .transition-transform {
+            transition: opacity 0.2s ease !important;
+            transform: none !important;
+          }
+          .hover\:scale-101:hover, .group-hover\:scale-105:hover, .hover\:scale-105:hover {
+            transform: none !important;
+          }
+        }
+      </style>
       <div id="view-room-owner-review" class="w-full h-full lg:h-[calc(100vh-140px)] flex flex-col justify-start"></div>
     `;
     this.renderRoomOwnerReviewPage(reqId);

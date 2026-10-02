@@ -305,6 +305,211 @@ const NBC_BRANCHES = NBC_PROVINCES;  // Compatibility alias
 
 const INITIAL_ROOMS_DATA = [
   {
+    "id": "ROOM-KB-01",
+    "name": "ស្ទឹងព្រះនេតព្រះ - Stung Preah Net Preah",
+    "subtitle": "Executive boardroom with modern video telepresence",
+    "province": "Phnom Penh",
+    "location": "National Bank of Cambodia - អគារក្បាលដី",
+    "branch": "Phnom Penh",
+    "department": "Board of Directors & Cabinet (ក្រុមប្រឹក្សាភិបាល)",
+    "floor": "Floor 2 - Executive Suite",
+    "capacity": 24,
+    "size": "85 sq m",
+    "category": "Executive Room",
+    "description": "បន្ទប់ប្រជុំថ្នាក់ដឹកនាំធំទូលាយ បំពាក់ប្រព័ន្ធវីដេអូសន្និសីទទំនើប តុប្រជុំវែង និងកៅអីស្បែកប្រណីត (Grand executive boardroom equipped with conference telepresence, table microphones, executive armchairs, and refreshment station).",
+    "features": [
+      "4K Ultra HD Display & Camera",
+      "Wireless Screen Sharing",
+      "Table Microphones & Speakers",
+      "VIP Coffee & Tea Station",
+      "High-Speed Encrypted Wi-Fi"
+    ],
+    "image": "assets/rooms/stung-preah-net-preah/4.png",
+    "images": [
+      "assets/rooms/stung-preah-net-preah/4.png",
+      "assets/rooms/stung-preah-net-preah/1.png",
+      "assets/rooms/stung-preah-net-preah/2.png",
+      "assets/rooms/stung-preah-net-preah/7.png",
+      "assets/rooms/stung-preah-net-preah/5.png",
+      "assets/rooms/stung-preah-net-preah/6.png",
+      "assets/rooms/stung-preah-net-preah/3.png"
+    ],
+    "status": "Available",
+    "isPrivate": true,
+    "roomOwner": {
+      "id": "OWNER-01",
+      "name": "H.E. Chea Serey Cabinet",
+      "title": "Executive Board Secretary",
+      "department": "Board & Executive Office",
+      "phone": "Ext. 8801",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80"
+    }
+  },
+  {
+    "id": "ROOM-KB-02",
+    "name": "ស្ទឹងសិរីសោភ័ណ - Stung Serei Saophoan",
+    "subtitle": "Modern collaboration suite with 4K interactive screen",
+    "province": "Phnom Penh",
+    "location": "National Bank of Cambodia - អគារក្បាលដី",
+    "branch": "Phnom Penh",
+    "department": "Monetary Policy & Research (គោលនយោបាយរូបិយវត្ថុ & ស្រាវជ្រាវ)",
+    "floor": "Floor 2 - Conference & Meeting",
+    "capacity": 14,
+    "size": "50 sq m",
+    "category": "Team Room",
+    "description": "បន្ទប់ប្រជុំទំនើបបំពាក់អេក្រង់ទូរទស្សន៍ឆ្លាតវៃ កៅអីស្បែកសុខផាសុកភាព និងទូឯកសារស្រស់ស្អាត (Modern collaboration suite with smart 4K display screen, ergonomic leather chairs, and quiet acoustic insulation).",
+    "features": [
+      "Smart 4K Commercial TV",
+      "Conference Camera Rig",
+      "Executive Leather Chairs",
+      "Whiteboard & Document Pod",
+      "High-Speed Wi-Fi"
+    ],
+    "image": "assets/rooms/stung-serei-saophoan/5.png",
+    "images": [
+      "assets/rooms/stung-serei-saophoan/5.png",
+      "assets/rooms/stung-serei-saophoan/2.png",
+      "assets/rooms/stung-serei-saophoan/1.png",
+      "assets/rooms/stung-serei-saophoan/6.png",
+      "assets/rooms/stung-serei-saophoan/7.png",
+      "assets/rooms/stung-serei-saophoan/3.png",
+      "assets/rooms/stung-serei-saophoan/4.png"
+    ],
+    "status": "Available",
+    "isPrivate": false
+  },
+  {
+    "id": "ROOM-DK-01",
+    "name": "សាលប្រជុំ ស្ទឹងបរិបូរណ៍ - Stung Boribo Grand Hall",
+    "subtitle": "Grand central conference hall for summits & symposiums",
+    "province": "Phnom Penh",
+    "location": "National Bank of Cambodia - អគារដែក",
+    "branch": "Phnom Penh",
+    "department": "General Secretariat (អគ្គលេខាធិការដ្ឋាន)",
+    "floor": "Ground Floor - Grand Hall",
+    "capacity": 120,
+    "size": "250 sq m",
+    "category": "Grand Hall",
+    "description": "សាលប្រជុំធំទូលាយកម្រិតជាតិ បំពាក់ដោយវេទិកាកិត្តិយស អេក្រង់បញ្ចាំងធំ និងប្រព័ន្ធសំឡេងទំនើបសម្រាប់សិក្ខាសាលា និងកិច្ចប្រជុំពេញអង្គ (Prestigious central auditorium hall equipped with executive stage, high-lumen laser projector, national podium, and acoustic isolation).",
+    "features": [
+      "High-Lumen Laser 4K Projector & Screen",
+      "Wireless Microphone System (Lapel & Handheld)",
+      "Executive Stage & Official Lectern",
+      "Multi-Angle Broadcast Rig",
+      "Central Air Conditioning"
+    ],
+    "image": "assets/rooms/sal-prochum-stung-boribo/2.png",
+    "images": [
+      "assets/rooms/sal-prochum-stung-boribo/2.png",
+      "assets/rooms/sal-prochum-stung-boribo/1.png",
+      "assets/rooms/sal-prochum-stung-boribo/6.png",
+      "assets/rooms/sal-prochum-stung-boribo/4.png",
+      "assets/rooms/sal-prochum-stung-boribo/5.png",
+      "assets/rooms/sal-prochum-stung-boribo/7.png",
+      "assets/rooms/sal-prochum-stung-boribo/3.png"
+    ],
+    "status": "Available",
+    "isPrivate": false
+  },
+  {
+    "id": "ROOM-DK-02",
+    "name": "ស្ទឹងមង្គលបុរី - Stung Mongkol Borei",
+    "subtitle": "Professional conference boardroom with projector array",
+    "province": "Phnom Penh",
+    "location": "National Bank of Cambodia - អគារដែក",
+    "branch": "Phnom Penh",
+    "department": "Banking Operations (ប្រតិបត្តិការធនាគារ)",
+    "floor": "Floor 1 - Conference Suite",
+    "capacity": 20,
+    "size": "65 sq m",
+    "category": "Team Room",
+    "description": "បន្ទប់ប្រជុំស្តង់ដារបំពាក់ម៉ាស៊ីនបញ្ចាំងស្លាយ ឧបករណ៍បំពងសំឡេង និងតុវែងរៀបចំកិច្ចប្រជុំការងារ (Professional conference suite with ceiling projector, motorized projection screen, conference phone, and executive armchairs).",
+    "features": [
+      "Ceiling Mounted HD Projector & Screen",
+      "Conference Speakerphone System",
+      "Executive Boardroom Table",
+      "Perimeter Participant Seating",
+      "High-Speed Wi-Fi"
+    ],
+    "image": "assets/rooms/stung-mongkol-borei/3.png",
+    "images": [
+      "assets/rooms/stung-mongkol-borei/3.png",
+      "assets/rooms/stung-mongkol-borei/4.png",
+      "assets/rooms/stung-mongkol-borei/1.png",
+      "assets/rooms/stung-mongkol-borei/2.png",
+      "assets/rooms/stung-mongkol-borei/5.png"
+    ],
+    "status": "Available",
+    "isPrivate": false
+  },
+  {
+    "id": "ROOM-DK-03",
+    "name": "ស្ទឹងសង្កែ - Stung Sangkae",
+    "subtitle": "Executive boardroom with table microphone system",
+    "province": "Phnom Penh",
+    "location": "National Bank of Cambodia - អគារដែក",
+    "branch": "Phnom Penh",
+    "department": "Board & Executive Office",
+    "floor": "Floor 1 - Executive Boardroom",
+    "capacity": 22,
+    "size": "70 sq m",
+    "category": "Executive Room",
+    "description": "បន្ទប់ប្រជុំប្រតិបត្តិបំពាក់ប្រព័ន្ធមីក្រូហ្វូនលើតុ អេក្រង់បញ្ចាំងធំ និងប្រព័ន្ធត្រជាក់កណ្តាល (Executive boardroom in Building Daek with conference audio system, table microphones, projection screen, and comfortable seating).",
+    "features": [
+      "Dedicated Table Conference Microphones",
+      "Ceiling HD Projector & Screen",
+      "Ergonomic Leather Armchairs",
+      "Beverage & Refreshment Table",
+      "High-Speed Wi-Fi"
+    ],
+    "image": "assets/rooms/stung-sangke/3.png",
+    "images": [
+      "assets/rooms/stung-sangke/3.png",
+      "assets/rooms/stung-sangke/2.png",
+      "assets/rooms/stung-sangke/1.png",
+      "assets/rooms/stung-sangke/4.png",
+      "assets/rooms/stung-sangke/5.png"
+    ],
+    "status": "Available",
+    "isPrivate": true,
+    "roomOwner": {
+      "id": "OWNER-02",
+      "name": "Dr. Sokhom Phan",
+      "title": "Chief of CAFIU Security",
+      "department": "Financial Intelligence Unit",
+      "phone": "Ext. 8502",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80"
+    }
+  },
+  {
+    "id": "ROOM-DK-04",
+    "name": "ស្ទឹងសៀមរាប - Stung Siem Reap",
+    "subtitle": "Dedicated collaboration suite for department summits",
+    "province": "Phnom Penh",
+    "location": "National Bank of Cambodia - អគារដែក",
+    "branch": "Phnom Penh",
+    "department": "General Administration & Policy",
+    "floor": "Floor 1 - Meeting Suite",
+    "capacity": 16,
+    "size": "55 sq m",
+    "category": "Team Room",
+    "description": "បន្ទប់ប្រជុំស្ទឹងសៀមរាប ស្ថិតនៅអគារដែក សម្រាប់កិច្ចប្រជុំផ្ទៃក្នុង និងកិច្ចពិភាក្សាការងារក្រុម (Dedicated meeting room in Building Daek for inter-departmental collaboration, working committees, and briefings).",
+    "features": [
+      "Large Presentation Screen",
+      "Audio Speakerphone",
+      "Executive Seating",
+      "Fast Internet & Wi-Fi"
+    ],
+    "image": "assets/rooms/stung-siem-reap/9d906836-9164-4b2e-9d48-2af82f2917a2.png",
+    "images": [
+      "assets/rooms/stung-siem-reap/9d906836-9164-4b2e-9d48-2af82f2917a2.png",
+      "assets/rooms/stung-sangke/3.png",
+      "assets/rooms/stung-mongkol-borei/4.png"
+    ],
+    "status": "Available",
+    "isPrivate": false
+  },
+  {
     id: "ROOM-101",
     name: "ស្ទឹងសង្កែ - Sangker River",
     subtitle: "Executive boardroom for leadership & delegations",

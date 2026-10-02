@@ -18,6 +18,7 @@ class BookingFormView {
     this.selectedTimelineSlot = null;
     this.slotSelectionMode = 'multi'; // 'single' | 'multi' (default multi for seamless direct slot selection)
     this.selectedSessions = []; // Array of { roomId, date, startTime, endTime }
+    this.participantEmails = [];
     this.justDeselected = 0;
 
     this.template = `<!-- Top Action Breadcrumb Bar with 4-Step Wizard Tracker -->
@@ -327,87 +328,148 @@ class BookingFormView {
               </div>
             </div>
 
-            <!-- Organizer Details -->
-            <div class="bg-white rounded-xl border border-[#E9E3DD] p-4 sm:p-5 shadow-xs space-y-3.5">
-              <div class="flex items-center justify-between border-b border-stone-100 pb-2">
-                <div class="flex items-center space-x-2">
-                  <span class="w-5 h-5 rounded bg-stone-100 text-stone-700 font-bold text-xs flex items-center justify-center">2</span>
-                  <h3 class="text-xs font-heading font-bold text-stone-900 uppercase tracking-wide">
-                    Organizer Information
-                  </h3>
+            <!-- Right Column: Organizer Details & Participant Emails -->
+            <div class="space-y-4">
+              <!-- Organizer Details -->
+              <div class="bg-white rounded-xl border border-[#E9E3DD] p-4 sm:p-5 shadow-xs space-y-3.5">
+                <div class="flex items-center justify-between border-b border-stone-100 pb-2">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-5 h-5 rounded bg-stone-100 text-stone-700 font-bold text-xs flex items-center justify-center">2</span>
+                    <h3 class="text-xs font-heading font-bold text-stone-900 uppercase tracking-wide">
+                      Organizer Information
+                    </h3>
+                  </div>
+                  <span class="text-[10px] text-stone-400 font-medium">Default: Jonathan Vance</span>
                 </div>
-                <span class="text-[10px] text-stone-400 font-medium">Default: Jonathan Vance</span>
+
+                <!-- Full Name & Staff ID -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div class="form-field-group">
+                    <label class="form-label" for="form-requester-name">
+                      <span>Full Name <span class="text-red-700">*</span></span>
+                    </label>
+                    <div class="relative">
+                      <span class="iconify input-icon-wrapper" data-icon="lucide:user" data-stroke-width="1.8"></span>
+                      <input type="text" id="form-requester-name" value="Jonathan Vance" required class="bank-input bank-input-with-icon text-xs" />
+                    </div>
+                  </div>
+
+                  <div class="form-field-group">
+                    <label class="form-label" for="form-requester-id">
+                      <span>Staff ID <span class="text-red-700">*</span></span>
+                    </label>
+                    <div class="relative">
+                      <span class="iconify input-icon-wrapper" data-icon="lucide:badge-check" data-stroke-width="1.8"></span>
+                      <input type="text" id="form-requester-id" value="NBC-4102" required class="bank-input bank-input-with-icon font-mono font-semibold text-xs" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Directorate & Department -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div class="form-field-group">
+                    <label class="form-label" for="form-requester-directorate">
+                      <span>Directorate <span class="text-red-700">*</span></span>
+                    </label>
+                    <div class="relative">
+                      <span class="iconify input-icon-wrapper" data-icon="lucide:building-2" data-stroke-width="1.8"></span>
+                      <select id="form-requester-directorate" required onchange="app.handleDirectorateChange(this.value)" class="bank-input bank-input-with-icon text-xs text-stone-900 font-semibold">
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-field-group">
+                    <label class="form-label" for="form-requester-department">
+                      <span>Department <span class="text-red-700">*</span></span>
+                    </label>
+                    <div class="relative">
+                      <span class="iconify input-icon-wrapper" data-icon="lucide:layers" data-stroke-width="1.8"></span>
+                      <select id="form-requester-department" required onchange="app.handleDepartmentSubChange(this.value)" class="bank-input bank-input-with-icon text-xs text-stone-900 font-medium">
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Work Email & Phone Extension -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div class="form-field-group">
+                    <label class="form-label" for="form-requester-email">
+                      <span>Work Email <span class="text-red-700">*</span></span>
+                    </label>
+                    <div class="relative">
+                      <span class="iconify input-icon-wrapper" data-icon="lucide:mail" data-stroke-width="1.8"></span>
+                      <input type="email" id="form-requester-email" value="jonathan.vance@nbc.gov.kh" required class="bank-input bank-input-with-icon text-xs" />
+                    </div>
+                  </div>
+
+                  <div class="form-field-group">
+                    <label class="form-label" for="form-requester-phone">
+                      <span>Phone Ext. <span class="text-red-700">*</span></span>
+                    </label>
+                    <div class="relative">
+                      <span class="iconify input-icon-wrapper" data-icon="lucide:phone-call" data-stroke-width="1.8"></span>
+                      <input type="text" id="form-requester-phone" value="Ext. 8421" required class="bank-input bank-input-with-icon text-xs font-semibold" />
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
-              <!-- Full Name & Staff ID -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div class="form-field-group">
-                  <label class="form-label" for="form-requester-name">
-                    <span>Full Name <span class="text-red-700">*</span></span>
-                  </label>
-                  <div class="relative">
-                    <span class="iconify input-icon-wrapper" data-icon="lucide:user" data-stroke-width="1.8"></span>
-                    <input type="text" id="form-requester-name" value="Jonathan Vance" required class="bank-input bank-input-with-icon text-xs" />
+              <!-- Participant Emails Card (Matches User Attached Reference) -->
+              <div class="bg-white rounded-xl border border-[#E9E3DD] p-4 sm:p-5 shadow-xs space-y-3">
+                <div class="flex items-center justify-between border-b border-stone-100 pb-2">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-5 h-5 rounded bg-stone-100 text-stone-700 font-bold text-xs flex items-center justify-center">2</span>
+                    <h3 class="text-xs font-heading font-bold text-stone-900 uppercase tracking-wide">
+                      Participant Emails
+                    </h3>
                   </div>
+                  <span id="form-participant-count" class="text-[11px] font-mono font-semibold text-stone-400">0 Added</span>
                 </div>
 
                 <div class="form-field-group">
-                  <label class="form-label" for="form-requester-id">
-                    <span>Staff ID <span class="text-red-700">*</span></span>
+                  <label class="form-label mb-1.5" for="form-participant-email-input">
+                    <span>Email :</span>
                   </label>
-                  <div class="relative">
-                    <span class="iconify input-icon-wrapper" data-icon="lucide:badge-check" data-stroke-width="1.8"></span>
-                    <input type="text" id="form-requester-id" value="NBC-4102" required class="bank-input bank-input-with-icon font-mono font-semibold text-xs" />
-                  </div>
-                </div>
-              </div>
 
-              <!-- Directorate & Department -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div class="form-field-group">
-                  <label class="form-label" for="form-requester-directorate">
-                    <span>Directorate <span class="text-red-700">*</span></span>
-                  </label>
-                  <div class="relative">
-                    <span class="iconify input-icon-wrapper" data-icon="lucide:building-2" data-stroke-width="1.8"></span>
-                    <select id="form-requester-directorate" required onchange="app.handleDirectorateChange(this.value)" class="bank-input bank-input-with-icon text-xs text-stone-900 font-semibold">
-                    </select>
-                  </div>
-                </div>
+                  <!-- Tag Box Container (Matching Image 2 Reference) -->
+                  <div id="form-participant-box" class="w-full min-h-[92px] bg-[#FAF7F4] border border-[#E9E3DD] rounded-xl p-3 focus-within:border-[#991B1B] focus-within:bg-white focus-within:ring-1 focus-within:ring-[#991B1B]/20 transition-all flex flex-col justify-between gap-2.5">
+                    
+                    <!-- Chips List Container -->
+                    <div id="form-participant-chips" class="flex flex-wrap gap-2 empty:hidden"></div>
 
-                <div class="form-field-group">
-                  <label class="form-label" for="form-requester-department">
-                    <span>Department <span class="text-red-700">*</span></span>
-                  </label>
-                  <div class="relative">
-                    <span class="iconify input-icon-wrapper" data-icon="lucide:layers" data-stroke-width="1.8"></span>
-                    <select id="form-requester-department" required onchange="app.handleDepartmentSubChange(this.value)" class="bank-input bank-input-with-icon text-xs text-stone-900 font-medium">
-                    </select>
-                  </div>
-                </div>
-              </div>
+                    <!-- Input Row -->
+                    <div class="flex items-center gap-2 pt-0.5">
+                      <div class="relative flex-1">
+                        <span class="iconify input-icon-wrapper text-stone-400" data-icon="lucide:mail" data-stroke-width="1.8"></span>
+                        <input 
+                          type="email" 
+                          id="form-participant-email-input" 
+                          placeholder="Enter Email ..." 
+                          class="bank-input bank-input-with-icon text-xs bg-white h-9 border border-[#E9E3DD] rounded-lg focus:border-[#991B1B]"
+                          autocomplete="off"
+                        />
+                      </div>
+                      <button 
+                        type="button" 
+                        id="btn-add-participant-email" 
+                        onclick="app.addParticipantEmailFromInput()"
+                        class="btn-primary h-9 px-3.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 shadow-2xs shrink-0 cursor-pointer"
+                        title="Add email"
+                      >
+                        <span class="iconify text-white text-sm" data-icon="lucide:plus" data-stroke-width="2"></span>
+                        <span>Add</span>
+                      </button>
+                    </div>
 
-              <!-- Work Email & Phone Extension -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <div class="form-field-group">
-                  <label class="form-label" for="form-requester-email">
-                    <span>Work Email <span class="text-red-700">*</span></span>
-                  </label>
-                  <div class="relative">
-                    <span class="iconify input-icon-wrapper" data-icon="lucide:mail" data-stroke-width="1.8"></span>
-                    <input type="email" id="form-requester-email" value="jonathan.vance@nbc.gov.kh" required class="bank-input bank-input-with-icon text-xs" />
+                  </div>
+
+                  <div id="form-participant-error" class="hidden text-[11px] text-red-600 font-medium pt-1.5 flex items-center gap-1">
+                    <span class="iconify text-xs" data-icon="lucide:alert-circle" data-stroke-width="2"></span>
+                    <span id="form-participant-error-text"></span>
                   </div>
                 </div>
 
-                <div class="form-field-group">
-                  <label class="form-label" for="form-requester-phone">
-                    <span>Phone Ext. <span class="text-red-700">*</span></span>
-                  </label>
-                  <div class="relative">
-                    <span class="iconify input-icon-wrapper" data-icon="lucide:phone-call" data-stroke-width="1.8"></span>
-                    <input type="text" id="form-requester-phone" value="Ext. 8421" required class="bank-input bank-input-with-icon text-xs font-semibold" />
-                  </div>
-                </div>
               </div>
 
             </div>
@@ -942,6 +1004,15 @@ class BookingFormView {
                         </div>
                       </div>
                     </div>
+
+                    <!-- Participant Emails Review in Step 4 -->
+                    <div id="step4-participants-container" class="hidden p-3 rounded-xl bg-[#FAF7F4] border border-[#E9E3DD] space-y-1.5">
+                      <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-heading font-bold text-[#3E2B1E] uppercase tracking-wide">Invited Participants</span>
+                        <span id="step4-participants-count" class="font-mono text-xs font-semibold text-[#991B1B]">0</span>
+                      </div>
+                      <div id="step4-participants-chips" class="flex flex-wrap gap-1.5"></div>
+                    </div>
                   </div>
 
                   <!-- Section 3: Extra Services (Step 3) -->
@@ -1111,6 +1182,12 @@ class BookingFormView {
       this.selectedSessions = [];
       this.slotSelectionMode = 'multi';
     }
+
+    this.participantEmails = (params.participantEmails && Array.isArray(params.participantEmails))
+      ? [...params.participantEmails]
+      : [];
+    this.renderParticipantChips();
+    this.bindParticipantEmailHandlers();
 
     this.setDefaultDates();
     this.ensureFutureDefaultTimes();
@@ -2912,6 +2989,12 @@ class BookingFormView {
     }
 
     if (stepNumber >= 3) {
+      // Auto-commit any email currently typed in the participant input
+      const participantInput = document.getElementById('form-participant-email-input');
+      if (participantInput && participantInput.value.trim()) {
+        this.addParticipantEmailFromInput();
+      }
+
       // Validate Step 2 (Meeting Details)
       const titleInput = document.getElementById('form-meeting-title');
       if (!titleInput || !titleInput.value.trim()) {
@@ -3352,6 +3435,29 @@ class BookingFormView {
       }
     }
 
+    // Participant Emails Review in Step 4
+    const step4PartSec = document.getElementById('step4-participants-container');
+    const step4PartCount = document.getElementById('step4-participants-count');
+    const step4PartChips = document.getElementById('step4-participants-chips');
+    if (step4PartSec && step4PartChips) {
+      if (this.participantEmails && this.participantEmails.length > 0) {
+        step4PartSec.classList.remove('hidden');
+        if (step4PartCount) {
+          const pLen = this.participantEmails.length;
+          step4PartCount.innerText = pLen === 1 ? '1 Email' : `${pLen} Emails`;
+        }
+        step4PartChips.innerHTML = this.participantEmails.map(em => `
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-[#E9E3DD] text-xs font-mono text-[#3E2B1E] shadow-2xs">
+            <span class="iconify text-stone-400 text-xs" data-icon="lucide:mail" data-stroke-width="1.8"></span>
+            <span>${em}</span>
+          </span>
+        `).join('');
+      } else {
+        step4PartSec.classList.add('hidden');
+        step4PartChips.innerHTML = '';
+      }
+    }
+
     // 4. Hospitality & IT Services Specification
     const foodStatus = document.getElementById('step4-food-status');
     const foodContent = document.getElementById('step4-food-content');
@@ -3644,6 +3750,7 @@ class BookingFormView {
       staffId,
       staffEmail,
       staffPhone,
+      participantEmails: [...this.participantEmails],
       date: finalDate,
       attendees,
       startTime: finalStartTime,
@@ -3679,6 +3786,8 @@ class BookingFormView {
     this.selectedITItemIndexes = new Set([0, 2]);
     this.currentITPage = 0;
     this.selectedSessions = [];
+    this.participantEmails = [];
+    this.renderParticipantChips();
     this.slotSelectionMode = 'multi';
     this.resetStep1TimelineSelection(false);
     this.setSlotSelectionMode('multi', true);
@@ -3692,6 +3801,171 @@ class BookingFormView {
       window.app.renderAll();
       window.app.navigateTo('my-bookings');
     }
+  }
+
+  // ==================== PARTICIPANT EMAIL METHODS (MATCHING USER REFERENCE) ====================
+
+  bindParticipantEmailHandlers() {
+    const input = document.getElementById('form-participant-email-input');
+    if (!input || input.dataset.handlersBound === 'true') return;
+    input.dataset.handlersBound = 'true';
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        this.addParticipantEmailFromInput();
+      } else if (e.key === ',' || e.key === ';') {
+        e.preventDefault();
+        this.addParticipantEmailFromInput();
+      } else if (e.key === 'Backspace' && !input.value.trim() && this.participantEmails.length > 0) {
+        this.removeParticipantEmail(this.participantEmails.length - 1);
+      }
+    });
+
+    input.addEventListener('paste', (e) => {
+      const pasteText = (e.clipboardData || window.clipboardData)?.getData('text');
+      if (pasteText && (pasteText.includes(',') || pasteText.includes(';') || pasteText.includes('\n') || pasteText.includes(' '))) {
+        e.preventDefault();
+        const parts = pasteText.split(/[,;\s\n\r\t]+/).map(p => p.trim()).filter(Boolean);
+        parts.forEach(part => this.addParticipantEmail(part, false));
+        this.renderParticipantChips();
+        input.value = '';
+      }
+    });
+
+    input.addEventListener('input', () => {
+      this.clearParticipantError();
+    });
+  }
+
+  showParticipantError(msg) {
+    const errBox = document.getElementById('form-participant-error');
+    const errText = document.getElementById('form-participant-error-text');
+    const input = document.getElementById('form-participant-email-input');
+    if (errBox && errText) {
+      errText.innerText = msg;
+      errBox.classList.remove('hidden');
+    }
+    if (input) {
+      input.classList.add('border-red-400');
+    }
+  }
+
+  clearParticipantError() {
+    const errBox = document.getElementById('form-participant-error');
+    const input = document.getElementById('form-participant-email-input');
+    if (errBox) {
+      errBox.classList.add('hidden');
+    }
+    if (input) {
+      input.classList.remove('border-red-400');
+    }
+  }
+
+  isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  addParticipantEmail(emailStr, shouldRender = true) {
+    if (!emailStr) return false;
+    const cleanEmail = emailStr.trim().toLowerCase();
+    if (!cleanEmail) return false;
+
+    if (!this.isValidEmail(cleanEmail)) {
+      this.showParticipantError(`"${emailStr.trim()}" is not a valid email address.`);
+      return false;
+    }
+
+    if (this.participantEmails.some(e => e.toLowerCase() === cleanEmail)) {
+      this.showParticipantError(`"${cleanEmail}" is already added.`);
+      return false;
+    }
+
+    this.clearParticipantError();
+    this.participantEmails.push(cleanEmail);
+
+    // Auto-sync Expected Attendees count if participant count + 1 (organizer) exceeds it
+    const attendeesInput = document.getElementById('form-attendees');
+    if (attendeesInput) {
+      const currentAttendees = parseInt(attendeesInput.value, 10) || 1;
+      const minAttendees = this.participantEmails.length + 1;
+      if (minAttendees > currentAttendees) {
+        attendeesInput.value = minAttendees;
+        if (typeof this.updatePricingSummary === 'function') {
+          this.updatePricingSummary();
+        }
+      }
+    }
+
+    if (shouldRender) {
+      this.renderParticipantChips();
+      const input = document.getElementById('form-participant-email-input');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+    }
+    return true;
+  }
+
+  addParticipantEmailFromInput() {
+    const input = document.getElementById('form-participant-email-input');
+    if (!input) return;
+    const rawVal = input.value.trim();
+    if (!rawVal) return;
+
+    if (rawVal.includes(',') || rawVal.includes(';') || rawVal.includes(' ')) {
+      const parts = rawVal.split(/[,;\s]+/).map(p => p.trim()).filter(Boolean);
+      parts.forEach(part => this.addParticipantEmail(part, false));
+      this.renderParticipantChips();
+      input.value = '';
+    } else {
+      if (this.addParticipantEmail(rawVal, true)) {
+        input.value = '';
+      }
+    }
+  }
+
+  removeParticipantEmail(index) {
+    if (index >= 0 && index < this.participantEmails.length) {
+      this.participantEmails.splice(index, 1);
+      this.renderParticipantChips();
+      this.clearParticipantError();
+    }
+  }
+
+  renderParticipantChips() {
+    const chipsContainer = document.getElementById('form-participant-chips');
+    const countEl = document.getElementById('form-participant-count');
+
+    if (countEl) {
+      const count = this.participantEmails.length;
+      countEl.innerText = count === 1 ? '1 Added' : `${count} Added`;
+    }
+
+    if (!chipsContainer) return;
+
+    if (this.participantEmails.length === 0) {
+      chipsContainer.innerHTML = '';
+      chipsContainer.classList.add('empty:hidden');
+      return;
+    }
+
+    chipsContainer.classList.remove('empty:hidden');
+    chipsContainer.innerHTML = this.participantEmails.map((email, idx) => `
+      <div class="inline-flex items-center gap-2 px-2.5 py-1 bg-white hover:bg-stone-50 border border-stone-200 rounded-lg text-xs font-mono text-stone-800 shadow-2xs transition group animate-fade-in">
+        <span class="truncate max-w-[240px] select-all">${email}</span>
+        <button 
+          type="button" 
+          onclick="(window.NBC?.views['request-form'] || window.app)?.removeParticipantEmail(${idx})" 
+          class="w-4 h-4 rounded-full text-stone-400 hover:text-[#991B1B] hover:bg-red-50 flex items-center justify-center transition cursor-pointer" 
+          title="Remove ${email}"
+        >
+          <span class="iconify text-sm" data-icon="lucide:x-circle" data-stroke-width="1.8"></span>
+        </button>
+      </div>
+    `).join('');
   }
 }
 

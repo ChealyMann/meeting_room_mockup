@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Change Staff Button Options - Staff Assigned</title>
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/3/3.1.1/iconify.min.js"></script>
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #F9F7F5;
+      color: #3E2B1E;
+    }
+  </style>
+</head>
+<body class="p-6 md:p-10 min-h-screen flex flex-col items-center">
+
+  <div class="max-w-4xl w-full space-y-8">
+    
+    <!-- Header -->
+    <div class="text-center space-y-1">
+      <h1 class="text-2xl font-bold text-[#3E2B1E]">Change Staff Button Styling Options</h1>
+      <p class="text-xs text-stone-500 font-mono">Comparing styles for when Staff is Assigned (Secondary Edit Action)</p>
+    </div>
+
+    <!-- Benchmark: Assign Staff (Primary Baseline) -->
+    <div class="bg-white border border-[#E9E3DD] rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <div class="text-xs font-semibold uppercase tracking-wider text-stone-400">Baseline Primary Action</div>
+        <div class="text-sm font-semibold text-[#3E2B1E]">Assign Staff (Waiting for Staff)</div>
+        <div class="text-xs text-stone-500">Solid Crimson indicates urgent ticket requiring initial technician assignment.</div>
+      </div>
+      <button type="button" class="btn-primary h-9 px-4 shrink-0 rounded-xl border border-[#991B1B] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none shadow-xs">
+        <span class="iconify text-sm text-white shrink-0" data-icon="lucide:user-plus" data-stroke-width="2"></span>
+        <span class="text-white leading-none">Assign Staff</span>
+      </button>
+    </div>
+
+    <!-- Options Grid for "Change Staff" -->
+    <div class="space-y-4">
+      <div class="text-xs font-semibold uppercase tracking-wider text-stone-400 px-1">Options for "Change Staff" (When Assigned)</div>
+
+      <!-- Option A: Soft Crimson Tint / Ghost Pill -->
+      <div class="bg-white border border-[#E9E3DD] rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-stone-300 transition">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-[#991B1B] bg-red-50 px-2 py-0.5 rounded-md border border-red-200">Option A</span>
+            <span class="text-sm font-semibold text-[#3E2B1E]">Soft Crimson Tint (Brand Subtle)</span>
+          </div>
+          <div class="text-xs text-stone-500">
+            Light red tint with subtle crimson border. Keeps the NBC brand identity without shouting like a solid button.
+          </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" class="h-9 px-3.5 rounded-xl border border-[#991B1B]/25 bg-[#991B1B]/5 hover:bg-[#991B1B]/10 active:bg-[#991B1B]/15 text-[#991B1B] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none shadow-2xs">
+            <span class="iconify text-sm text-[#991B1B] shrink-0" data-icon="lucide:user-cog" data-stroke-width="2"></span>
+            <span class="leading-none text-[#991B1B]">Change Staff</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Option B: Warm Oat Cream Filled (Tactile Soft Solid) -->
+      <div class="bg-white border border-[#E9E3DD] rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-stone-300 transition">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-amber-900 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">Option B</span>
+            <span class="text-sm font-semibold text-[#3E2B1E]">Warm Oat Cream Filled (Tactile Solid)</span>
+          </div>
+          <div class="text-xs text-stone-500">
+            Solid tactile fill using warm cafe oat tone. Feels substantial and clickable, but soft and grounded.
+          </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" class="h-9 px-3.5 rounded-xl border border-[#D8CFC7] bg-[#EFEAE4] hover:bg-[#E5DDD2] active:bg-[#DBD1C4] text-[#3E2B1E] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none shadow-2xs">
+            <span class="iconify text-sm text-[#5D4432] shrink-0" data-icon="lucide:user-cog" data-stroke-width="2"></span>
+            <span class="leading-none text-[#3E2B1E]">Change Staff</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Option C: Warm Caramel Amber Tint (Status / Adjustment Tone) -->
+      <div class="bg-white border border-[#E9E3DD] rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-stone-300 transition">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-300">Option C</span>
+            <span class="text-sm font-semibold text-[#3E2B1E]">Warm Amber Tint (Caramel Accent)</span>
+          </div>
+          <div class="text-xs text-stone-500">
+            Caramel amber tint. Communicates an adjustment state clearly and looks distinct from both red and green.
+          </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" class="h-9 px-3.5 rounded-xl border border-amber-300 bg-amber-50/80 hover:bg-amber-100 active:bg-amber-200 text-amber-900 text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none shadow-2xs">
+            <span class="iconify text-sm text-amber-700 shrink-0" data-icon="lucide:user-cog" data-stroke-width="2"></span>
+            <span class="leading-none text-amber-900">Change Staff</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Option D: Classic Oat Neutral Outline (Minimal & Clean) -->
+      <div class="bg-white border border-[#E9E3DD] rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-stone-300 transition">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-stone-700 bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200">Option D</span>
+            <span class="text-sm font-semibold text-[#3E2B1E]">Classic Oat Outline (Cleanest Hierarchy)</span>
+          </div>
+          <div class="text-xs text-stone-500">
+            White surface with oat hairline border. Lowest visual noise, letting the primary ticket actions shine.
+          </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" class="btn-secondary h-9 px-3.5 rounded-xl border border-[#E9E3DD] bg-white hover:bg-[#FAF7F4] active:bg-[#F4EFEA] text-[#3E2B1E] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none shadow-2xs hover:border-[#D8CFC7]">
+            <span class="iconify text-sm text-[#6F5849] shrink-0" data-icon="lucide:user-cog" data-stroke-width="2"></span>
+            <span class="leading-none text-[#3E2B1E]">Change Staff</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Option E: Inverted Deep Coffee Outline (Modern High Contrast) -->
+      <div class="bg-white border border-[#E9E3DD] rounded-2xl p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-stone-300 transition">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-[#3E2B1E] bg-stone-100 px-2 py-0.5 rounded-md border border-stone-300">Option E</span>
+            <span class="text-sm font-semibold text-[#3E2B1E]">Roasted Coffee Inverted (Crisp Modern)</span>
+          </div>
+          <div class="text-xs text-stone-500">
+            Crisp coffee bean hairline border that inverts to dark roast on hover. Sharp and professional.
+          </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" class="group h-9 px-3.5 rounded-xl border border-[#3E2B1E]/40 bg-white hover:bg-[#3E2B1E] hover:border-[#3E2B1E] text-[#3E2B1E] hover:text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none shadow-2xs">
+            <span class="iconify text-sm text-[#3E2B1E] group-hover:text-white shrink-0 transition" data-icon="lucide:user-cog" data-stroke-width="2"></span>
+            <span class="leading-none group-hover:text-white transition">Change Staff</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Live Card Context Preview -->
+    <div class="bg-white border border-[#E9E3DD] rounded-2xl p-6 shadow-xs space-y-4">
+      <div class="text-xs font-semibold uppercase tracking-wider text-stone-400">Card Comparison: Waiting vs. Assigned</div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Left: Needs Assignment -->
+        <div class="border border-[#E9E3DD] rounded-xl p-4 bg-[#FAF7F4] space-y-3">
+          <div class="flex items-center justify-between text-xs pb-2 border-b border-[#E9E3DD]">
+            <span class="font-mono font-semibold text-[#991B1B]">REQ-2026-002</span>
+            <span class="font-medium text-amber-700 inline-flex items-center gap-1">
+              <span class="iconify text-sm" data-icon="lucide:clock" data-stroke-width="2"></span>
+              Waiting for Staff
+            </span>
+          </div>
+          <div class="text-xs font-semibold text-[#3E2B1E]">Stung Sangker &bull; Floor 2</div>
+          <div class="pt-2 flex items-center gap-2">
+            <button type="button" class="flex-1 btn-secondary h-9 px-3.5 rounded-xl border border-[#E9E3DD] text-xs font-semibold inline-flex items-center justify-center gap-1.5 text-stone-800">
+              <span class="iconify text-sm text-stone-500" data-icon="lucide:eye"></span>
+              View Details
+            </button>
+            <!-- Primary Action -->
+            <button type="button" class="btn-primary h-9 px-3.5 shrink-0 rounded-xl border border-[#991B1B] text-xs font-semibold inline-flex items-center justify-center gap-1.5 shadow-xs">
+              <span class="iconify text-sm text-white" data-icon="lucide:user-plus"></span>
+              Assign Staff
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Staff Assigned with Warm Amber Tint (Chosen Style) -->
+        <div class="border border-[#E9E3DD] rounded-xl p-4 bg-[#FAF7F4] space-y-3">
+          <div class="flex items-center justify-between text-xs pb-2 border-b border-[#E9E3DD]">
+            <span class="font-mono font-semibold text-[#991B1B]">REQ-2026-001</span>
+            <span class="font-medium text-emerald-700 inline-flex items-center gap-1">
+              <span class="iconify text-sm" data-icon="lucide:check-circle-2" data-stroke-width="2"></span>
+              Setup Complete
+            </span>
+          </div>
+          <div class="text-xs font-semibold text-[#3E2B1E]">Stung Sangker &bull; Floor 2</div>
+          <div class="pt-2 flex items-center gap-2">
+            <button type="button" class="flex-1 btn-secondary h-9 px-3.5 rounded-xl border border-[#E9E3DD] text-xs font-semibold inline-flex items-center justify-center gap-1.5 text-stone-800">
+              <span class="iconify text-sm text-stone-500" data-icon="lucide:eye"></span>
+              View Details
+            </button>
+            <!-- Warm Amber Tint (Caramel Accent) -->
+            <button type="button" class="h-9 px-3.5 shrink-0 rounded-xl border border-amber-300 hover:border-amber-400 bg-amber-50/80 hover:bg-amber-100 active:bg-amber-200 text-amber-900 text-xs font-semibold inline-flex items-center justify-center gap-1.5 shadow-2xs transition cursor-pointer select-none">
+              <span class="iconify text-sm text-amber-700" data-icon="lucide:user-cog"></span>
+              Change Staff
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -466,11 +466,40 @@ class ITQueueView {
       itTickets = itTickets.filter(ticket => ticket.room?.id === this.itRoomFilter);
     }
 
-    // 6. Sorting
+    // 6. Priority Sorting: Ensure "Waiting for Staff" (unassigned) requests strictly stay on top!
     itTickets.sort((a, b) => {
+      const getPriority = (ticket) => {
+        const staffList = ticket.itDetails?.assignedStaffList || (ticket.itDetails?.assignedStaff ? [ticket.itDetails.assignedStaff] : []);
+        const isAssigned = staffList.length > 0;
+        const isConfirmed = ticket.status === 'Approved - Confirmed';
+
+        if (!isAssigned && !isConfirmed) return 1; // 1. Waiting for Staff (Needs Assign - HIGHEST PRIORITY ON TOP)
+        if (isAssigned && !isConfirmed) return 2;  // 2. Setting Up (Staff Assigned, in progress)
+        return 3;                                  // 3. Ready & Done (Setup Completed)
+      };
+
+      const priorityA = getPriority(a);
+      const priorityB = getPriority(b);
+
+      // Priority 1: Waiting requests always stay on top
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+
+      // Priority 2: Within the same status group, order by schedule time
       const dtA = `${a.date || ''} ${a.startTime || ''}`;
       const dtB = `${b.date || ''} ${b.startTime || ''}`;
-      return dtB.localeCompare(dtA);
+      if (dtA && dtB && dtA !== dtB) {
+        // For completed tickets, latest first
+        if (priorityA === 3) {
+          return dtB.localeCompare(dtA);
+        }
+        // For active waiting/setting-up tickets, earliest upcoming meeting first
+        return dtA.localeCompare(dtB);
+      }
+
+      // Fallback tie-breaker: newest ticket ID first
+      return (b.id || '').localeCompare(a.id || '');
     });
 
     return itTickets;
@@ -916,10 +945,17 @@ class ITQueueView {
             </button>
           ` : ''}
 
-          <button type="button" onclick="app.openITAssignPage('${ticket.id}')" class="btn-primary h-9 px-3.5 shrink-0 rounded-xl border border-[#991B1B] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none shadow-xs">
-            <span class="iconify text-sm text-white shrink-0" data-icon="${isAssigned ? 'lucide:user-cog' : 'lucide:user-plus'}" data-stroke-width="2"></span>
-            <span class="text-white leading-none">${isAssigned ? 'Change Staff' : 'Assign Staff'}</span>
-          </button>
+          ${isAssigned ? `
+            <button type="button" onclick="app.openITAssignPage('${ticket.id}')" class="h-9 px-3.5 shrink-0 rounded-xl border border-amber-300 hover:border-amber-400 bg-amber-50/80 hover:bg-amber-100 active:bg-amber-200 text-amber-900 text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none shadow-2xs">
+              <span class="iconify text-sm text-amber-700 shrink-0" data-icon="lucide:user-cog" data-stroke-width="2"></span>
+              <span class="leading-none text-amber-900">Change Staff</span>
+            </button>
+          ` : `
+            <button type="button" onclick="app.openITAssignPage('${ticket.id}')" class="btn-primary h-9 px-3.5 shrink-0 rounded-xl border border-[#991B1B] text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition cursor-pointer active:scale-[0.98] select-none shadow-xs">
+              <span class="iconify text-sm text-white shrink-0" data-icon="lucide:user-plus" data-stroke-width="2"></span>
+              <span class="text-white leading-none">Assign Staff</span>
+            </button>
+          `}
         </div>
 
       </div>

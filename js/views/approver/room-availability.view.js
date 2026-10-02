@@ -7,7 +7,7 @@ window.NBC.views = window.NBC.views || {};
 class RoomAvailabilityView {
   constructor() {
     this.id = 'room-availability';
-    this.selectedDate = '2026-09-11';
+    this.selectedDate = this._getTodayDateString();
     this.searchTerm = '';
     this.roomTypeFilter = 'all';
     this.floorFilter = 'all';
@@ -34,6 +34,45 @@ class RoomAvailabilityView {
     if (!container) return;
     this._bindAppHandlers();
     container.innerHTML = `
+      <style>
+        /* Motion Tokens */
+        :root {
+          --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        /* Enforce Animation Skill Rules */
+        .transition, .transition-all, .transition-colors, .transition-opacity, .transition-transform {
+          transition-timing-function: var(--ease-out) !important;
+          transition-duration: 150ms !important;
+        }
+
+        @keyframes scaleInDropdown {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes fadeInOpacity {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .animate-scale-in {
+          animation: scaleInDropdown 0.2s var(--ease-out) forwards;
+          transform-origin: top;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .animate-scale-in {
+            animation: fadeInOpacity 0.2s ease forwards !important;
+          }
+          .transition, .transition-all, .transition-colors, .transition-opacity, .transition-transform {
+            transition: opacity 0.2s ease !important;
+            transform: none !important;
+          }
+          .hover\:scale-101:hover, .group-hover\:scale-105:hover, .hover\:scale-105:hover {
+            transform: none !important;
+          }
+        }
+      </style>
       <div id="view-room-availability-content" class="w-full h-[calc(100dvh-160px)] flex flex-col space-y-2.5 min-h-0">
         <div class="shrink-0 space-y-2.5">
           ${this._renderHeader()}
@@ -101,14 +140,17 @@ class RoomAvailabilityView {
     this._refreshViewData();
   }
 
+  _getTodayDateString() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
   setAvailabilityDate(dateVal) {
     if (dateVal === 'today') {
-      const now = new Date();
-      const y = now.getFullYear();
-      const m = String(now.getMonth() + 1).padStart(2, '0');
-      const d = String(now.getDate()).padStart(2, '0');
-      // If current real year is 2025/2026, align with demo date
-      this.selectedDate = '2026-09-11';
+      this.selectedDate = this._getTodayDateString();
     } else if (dateVal) {
       this.selectedDate = dateVal;
     }
@@ -528,42 +570,8 @@ class RoomAvailabilityView {
              <span>Shared Room</span>
            </span>`;
 
-      // Render Timeline cells & blocks
-      let timelineContentHtml = '';
-
-      if (blocks.length === 0) {
-        // 100% Available All Day
-        timelineContentHtml = `
-          <div class="absolute inset-x-2 top-2 bottom-2 bg-[#D1FAE5]/85 text-emerald-950 border border-emerald-300/80 rounded-md flex items-center justify-center text-xs font-medium tracking-wide shadow-2xs select-none">
-            Available all day
-          </div>
-        `;
-      } else {
-        // One or more scheduled bookings
-        blocks.forEach(b => {
-          const startMins = this._timeToMinutes(b.startTime);
-          const endMins = this._timeToMinutes(b.endTime);
-
-          const leftPercent = Math.max(0, Math.min(100, ((startMins - (this.timelineStartHour * 60)) / this.timelineTotalMinutes) * 100));
-          const widthPercent = Math.max(8, Math.min(100 - leftPercent, ((endMins - startMins) / this.timelineTotalMinutes) * 100));
-
-          let bgClass = 'bg-[#EF4444] text-white hover:bg-red-600 border border-red-600';
-          if (b.type === 'pending') {
-            bgClass = 'bg-[#FBBF24] text-amber-950 hover:bg-amber-400 border border-amber-500';
-          }
-
-          timelineContentHtml += `
-            <div 
-              onclick="app.openAvailabilitySlotModal('${b.id}', '${room.id}')"
-              style="left: ${leftPercent.toFixed(2)}%; width: ${widthPercent.toFixed(2)}%;"
-              class="absolute top-2 bottom-2 ${bgClass} rounded-md flex items-center justify-center text-[11px] font-bold shadow-2xs cursor-pointer transition-all duration-150 active:scale-[0.98] z-10 px-1 truncate"
-              title="${b.title} (${b.startTime} - ${b.endTime})"
-            >
-              <span class="truncate">${b.startTime} - ${b.endTime}</span>
-            </div>
-          `;
-        });
-      }
+      // Render Timeline cells & blocks (Available periods stay green, booked periods marked red)
+      const timelineContentHtml = this._renderRoomTimeline(room, blocks);
 
       rowsHtml += `
         <tr class="hover:bg-stone-50/50 transition-colors">
@@ -593,24 +601,24 @@ class RoomAvailabilityView {
 
           <!-- Timeline Track -->
           <td class="py-3.5 px-2">
-            <div class="relative w-full h-11 bg-stone-50/40 rounded-lg border border-stone-100 overflow-hidden flex items-center">
-              <!-- 11 Column Hour Grid Guide Lines (07:00 - 18:00) -->
-              <div class="absolute inset-0 grid grid-cols-11 pointer-events-none">
-                <div class="border-r border-stone-200/60"></div>
-                <div class="border-r border-stone-200/60"></div>
-                <div class="border-r border-stone-200/60"></div>
-                <div class="border-r border-stone-200/60"></div>
-                <div class="border-r border-stone-200/60"></div>
-                <div class="border-r border-stone-200/60"></div>
-                <div class="border-r border-stone-200/60"></div>
-                <div class="border-r border-stone-200/60"></div>
-                <div class="border-r border-stone-200/60"></div>
-                <div class="border-r border-stone-200/60"></div>
+            <div class="relative w-full h-11 bg-[#ECFDF5]/50 rounded-lg border border-stone-300 overflow-hidden flex items-center">
+              <!-- Content Blocks (Green Available + Red Booked Slots) -->
+              ${timelineContentHtml}
+
+              <!-- 11 Column Hour Grid Guide Lines (07:00 - 18:00) with darker borders -->
+              <div class="absolute inset-0 grid grid-cols-11 pointer-events-none z-20">
+                <div class="border-r border-stone-400/80"></div>
+                <div class="border-r border-stone-400/80"></div>
+                <div class="border-r border-stone-400/80"></div>
+                <div class="border-r border-stone-400/80"></div>
+                <div class="border-r border-stone-400/80"></div>
+                <div class="border-r border-stone-400/80"></div>
+                <div class="border-r border-stone-400/80"></div>
+                <div class="border-r border-stone-400/80"></div>
+                <div class="border-r border-stone-400/80"></div>
+                <div class="border-r border-stone-400/80"></div>
                 <div></div>
               </div>
-
-              <!-- Content Blocks -->
-              ${timelineContentHtml}
             </div>
           </td>
         </tr>
@@ -626,6 +634,106 @@ class RoomAvailabilityView {
     const h = parseInt(parts[0], 10) || 7;
     const m = parseInt(parts[1], 10) || 0;
     return h * 60 + m;
+  }
+
+  _minutesToTime(mins) {
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  }
+
+  _renderRoomTimeline(room, blocks) {
+    const timelineStartMins = this.timelineStartHour * 60; // 420 (07:00)
+    const timelineEndMins = this.timelineEndHour * 60;     // 1080 (18:00)
+    const totalMins = this.timelineTotalMinutes;           // 660
+
+    // Filter and sanitize valid blocks within [07:00, 18:00]
+    const validBookings = [];
+    (blocks || []).forEach(b => {
+      const start = Math.max(timelineStartMins, Math.min(timelineEndMins, this._timeToMinutes(b.startTime)));
+      const end = Math.max(timelineStartMins, Math.min(timelineEndMins, this._timeToMinutes(b.endTime)));
+      if (end > start) {
+        validBookings.push({
+          ...b,
+          startMins: start,
+          endMins: end
+        });
+      }
+    });
+
+    // Sort bookings chronologically
+    validBookings.sort((a, b) => a.startMins - b.startMins);
+
+    let html = '';
+
+    // If room is completely free all day
+    if (validBookings.length === 0) {
+      html += `
+        <div class="absolute inset-x-1.5 top-1.5 bottom-1.5 bg-[#D1FAE5] text-emerald-950 border border-emerald-300 rounded-md flex items-center justify-center text-xs font-semibold tracking-wide shadow-2xs select-none z-10 transition-all">
+          Available all day
+        </div>
+      `;
+    } else {
+      let cursor = timelineStartMins;
+
+      validBookings.forEach(b => {
+        // 1. Available free time preceding this booking (stays green)
+        if (b.startMins > cursor) {
+          const availLeft = ((cursor - timelineStartMins) / totalMins) * 100;
+          const availWidth = ((b.startMins - cursor) / totalMins) * 100;
+          const showText = availWidth >= 16;
+          html += `
+            <div 
+              style="left: ${availLeft.toFixed(2)}%; width: ${availWidth.toFixed(2)}%;"
+              class="absolute top-1.5 bottom-1.5 bg-[#D1FAE5] text-emerald-950 border border-emerald-300 rounded-md flex items-center justify-center text-[11px] font-semibold shadow-2xs select-none z-10 px-1 truncate transition-all hover:bg-[#C2F3D9]"
+              title="Available (${this._minutesToTime(cursor)} - ${this._minutesToTime(b.startMins)})"
+            >
+              ${showText ? '<span class="truncate">Available</span>' : ''}
+            </div>
+          `;
+        }
+
+        // 2. Booked slot (Red for occupied / Confirmed, Amber for pending)
+        const bookLeft = ((b.startMins - timelineStartMins) / totalMins) * 100;
+        const bookWidth = ((b.endMins - b.startMins) / totalMins) * 100;
+
+        let bgClass = 'bg-[#EF4444] text-white hover:bg-red-600 border border-red-600';
+        if (b.type === 'pending') {
+          bgClass = 'bg-[#FBBF24] text-amber-950 hover:bg-amber-400 border border-amber-500';
+        }
+
+        html += `
+          <div 
+            onclick="app.openAvailabilitySlotModal('${b.id}', '${room.id}')"
+            style="left: ${bookLeft.toFixed(2)}%; width: ${bookWidth.toFixed(2)}%;"
+            class="absolute top-1.5 bottom-1.5 ${bgClass} rounded-md flex items-center justify-center text-[11px] font-bold shadow-2xs cursor-pointer transition-all duration-150 active:scale-[0.98] z-10 px-1 truncate"
+            title="${b.title || 'Meeting'} (${b.startTime} - ${b.endTime})"
+          >
+            <span class="truncate">${b.startTime} - ${b.endTime}</span>
+          </div>
+        `;
+
+        cursor = Math.max(cursor, b.endMins);
+      });
+
+      // 3. Available free time after the last booking until 18:00 (stays green)
+      if (cursor < timelineEndMins) {
+        const availLeft = ((cursor - timelineStartMins) / totalMins) * 100;
+        const availWidth = ((timelineEndMins - cursor) / totalMins) * 100;
+        const showText = availWidth >= 16;
+        html += `
+          <div 
+            style="left: ${availLeft.toFixed(2)}%; width: ${availWidth.toFixed(2)}%;"
+            class="absolute top-1.5 bottom-1.5 bg-[#D1FAE5] text-emerald-950 border border-emerald-300 rounded-md flex items-center justify-center text-[11px] font-semibold shadow-2xs select-none z-10 px-1 truncate transition-all hover:bg-[#C2F3D9]"
+            title="Available (${this._minutesToTime(cursor)} - ${this._minutesToTime(timelineEndMins)})"
+          >
+            ${showText ? '<span class="truncate">Available</span>' : ''}
+          </div>
+        `;
+      }
+    }
+
+    return html;
   }
 
   openAvailabilitySlotModal(slotId, roomId) {

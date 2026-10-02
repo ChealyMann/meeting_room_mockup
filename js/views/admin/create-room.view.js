@@ -92,6 +92,52 @@ class CreateRoomView {
       <style>
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+        
+        /* Motion Tokens */
+        :root {
+          --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        /* Enforce Animation Skill Rules for native Tailwind transition classes */
+        .transition, .transition-all, .transition-colors, .transition-opacity, .transition-transform {
+          transition-timing-function: var(--ease-out) !important;
+          transition-duration: 150ms !important;
+        }
+
+        /* Step & Container Animations */
+        @keyframes fadeInScale {
+          from { opacity: 0; transform: scale(0.97); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes scaleInDropdown {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes fadeInOpacity {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .animate-fade-in {
+          animation: fadeInScale 0.2s var(--ease-out) forwards;
+        }
+        .animate-scale-in {
+          animation: scaleInDropdown 0.2s var(--ease-out) forwards;
+          transform-origin: top;
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+          .animate-fade-in, .animate-scale-in {
+            animation: fadeInOpacity 0.2s ease forwards !important;
+          }
+          .transition, .transition-all, .transition-colors, .transition-opacity, .transition-transform {
+            transition: opacity 0.2s ease !important;
+            transform: none !important;
+          }
+          .hover\:scale-101:hover, .group-hover\:scale-105:hover, .hover\:scale-105:hover {
+            transform: none !important;
+          }
+        }
       </style>
       <!-- Top Action Breadcrumb Bar with 3-Step Wizard Tracker -->
       <div class="pb-2 mb-4 border-b border-stone-200">

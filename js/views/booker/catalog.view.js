@@ -8,8 +8,28 @@ window.NBC.views['book-room'] = {
   _unsubscribeStore: null,
   _vueInstance: null,
 
-  // Official NBC Building Hierarchy Structure (Phnom Penh HQ, IT, Branch, Provinces)
+  // Official NBC Building Hierarchy Structure (អគារក្បាលដី, អគារដែក, Phnom Penh HQ, IT, Branch, Provinces)
   hierarchyGroups: [
+    {
+      id: 'kbal-dei',
+      title: 'National Bank of Cambodia - អគារក្បាលដី',
+      pillIcon: 'lucide:landmark',
+      pillLabel: 'អគារក្បាលដី',
+      matches: (room) => {
+        const loc = (room.location || '').toLowerCase();
+        return loc.includes('ក្បាលដី') || loc.includes('kbal dei');
+      }
+    },
+    {
+      id: 'daek',
+      title: 'National Bank of Cambodia - អគារដែក',
+      pillIcon: 'lucide:building',
+      pillLabel: 'អគារដែក',
+      matches: (room) => {
+        const loc = (room.location || '').toLowerCase();
+        return loc.includes('ដែក') || loc.includes('daek');
+      }
+    },
     {
       id: 'hq',
       title: 'Headquarters (Wat Phnom)',
@@ -19,10 +39,12 @@ window.NBC.views['book-room'] = {
         const loc = (room.location || '').toLowerCase();
         const prov = (room.province || '').toLowerCase();
         return (
-          loc.includes('headquarters') ||
+          !loc.includes('ក្បាលដី') &&
+          !loc.includes('ដែក') &&
+          (loc.includes('headquarters') ||
           (prov.includes('phnom penh') &&
             !loc.includes('it department') &&
-            !loc.includes('branch'))
+            !loc.includes('branch')))
         );
       }
     },
@@ -468,7 +490,63 @@ window.NBC.views['book-room'] = {
       },
 
       template: `
-        <div class="space-y-5">
+        <div class="space-y-5 catalog-motion-ui">
+          <style>
+          /* Motion Tokens from Animate Skill */
+          .catalog-motion-ui {
+            --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+            --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+          }
+
+          /* Room List FLIP Animations */
+          .room-list-move {
+            transition: transform 0.25s var(--ease-in-out);
+          }
+          .room-list-enter-active,
+          .room-list-leave-active {
+            transition: all 0.2s var(--ease-out);
+          }
+          .room-list-leave-active {
+            position: absolute;
+            z-index: 0;
+          }
+          .room-list-enter-from,
+          .room-list-leave-to {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+
+          /* Empty State / Sections Transition */
+          .fade-scale-enter-active,
+          .fade-scale-leave-active {
+            transition: all 0.2s var(--ease-out);
+          }
+          .fade-scale-enter-from,
+          .fade-scale-leave-to {
+            opacity: 0;
+            transform: scale(0.98);
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .room-list-move,
+            .room-list-enter-active,
+            .room-list-leave-active,
+            .fade-scale-enter-active,
+            .fade-scale-leave-active {
+              transition: opacity 0.2s ease !important;
+            }
+            .room-list-enter-from,
+            .room-list-leave-to,
+            .fade-scale-enter-from,
+            .fade-scale-leave-to {
+              transform: none !important;
+            }
+            .catalog-room-card:hover img {
+              transform: none !important;
+            }
+          }
+          </style>
+
           <section class="sticky-catalog-navbar -mx-3.5 sm:-mx-5 lg:-mx-6 xl:-mx-8 px-3.5 sm:px-5 lg:px-6 xl:px-8 -mt-3.5 sm:-mt-5 lg:-mt-6 xl:-mt-6 pt-3.5 sm:pt-5 lg:pt-6 xl:pt-6 pb-4 border-b border-[#E9E3DD]/80" aria-label="Room search and filters">
             <div class="bg-white rounded-2xl border border-[#E9E3DD] shadow-xs p-4 sm:p-5 space-y-4">
               <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-end">
@@ -527,73 +605,75 @@ window.NBC.views['book-room'] = {
             <span class="font-mono text-xs">{{ dateRangeLabel || 'Across NBC locations' }}</span>
           </div>
 
-          <div v-if="matchingRooms.length === 0" class="animate-empty-state py-12 px-6 text-center bg-white rounded-2xl border border-[#E9E3DD] shadow-2xs space-y-3.5 max-w-xl mx-auto my-6" role="status">
-            <div class="w-14 h-14 rounded-2xl bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center mx-auto shadow-2xs">
-              <app-icon icon="lucide:door-closed" class-name="text-2xl text-[#991B1B]" :stroke-width="1.8" />
-            </div>
-            <h3 class="text-base sm:text-lg font-heading font-bold text-[#3E2B1E] tracking-tight">No Matching Rooms Found</h3>
-            <p class="text-xs sm:text-sm text-[#6F5849] max-w-md mx-auto leading-relaxed">{{ dateRangeError || (hasDateRange ? 'No room is available for every day in the selected range.' : searchQuery.trim() ? 'Try a different search term.' : 'Try a different location or room type.') }}</p>
-            <button @click="resetAllFilters" class="btn-secondary h-9 px-4 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-2 border border-[#E9E3DD] bg-white hover:bg-[#FAF7F4] text-[#3E2B1E] transition cursor-pointer shadow-2xs active:scale-[0.98]" type="button">
-              <app-icon icon="lucide:rotate-ccw" class-name="text-xs text-[#7D6857]" />
-              <span>Reset Filters</span>
-            </button>
-          </div>
-
-          <div v-else :key="currentBuildingFilter + '-' + currentStatusFilter" class="catalog-view-container space-y-9 flex flex-col pt-1">
-            <section v-for="group in displayedSections" :key="group.id" class="space-y-5" :data-building-id="group.id">
-              <!-- Sleek Pure Editorial Typography Location Header: No icons, clean bold heading + subtle count -->
-              <div class="flex items-center justify-between pb-2.5 border-b border-[#E9E3DD]">
-                <h2 class="font-heading font-bold text-base sm:text-lg text-[#3E2B1E] tracking-tight truncate">{{ group.title }}</h2>
-                <span class="font-mono text-xs font-medium text-[#7D6857] shrink-0 ml-3">{{ group.rooms.length }} {{ group.rooms.length === 1 ? 'room' : 'rooms' }}</span>
+          <Transition name="fade-scale" mode="out-in">
+            <div v-if="matchingRooms.length === 0" class="animate-empty-state py-12 px-6 text-center bg-white rounded-2xl border border-[#E9E3DD] shadow-2xs space-y-3.5 max-w-xl mx-auto my-6" role="status">
+              <div class="w-14 h-14 rounded-2xl bg-[#FAF7F4] border border-[#E9E3DD] text-[#991B1B] flex items-center justify-center mx-auto shadow-2xs">
+                <app-icon icon="lucide:door-closed" class-name="text-2xl text-[#991B1B]" :stroke-width="1.8" />
               </div>
+              <h3 class="text-base sm:text-lg font-heading font-bold text-[#3E2B1E] tracking-tight">No Matching Rooms Found</h3>
+              <p class="text-xs sm:text-sm text-[#6F5849] max-w-md mx-auto leading-relaxed">{{ dateRangeError || (hasDateRange ? 'No room is available for every day in the selected range.' : searchQuery.trim() ? 'Try a different search term.' : 'Try a different location or room type.') }}</p>
+              <button @click="resetAllFilters" class="btn-secondary h-9 px-4 rounded-xl text-xs font-semibold inline-flex items-center justify-center gap-2 border border-[#E9E3DD] bg-white hover:bg-[#FAF7F4] text-[#3E2B1E] transition-all duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer shadow-2xs active:scale-[0.98]" type="button">
+                <app-icon icon="lucide:rotate-ccw" class-name="text-xs text-[#7D6857]" />
+                <span>Reset Filters</span>
+              </button>
+            </div>
 
-              <!-- Flat Room Cards Grid (Floor hierarchy completely removed) -->
-              <div class="rooms-section-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                <article v-for="room in group.rooms" :key="room.id" class="catalog-room-card bg-white rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition flex flex-col group" :class="getRoomBorderClass(room)">
-                  <!-- Image Header -->
-                  <div class="relative h-44 bg-[#F4EFEA] overflow-hidden">
-                    <img :src="room.image || 'assets/rooms/61b926e2-2e73-4e0a-8d01-7d9f45ed2d46.png'" :alt="room.name || 'Meeting Room'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" @error="handleImgError" />
-                    <div class="absolute top-3 left-3 bg-[#260707]/80 backdrop-blur-xs text-white text-xs font-mono px-2.5 py-1 rounded-lg">
-                      {{ formatFloorShort(room.floor) }}
-                    </div>
-                    <div class="absolute top-3 right-3 text-xs font-semibold px-2.5 py-1 rounded-lg" :class="room.isPrivate ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'">
-                      {{ room.isPrivate ? 'Private' : 'Shared' }}
-                    </div>
-                  </div>
+            <div v-else :key="currentBuildingFilter + '-' + currentStatusFilter" class="catalog-view-container space-y-9 flex flex-col pt-1">
+              <section v-for="group in displayedSections" :key="group.id" class="space-y-5" :data-building-id="group.id">
+                <!-- Sleek Pure Editorial Typography Location Header: No icons, clean bold heading + subtle count -->
+                <div class="flex items-center justify-between pb-2.5 border-b border-[#E9E3DD]">
+                  <h2 class="font-heading font-bold text-base sm:text-lg text-[#3E2B1E] tracking-tight truncate">{{ group.title }}</h2>
+                  <span class="font-mono text-xs font-medium text-[#7D6857] shrink-0 ml-3">{{ group.rooms.length }} {{ group.rooms.length === 1 ? 'room' : 'rooms' }}</span>
+                </div>
 
-                  <!-- Card Content -->
-                  <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
-                    <div>
-                      <h3 class="text-base font-bold text-[#3E2B1E] leading-snug line-clamp-1" :title="room.name || 'Untitled Room'">{{ room.name || 'Untitled Room' }}</h3>
-                      <p class="text-xs text-[#6F5849] mt-0.5 truncate" :title="room.location || ''">{{ room.location || 'Headquarters' }}</p>
-
-                      <div class="flex items-center gap-4 text-xs font-medium text-[#6F5849] mt-3 pt-2 border-t border-[#E9E3DD]/60">
-                        <span class="flex items-center gap-1.5 shrink-0">
-                          <app-icon icon="lucide:users" class-name="text-[#7D6857]" />
-                          {{ Number(room.capacity) || 0 }} Seats
-                        </span>
-                        <span class="flex items-center gap-1.5 min-w-0" :title="getPrimaryFeature(room).label">
-                          <app-icon :icon="getPrimaryFeature(room).icon" class-name="text-[#7D6857] shrink-0" />
-                          <span class="truncate">{{ getPrimaryFeature(room).label }}</span>
-                        </span>
+                <!-- Flat Room Cards Grid (Floor hierarchy completely removed) -->
+                <TransitionGroup name="room-list" tag="div" class="rooms-section-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 relative">
+                  <article v-for="room in group.rooms" :key="room.id" class="catalog-room-card bg-white rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] flex flex-col group" :class="getRoomBorderClass(room)">
+                    <!-- Image Header -->
+                    <div class="relative h-44 bg-[#F4EFEA] overflow-hidden">
+                      <img :src="room.image || 'assets/rooms/61b926e2-2e73-4e0a-8d01-7d9f45ed2d46.png'" :alt="room.name || 'Meeting Room'" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]" @error="handleImgError" />
+                      <div class="absolute top-3 left-3 bg-[#260707]/80 backdrop-blur-xs text-white text-xs font-mono px-2.5 py-1 rounded-lg">
+                        {{ formatFloorShort(room.floor) }}
+                      </div>
+                      <div class="absolute top-3 right-3 text-xs font-semibold px-2.5 py-1 rounded-lg" :class="room.isPrivate ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'">
+                        {{ room.isPrivate ? 'Private' : 'Shared' }}
                       </div>
                     </div>
 
-                    <!-- Card Actions -->
-                    <div class="pt-2 flex items-center gap-2">
-                      <button @click="handleDetails(room)" class="flex-1 h-9 rounded-xl border border-[#E9E3DD] hover:bg-[#FAF7F4] active:bg-[#E9E3DD] text-xs font-semibold text-[#3E2B1E] transition cursor-pointer" type="button">
-                        View Details
-                      </button>
-                      <button @click="handleProceed(room)" class="flex-1 h-9 rounded-xl bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs" type="button">
-                        <app-icon icon="lucide:calendar" class-name="text-white text-xs" />
-                        <span>{{ isOtherPrivate(room) ? 'Request' : 'Book' }}</span>
-                      </button>
+                    <!-- Card Content -->
+                    <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+                      <div>
+                        <h3 class="text-base font-bold text-[#3E2B1E] leading-snug line-clamp-1" :title="room.name || 'Untitled Room'">{{ room.name || 'Untitled Room' }}</h3>
+                        <p class="text-xs text-[#6F5849] mt-0.5 truncate" :title="room.location || ''">{{ room.location || 'Headquarters' }}</p>
+
+                        <div class="flex items-center gap-4 text-xs font-medium text-[#6F5849] mt-3 pt-2 border-t border-[#E9E3DD]/60">
+                          <span class="flex items-center gap-1.5 shrink-0">
+                            <app-icon icon="lucide:users" class-name="text-[#7D6857]" />
+                            {{ Number(room.capacity) || 0 }} Seats
+                          </span>
+                          <span class="flex items-center gap-1.5 min-w-0" :title="getPrimaryFeature(room).label">
+                            <app-icon :icon="getPrimaryFeature(room).icon" class-name="text-[#7D6857] shrink-0" />
+                            <span class="truncate">{{ getPrimaryFeature(room).label }}</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      <!-- Card Actions -->
+                      <div class="pt-2 flex items-center gap-2">
+                        <button @click="handleDetails(room)" class="flex-1 h-9 rounded-xl border border-[#E9E3DD] hover:bg-[#FAF7F4] active:bg-[#E9E3DD] text-xs font-semibold text-[#3E2B1E] transition-all duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer" type="button">
+                          View Details
+                        </button>
+                        <button @click="handleProceed(room)" class="flex-1 h-9 rounded-xl bg-[#991B1B] hover:bg-[#7F1D1D] active:bg-[#691515] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer shadow-xs" type="button">
+                          <app-icon icon="lucide:calendar" class-name="text-white text-xs" />
+                          <span>{{ isOtherPrivate(room) ? 'Request' : 'Book' }}</span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </article>
-              </div>
-            </section>
-          </div>
+                  </article>
+                </TransitionGroup>
+              </section>
+            </div>
+          </Transition>
         </div>
       `
     });

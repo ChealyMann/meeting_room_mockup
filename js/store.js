@@ -3,10 +3,12 @@
 
 class BankBookingStore {
   constructor() {
-    this.STORAGE_KEY = 'nbc_meeting_rooms_v20';
+    this.STORAGE_KEY = 'nbc_meeting_rooms_v22';
     this.listeners = [];
     // Clean up legacy storage versions
     try {
+      localStorage.removeItem('nbc_meeting_rooms_v21');
+      localStorage.removeItem('nbc_meeting_rooms_v20');
       localStorage.removeItem('nbc_meeting_rooms_v19');
       localStorage.removeItem('nbc_meeting_rooms_v18');
       localStorage.removeItem('nbc_meeting_rooms_v17');
@@ -1227,6 +1229,7 @@ class BankBookingStore {
         ? `${sessions.length} Sessions (${sessions.map(s => s.date.slice(5) + ' ' + s.startTime).join(', ')})`
         : `${sessions[0].startTime} - ${sessions[0].endTime}`,
       attendees: attendeesCount,
+      participantEmails: (data.participantEmails && Array.isArray(data.participantEmails)) ? [...data.participantEmails] : [],
       meetingPurpose: data.meetingPurpose || (isPrivate ? "Private executive meeting" : "Team discussion"),
       isPrivateRequest: isPrivate,
       isMyRoom: isMyRoom,
@@ -1886,8 +1889,9 @@ class BankBookingStore {
   }
 
   getRoomAvailability(dateStr = null) {
-    const today = new Date().toISOString().split('T')[0];
-    const targetDate = dateStr || '2026-09-11';
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const targetDate = dateStr || today;
 
     // Canonical order matching the specification and reference UI
     const preferredOrder = [
@@ -1973,7 +1977,7 @@ class BankBookingStore {
       });
 
       let overallStatus = 'available';
-      if (isCurrentlyOccupied || (targetDate !== '2026-09-11' && blocks.some(b => b.type === 'occupied'))) {
+      if (isCurrentlyOccupied || blocks.some(b => b.type === 'occupied')) {
         overallStatus = 'occupied';
         occupiedRoomsCount++;
       } else {
