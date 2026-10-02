@@ -298,13 +298,6 @@ class BookingFormView {
                 </div>
               </div>
 
-              <!-- Mandatory Business Justification for Private Room -->
-              <div id="form-private-justification-group" class="hidden p-3.5 bg-amber-50/80 rounded-xl border border-amber-300/90 space-y-2 animate-fade-in">
-                <label class="form-label mb-0 text-amber-950 font-bold text-xs leading-tight block" for="form-private-justification">
-                  <span>Reason for Private Room <span class="text-red-700">*</span></span>
-                </label>
-                <textarea id="form-private-justification" rows="3" placeholder="e.g. All standard meeting rooms are occupied today. Confidential executive session required." class="bank-input text-xs bg-white leading-relaxed resize-none w-full"></textarea>
-              </div>
 
               <!-- Expected Attendees -->
               <div class="form-field-group">
@@ -977,11 +970,7 @@ class BookingFormView {
                             <h5 id="step4-meeting-title" class="font-bold text-xs sm:text-sm text-[#3E2B1E] truncate mt-0.5">Q4 Strategy Sync</h5>
                             <p id="step4-meeting-notes" class="text-xs text-[#6F5849] line-clamp-2 mt-1 leading-relaxed">General departmental meeting and discussion.</p>
                           </div>
-                          <!-- Conditional Private Room Justification -->
-                          <div id="step4-justification-card" class="hidden pt-1.5 border-t border-amber-200/80">
-                            <span class="text-[10px] font-bold text-amber-900 uppercase tracking-wider block">Reason for Private Room:</span>
-                            <p id="step4-justification-text" class="text-xs text-amber-950 italic leading-relaxed line-clamp-2 mt-0.5"></p>
-                          </div>
+
                         </div>
                       </div>
 
@@ -1629,18 +1618,7 @@ class BookingFormView {
         : 'px-1.5 py-0.5 rounded text-[9px] font-bold bg-stone-200/80 text-stone-700 shrink-0';
     }
 
-    // Toggle private justification textarea group (only required when requesting someone else's room)
-    const pvtJustGroup = document.getElementById('form-private-justification-group');
-    const pvtJustTextarea = document.getElementById('form-private-justification');
-    if (pvtJustGroup) {
-      pvtJustGroup.classList.toggle('hidden', !isPrivate || isMyRoom);
-    }
-    if (pvtJustTextarea) {
-      pvtJustTextarea.required = isPrivate && !isMyRoom;
-      if (isPrivate && !isMyRoom && !pvtJustTextarea.value) {
-        pvtJustTextarea.value = "All standard meeting rooms are occupied today. Confidential executive session required.";
-      }
-    }
+
 
     // Header room owner badge
     const headerOwnerBadge = document.getElementById('form-header-owner-badge');
@@ -3010,19 +2988,6 @@ class BookingFormView {
         return;
       }
 
-      const roomId = document.getElementById('form-room-id')?.value;
-      const room = bookingStore.getRoomById(roomId);
-      const isPrivate = !!room?.isPrivate;
-      const isMyRoom = isPrivate && (room.id === 'ROOM-107' || room.roomOwner?.name === 'Jonathan Vance' || room.roomOwner?.id === 'OWNER-VANCE');
-
-      if (isPrivate && !isMyRoom) {
-        const justInput = document.getElementById('form-private-justification');
-        if (!justInput || !justInput.value.trim()) {
-          this.showToast("Reason Required", "Please write why you need this private room.", "error");
-          justInput?.focus();
-          return;
-        }
-      }
     }
 
     if (stepNumber === 3) {
@@ -3422,18 +3387,7 @@ class BookingFormView {
     if (step4Phone) step4Phone.innerText = staffPhone;
     if (step4Email) step4Email.innerText = staffEmail;
 
-    // Private Justification
-    const justificationCard = document.getElementById('step4-justification-card');
-    const justificationText = document.getElementById('step4-justification-text');
-    if (justificationCard) {
-      if (isPrivate && !isMyRoom) {
-        const reason = document.getElementById('form-private-justification')?.value?.trim() || 'Confidential banking session requiring executive private room isolation.';
-        justificationCard.classList.remove('hidden');
-        if (justificationText) justificationText.innerText = `"${reason}"`;
-      } else {
-        justificationCard.classList.add('hidden');
-      }
-    }
+
 
     // Participant Emails Review in Step 4
     const step4PartSec = document.getElementById('step4-participants-container');
@@ -3653,19 +3607,7 @@ class BookingFormView {
     const room = bookingStore.getRoomById(roomId);
     const isPrivate = !!room?.isPrivate;
     const isMyRoom = isPrivate && (room.id === 'ROOM-107' || room.roomOwner?.name === 'Jonathan Vance' || room.roomOwner?.id === 'OWNER-VANCE');
-
-    let privateJustification = '';
-    if (isPrivate && !isMyRoom) {
-      privateJustification = document.getElementById('form-private-justification')?.value.trim();
-      if (!privateJustification) {
-        this.showToast("Reason Required", "Please write why you need this private room.", "error");
-        this.bookingFormGoToStep(2);
-        document.getElementById('form-private-justification')?.focus();
-        return;
-      }
-    } else if (isMyRoom) {
-      privateJustification = "Room Owner Direct Booking";
-    }
+    const privateJustification = isPrivate ? (isMyRoom ? "Room Owner Direct Booking" : "Private Room Booking") : "";
 
     const meetingTitle = document.getElementById('form-meeting-title')?.value.trim() || '';
     if (!meetingTitle) {
@@ -3689,7 +3631,7 @@ class BookingFormView {
     const attendees = document.getElementById('form-attendees').value;
     const startTime = document.getElementById('form-start-time').value;
     const endTime = document.getElementById('form-end-time').value;
-    const meetingPurpose = document.getElementById('form-purpose').value.trim() || (isPrivate ? `Private Room: ${privateJustification}` : 'General Meeting');
+    const meetingPurpose = document.getElementById('form-purpose').value.trim() || (isPrivate ? 'Private Room Session' : 'General Meeting');
 
     // Catering selection
     const needsCatering = document.getElementById('catering-toggle')?.checked;
